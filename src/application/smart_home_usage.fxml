@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="1000.0" prefWidth="1600.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeUsageController">
+   <children>
+      <VBox layoutX="10.0" layoutY="10.0" prefHeight="1000.0" prefWidth="1600.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <ButtonBar prefHeight="25.0" prefWidth="285.0">
+              <buttons>
+                <Button fx:id="homeButton" mnemonicParsing="false" onAction="#homeButtonPressed" text="Home" />
+                  <Button mnemonicParsing="false" text="Usage" />
+                  <Button fx:id="diagnosticsButton" mnemonicParsing="false" onAction="#diagnosticsButtonPressed" text="Diagnostics" />
+              </buttons>
+            </ButtonBar>
+            <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
+               <children>
+                  <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1F1F1F;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="930.0" prefWidth="790.0">
+                           <children>
+                              <TextArea prefHeight="537.0" prefWidth="790.0" text="GRAPH WILL GO HERE" />
+                              <ChoiceBox fx:id="monthChoiceBox" prefWidth="150.0" />
+                           </children>
+                        </VBox>
+                     </children></Pane>
+                  <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1F1F1F;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="930.0" prefWidth="790.0">
+                           <children>
+                              <TextArea prefHeight="541.0" prefWidth="790.0" text="TABLE WILL GO HERE&#10;" />
+                              <ChoiceBox fx:id="monthChoiceBox1" prefWidth="150.0" />
+                           </children>
+                        </VBox>
+                     </children></Pane>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</AnchorPane>

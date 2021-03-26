@@ -2,19 +2,36 @@ package application;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.sun.jdi.event.Event;
+
+import javafx.animation.PauseTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class SmartHomeController implements Initializable{
-	private int temperature;
+	private int temperatureCurrent;
+	private int temperatureSet;
+	private int temperatureOutside;
+	private Scene secondScene;
+	private Scene thirdScene;
 	@FXML
 	private Button increaseTemperatureButton;
 	@FXML
@@ -28,21 +45,66 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private TextField temperatureTextField;
 	@FXML
+	private TextField temperatureOutsideTextField;
+	@FXML
 	private Pane pane;
 	@FXML
 	private ImageView imageView;
+	
 		
 	@FXML
+	// increments temperatureSet and displays "set to" temperature for three seconds before returning to current temperature TODO improve the text transition
 	public void increaseTemperatureButtonPressed() {
-		temperature = temperature + 1;
-		temperatureTextField.setText(String.valueOf(temperature));
-		//tell ac unit to do work
+		temperatureSet = temperatureSet + 1;
+		temperatureTextField.setText("Set to " + String.valueOf(temperatureSet));
+		PauseTransition visiblePause = new PauseTransition(
+		        Duration.seconds(3)
+		);
+		visiblePause.setOnFinished(
+		        event -> temperatureTextField.setText(String.valueOf(temperatureCurrent))
+		);
+		visiblePause.play();
+		
+		//TODO tell ac unit to do work
 	}
 	@FXML
+	// decrements temperatureSet and displays "set to" temperature for three seconds before returning to current temperature TODO improve the text transition
 	public void decreaseTemperatureButtonPressed() {
-		temperature = temperature - 1;
-		temperatureTextField.setText(String.valueOf(temperature));
+		temperatureSet = temperatureSet - 1;
+		temperatureTextField.setText("Set to " + String.valueOf(temperatureSet));
+		PauseTransition visiblePause = new PauseTransition(
+		        Duration.seconds(3)
+		);
+		visiblePause.setOnFinished(
+		        event -> temperatureTextField.setText(String.valueOf(temperatureCurrent))
+		);
+		visiblePause.play();
 		//tell ac unit to do work
+	}
+	
+	// sets the usage scene
+	public void setUsageScene(Scene scene) {
+		secondScene = scene;
+	}
+	
+	// sets the diagnostics scene
+	public void setDiagnosticsScene(Scene scene) {
+		thirdScene = scene;
+	}
+	
+	@FXML
+	// event listener for usage button that sets the scene to usage page
+	public void usageButtonPressed(ActionEvent actionEvent) {
+		Stage primaryStage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+		primaryStage.setScene(secondScene);
+	}
+	
+	@FXML
+	// event listener for diagnostics button that sets the scene to diagnostics page
+	public void diagnosticsButtonPressed(ActionEvent actionEvent) {
+		Stage primaryStage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+		primaryStage.setScene(thirdScene);
+		actionEvent.consume();
 	}
 	
 	// Creates an Image object from a String url
@@ -68,10 +130,12 @@ public class SmartHomeController implements Initializable{
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		temperature = 72;
-		temperatureTextField.setText(String.valueOf(temperature));
+		temperatureCurrent = 72;
+		temperatureSet = temperatureCurrent;
+		temperatureTextField.setText(String.valueOf(temperatureCurrent));
+		// TODO this house floor plan is a placeholder and not the actual house
 		setImageView(openImage("house.png"));
 		pane.getChildren().add(imageView);
-		
 	}
+
 }

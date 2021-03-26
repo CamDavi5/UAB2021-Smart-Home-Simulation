@@ -6,14 +6,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 
-public class Singleton {
+public class Singleton_DEPRECATED {
 	
 	private BorderPane rootLayout;
 	
-	private static Singleton uniqueInstance;
+	private static Singleton_DEPRECATED uniqueInstance;
 	public Scene _scene;
 	public BorderPane _rootLayout;
-	private Singleton() {
+	private Singleton_DEPRECATED() {
 		try {
 	    	FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(Main.class.getResource("RootLayout.fxml"));
@@ -26,9 +26,9 @@ public class Singleton {
          _scene = scene;
 	}
 	
-	public static Singleton getInstance() {
+	public static Singleton_DEPRECATED getInstance() {
 		if (uniqueInstance == null) {
-			uniqueInstance = new Singleton();
+			uniqueInstance = new Singleton_DEPRECATED();
 		}
 		return uniqueInstance;
 	}
