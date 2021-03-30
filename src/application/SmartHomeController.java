@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.sun.javafx.geom.Shape;
 import com.sun.jdi.event.Event;
 
 import javafx.animation.PauseTransition;
@@ -22,7 +23,10 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -138,4 +142,17 @@ public class SmartHomeController implements Initializable{
 //		pane.getChildren().add(imageView);
 	}
 
+	
+	@FXML
+	public void toggleLightingPower (MouseEvent event) {
+		Circle itemClicked = (Circle) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "Red";
+		String offColor = "Yellow";
+		if (currentColor == Paint.valueOf(offColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+		} else if (currentColor == Paint.valueOf(onColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+		}
+	}
 }
