@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -72,21 +71,18 @@
                               <Font size="50.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="15.0" left="15.0" right="15.0" top="5.0" />
+                              <Insets left="15.0" right="15.0" top="5.0" />
                            </VBox.margin>
                         </TextField>
-                        <Pane prefHeight="166.0" prefWidth="135.0" stylesheets="@dark.css">
-                           <padding>
-                              <Insets left="25.0" right="25.0" />
-                           </padding>
+                        <Pane prefHeight="172.0" prefWidth="226.0" stylesheets="@dark.css">
                            <VBox.margin>
-                              <Insets left="15.0" />
+                              <Insets left="15.0" right="15.0" />
                            </VBox.margin>
                            <children>
-                              <ToggleButton layoutX="16.0" layoutY="7.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="198.0" text="ToggleButton" />
-                              <ToggleButton layoutX="16.0" layoutY="44.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="198.0" text="ToggleButton" />
-                              <ToggleButton layoutX="16.0" layoutY="81.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="198.0" text="ToggleButton" />
-                              <ToggleButton layoutX="16.0" layoutY="118.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="198.0" text="ToggleButton" />
+                              <Button layoutX="13.0" layoutY="11.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="All Lights On" />
+                              <Button layoutX="13.0" layoutY="122.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="All Doors Locked" />
+                              <Button layoutX="13.0" layoutY="85.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="Entertainment On" />
+                              <Button layoutX="13.0" layoutY="48.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="Garage Door Open" />
                            </children>
                         </Pane>
                         <TextArea prefHeight="151.0" prefWidth="256.0" style="-fx-background-color: ffffff;" text="Quick status field">
