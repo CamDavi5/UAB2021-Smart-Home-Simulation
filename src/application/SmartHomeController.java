@@ -134,8 +134,8 @@ public class SmartHomeController implements Initializable{
 		temperatureSet = temperatureCurrent;
 		temperatureTextField.setText(String.valueOf(temperatureCurrent));
 		// TODO this house floor plan is a placeholder and not the actual house
-		setImageView(openImage("house.png"));
-		pane.getChildren().add(imageView);
+//		setImageView(openImage("house.png"));
+//		pane.getChildren().add(imageView);
 	}
 
 }

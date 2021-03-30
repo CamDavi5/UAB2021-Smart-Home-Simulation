@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="1000.0" prefWidth="1600.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeDiagnosticsController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeDiagnosticsController">
    <children>
-      <VBox layoutX="10.0" layoutY="10.0" prefHeight="1000.0" prefWidth="1600.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox layoutX="10.0" layoutY="10.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <ButtonBar prefHeight="25.0" prefWidth="285.0">
               <buttons>
@@ -24,31 +24,31 @@
                <children>
                   <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1F1F1F;" HBox.hgrow="ALWAYS">
                      <children>
-                        <Button layoutX="565.0" layoutY="356.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="Button" />
-                        <Button layoutX="565.0" layoutY="72.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="ALL LIGHTS OFF">
+                        <Button layoutX="508.0" layoutY="231.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
+                        <Button layoutX="508.0" layoutY="20.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="ALL LIGHTS OFF">
                            <font>
                               <Font size="40.0" />
                            </font>
                         </Button>
-                        <Button layoutX="62.0" layoutY="356.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="POWER OFF">
+                        <Button layoutX="25.0" layoutY="231.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="POWER OFF">
                            <font>
                               <Font size="40.0" />
                            </font>
                         </Button>
-                        <Button layoutX="62.0" layoutY="72.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="ALL LIGHTS ON">
+                        <Button layoutX="25.0" layoutY="20.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="ALL LIGHTS ON">
                            <font>
                               <Font size="40.0" />
                            </font>
                         </Button>
-                        <Button layoutX="62.0" layoutY="629.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="Button" />
-                        <Button layoutX="565.0" layoutY="629.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="Button" />
-                        <Button layoutX="1061.0" layoutY="72.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="POWER ON">
+                        <Button layoutX="25.0" layoutY="444.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
+                        <Button layoutX="508.0" layoutY="444.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
+                        <Button layoutX="940.0" layoutY="20.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="POWER ON">
                            <font>
                               <Font size="40.0" />
                            </font>
                         </Button>
-                        <Button layoutX="1061.0" layoutY="356.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="Button" />
-                        <Button layoutX="1061.0" layoutY="629.0" mnemonicParsing="false" prefHeight="218.0" prefWidth="450.0" text="Button" />
+                        <Button layoutX="940.0" layoutY="231.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
+                        <Button layoutX="940.0" layoutY="444.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
                      </children>
                   </Pane>
                </children>

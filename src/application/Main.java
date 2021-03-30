@@ -12,8 +12,8 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 	// for setting default window sizes
-	private int	vSize = 1080;
-	private int hSize = 1920;
+	private int	vSize = 720;
+	private int hSize = 1280;
 /*	
 	private static Stage primaryStage;
 	private BorderPane rootLayout;

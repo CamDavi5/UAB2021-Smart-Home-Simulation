@@ -48,6 +48,10 @@
     -fx-scale-x: 0.9;
 }
 
+.togglebutton {
+	-fx-background-color: #BB86FC;
+}
+
 .text-area *.text {
     -fx-text-alignment: center;
 }
