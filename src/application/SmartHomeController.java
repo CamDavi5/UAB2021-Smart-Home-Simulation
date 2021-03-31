@@ -20,6 +20,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -30,7 +31,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class SmartHomeController implements Initializable{
+public class SmartHomeController<quickStatusField> implements Initializable{
 	private int temperatureCurrent;
 	private int temperatureSet;
 	private int temperatureOutside;
@@ -54,6 +55,8 @@ public class SmartHomeController implements Initializable{
 	private Pane pane;
 	@FXML
 	private ImageView imageView;
+	@FXML
+	private TextArea quickStatusField;
 	
 		
 	@FXML
@@ -151,8 +154,10 @@ public class SmartHomeController implements Initializable{
 		String offColor = "Yellow";
 		if (currentColor == Paint.valueOf(offColor)) {
 			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
 		} else if (currentColor == Paint.valueOf(onColor)) {
 			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
 		}
 	}
 }
