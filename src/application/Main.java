@@ -1,5 +1,8 @@
 package application;
 	
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,6 +13,7 @@ public class Main extends Application {
 	// for setting default window sizes
 	private int	vSize = 720;
 	private int hSize = 1280;
+	public static Connection c = null;
 /*	
 	private static Stage primaryStage;
 	private BorderPane rootLayout;
@@ -88,5 +92,27 @@ public void start(Stage primaryStage) throws Exception {
     primaryStage.setTitle("Smart Home");
     primaryStage.setScene(firstScene);
     primaryStage.show();
+    
+    // connecting to PostgreSQL database
+    String username ="Team8";
+	String password = "team8";
+	String connectionURL = "jdbc:postgresql://164.111.161.243:5432/Team8DB";
+	
+	// trying to connect to database
+	try {
+		c = DriverManager.getConnection(connectionURL, username, password);
+		System.out.println("CONNECTED TO DATABASE SUCCESSFULLY");
+	} catch (SQLException e) {
+		System.out.println("Cannot connect to database.");
+	} 
+	
+	// closing database connection when application closes
+	primaryStage.setOnCloseRequest(e->{
+		try {
+			c.close();
+			System.out.println("Database connection closed.");
+		} catch (SQLException e2) {
+			System.out.println("Cannot close connection to database.");
+		}});
 }
 }
