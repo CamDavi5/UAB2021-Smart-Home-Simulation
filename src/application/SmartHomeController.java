@@ -2,24 +2,16 @@ package application;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import com.sun.javafx.geom.Shape;
-import com.sun.jdi.event.Event;
-
-import javafx.animation.PauseTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -31,12 +23,14 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class SmartHomeController<quickStatusField> implements Initializable{
+public class SmartHomeController implements Initializable{
 	private int temperatureCurrent;
 	private int temperatureSet;
 	private int temperatureOutside;
 	private Scene secondScene;
 	private Scene thirdScene;
+	private Timeline timeline = new Timeline();
+	private String farenheight = "°F";
 	@FXML
 	private Button increaseTemperatureButton;
 	@FXML
@@ -63,29 +57,40 @@ public class SmartHomeController<quickStatusField> implements Initializable{
 	// increments temperatureSet and displays "set to" temperature for three seconds before returning to current temperature TODO improve the text transition
 	public void increaseTemperatureButtonPressed() {
 		temperatureSet = temperatureSet + 1;
-		temperatureTextField.setText("Set to " + String.valueOf(temperatureSet));
-		PauseTransition visiblePause = new PauseTransition(
-		        Duration.seconds(3)
-		);
-		visiblePause.setOnFinished(
-		        event -> temperatureTextField.setText(String.valueOf(temperatureCurrent))
-		);
-		visiblePause.play();
-		
+		if (timeline != null) {
+			timeline.stop();
+		}
+		temperatureTextField.setStyle("-fx-background-color: #42c5f5;");
+    	temperatureTextField.setText(String.valueOf(temperatureSet + farenheight));
+		KeyFrame keyFrame = new KeyFrame(
+		        Duration.seconds(3),
+		        event -> {
+		        	temperatureTextField.setStyle("-fx-background-color: white;");
+		        	temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
+		        } 
+		    );
+		timeline.getKeyFrames().add(keyFrame);
+		timeline.play();
 		//TODO tell ac unit to do work
 	}
 	@FXML
 	// decrements temperatureSet and displays "set to" temperature for three seconds before returning to current temperature TODO improve the text transition
 	public void decreaseTemperatureButtonPressed() {
 		temperatureSet = temperatureSet - 1;
-		temperatureTextField.setText("Set to " + String.valueOf(temperatureSet));
-		PauseTransition visiblePause = new PauseTransition(
-		        Duration.seconds(3)
-		);
-		visiblePause.setOnFinished(
-		        event -> temperatureTextField.setText(String.valueOf(temperatureCurrent))
-		);
-		visiblePause.play();
+		if (timeline != null) {
+			timeline.stop();
+		}
+		temperatureTextField.setStyle("-fx-background-color: #42c5f5;");
+    	temperatureTextField.setText(String.valueOf(temperatureSet + farenheight));
+		KeyFrame keyFrame = new KeyFrame(
+		        Duration.seconds(3),
+		        event -> {
+		        	temperatureTextField.setStyle("-fx-background-color: white;");
+		        	temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
+		        } 
+		    );
+		timeline.getKeyFrames().add(keyFrame);
+		timeline.play();
 		//tell ac unit to do work
 	}
 	
@@ -139,12 +144,11 @@ public class SmartHomeController<quickStatusField> implements Initializable{
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		temperatureCurrent = 72;
 		temperatureSet = temperatureCurrent;
-		temperatureTextField.setText(String.valueOf(temperatureCurrent));
+		temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
 		// TODO this house floor plan is a placeholder and not the actual house
 //		setImageView(openImage("house.png"));
 //		pane.getChildren().add(imageView);
 	}
-
 	
 	@FXML
 	public void toggleLightingPower (MouseEvent event) {
