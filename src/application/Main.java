@@ -108,11 +108,12 @@ public void start(Stage primaryStage) throws Exception {
 	
 	// closing database connection when application closes
 	primaryStage.setOnCloseRequest(e->{
-		try {
-			c.close();
-			System.out.println("Database connection closed.");
-		} catch (SQLException e2) {
-			System.out.println("Cannot close connection to database.");
-		}});
+		if (c != null) {
+			try {
+				c.close();
+				System.out.println("Database connection closed.");
+			} catch (SQLException e2) {
+				System.out.println("Cannot close connection to database.");
+		}}});
 }
 }
