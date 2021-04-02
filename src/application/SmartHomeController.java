@@ -20,6 +20,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -214,11 +215,25 @@ public class SmartHomeController implements Initializable{
 		String offColor = "BlueViolet";
 		if (currentColor == Paint.valueOf(offColor)) {
 			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " sensor open");
 		} else if (currentColor == Paint.valueOf(onColor)) {
 			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " sensor closed");
 		}
-
+	}
+	
+	@FXML
+	public void toggleWater (MouseEvent event) {
+		Polygon itemClicked = (Polygon) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "Red";
+		String offColor = "Aqua";
+		if (currentColor == Paint.valueOf(offColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " flowing");
+		} else if (currentColor == Paint.valueOf(onColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " not flowing");
+		}
 	}
 }
