@@ -145,9 +145,6 @@ public class SmartHomeController implements Initializable{
 		temperatureCurrent = 72;
 		temperatureSet = temperatureCurrent;
 		temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
-		// TODO this house floor plan is a placeholder and not the actual house
-//		setImageView(openImage("house.png"));
-//		pane.getChildren().add(imageView);
 	}
 	
 	@FXML
