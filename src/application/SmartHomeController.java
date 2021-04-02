@@ -42,6 +42,8 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private Button usageButton;
 	@FXML
+	private Button allLightsButton;
+	@FXML
 	private TextField temperatureTextField;
 	@FXML
 	private TextField temperatureOutsideTextField;
@@ -51,6 +53,8 @@ public class SmartHomeController implements Initializable{
 	private ImageView imageView;
 	@FXML
 	private TextArea quickStatusField;
+	@FXML
+	private Pane lightingOverlay;
 	
 		
 	@FXML
@@ -160,5 +164,28 @@ public class SmartHomeController implements Initializable{
 			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
 			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
 		}
+	}
+	@FXML
+	public void allLightsButtonPressed() {
+		// If button is "All Lights On", turn all lights on and set button to "All Lights off"
+		if (allLightsButton.getText().equals("All Lights On")){
+			for (Node node : lightingOverlay.getChildren()) {
+				if (node instanceof Circle) {
+					((Circle) node).fillProperty().setValue(Paint.valueOf("Yellow"));
+				}
+			}
+			allLightsButton.setText("All Lights Off");
+			quickStatusField.appendText("\n" + "All Lights Powered On");
+		}
+		
+		else {
+			for (Node node : lightingOverlay.getChildren()) {
+				if (node instanceof Circle) {
+					((Circle) node).fillProperty().setValue(Paint.valueOf("Red"));
+				}
+			}
+			allLightsButton.setText("All Lights On");
+			quickStatusField.appendText("\n" + "All Lights Powered Off");
+		}	
 	}
 }
