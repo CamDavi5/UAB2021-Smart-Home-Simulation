@@ -20,6 +20,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -165,6 +166,7 @@ public class SmartHomeController implements Initializable{
 			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
 		}
 	}
+
 	@FXML
 	public void allLightsButtonPressed() {
 		// If button is "All Lights On", turn all lights on and set button to "All Lights off"
@@ -186,6 +188,37 @@ public class SmartHomeController implements Initializable{
 			}
 			allLightsButton.setText("All Lights On");
 			quickStatusField.appendText("\n" + "All Lights Powered Off");
-		}	
+		}
+	}
+	
+	@FXML
+	public void toggleAppliancePower (MouseEvent event) {
+		Rectangle itemClicked = (Rectangle) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "Red";
+		String offColor = "DodgerBlue";
+		if (currentColor == Paint.valueOf(offColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+		} else if (currentColor == Paint.valueOf(onColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+		}
+	}
+	
+	@FXML
+	public void toggleWindows (MouseEvent event) {
+		Rectangle itemClicked = (Rectangle) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "Red";
+		String offColor = "BlueViolet";
+		if (currentColor == Paint.valueOf(offColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+		} else if (currentColor == Paint.valueOf(onColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+		}
+
 	}
 }
