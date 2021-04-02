@@ -31,12 +31,12 @@
                      <children>
                         <VBox alignment="CENTER" layoutX="13.0" layoutY="8.0" prefHeight="629.0" prefWidth="605.0">
                            <children>
-                              <LineChart prefHeight="578.0" prefWidth="630.0" title="Usage">
+                              <LineChart fx:id="usageChart" prefHeight="578.0" prefWidth="630.0" title="Usage">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <CategoryAxis side="BOTTOM" fx:id="x" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis fx:id="y" side="LEFT" />
                                 </yAxis>
                               </LineChart>
                               <ChoiceBox fx:id="monthChoiceBox" prefWidth="150.0" />

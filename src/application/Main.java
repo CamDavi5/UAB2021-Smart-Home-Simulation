@@ -14,6 +14,7 @@ public class Main extends Application {
 	private int	vSize = 720;
 	private int hSize = 1280;
 	public static Connection c = null;
+	
 /*	
 	private static Stage primaryStage;
 	private BorderPane rootLayout;
