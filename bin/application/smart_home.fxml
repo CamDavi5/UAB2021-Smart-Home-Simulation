@@ -14,7 +14,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" prefHeight="1000.0" prefWidth="1600.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -99,7 +99,7 @@
                               <Insets left="15.0" right="15.0" />
                            </VBox.margin>
                            <children>
-                              <Button layoutX="13.0" layoutY="11.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="All Lights On" />
+                              <Button fx:id="allLightsButton" layoutX="13.0" layoutY="11.0" mnemonicParsing="false" onAction="#allLightsButtonPressed" prefHeight="30.0" prefWidth="200.0" text="All Lights On" />
                               <Button layoutX="13.0" layoutY="122.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="All Doors Locked" />
                               <Button layoutX="13.0" layoutY="85.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="Entertainment On" />
                               <Button layoutX="13.0" layoutY="48.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="Garage Door Open" />
