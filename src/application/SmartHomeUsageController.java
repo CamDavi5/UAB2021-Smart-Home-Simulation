@@ -36,7 +36,7 @@ public class SmartHomeUsageController implements Initializable{
 	@FXML
 	private Button selectMonthButton;
 	@FXML
-	private CategoryAxis x;
+	private NumberAxis x;
 	@FXML
 	private NumberAxis y;
 	@FXML
@@ -75,14 +75,37 @@ public class SmartHomeUsageController implements Initializable{
 		XYChart.Series electricity = new XYChart.Series();
 		List<XYChart.Series> elecList = new ArrayList<>();
 		
+		// naming the line
+		electricity.setName("Electricity");
+		
+		// adding x-axis constraints
+		x.setAutoRanging(false);
+		x.setLowerBound(1);
+		x.setUpperBound(28);
+		x.setTickUnit(1);
+		x.setLabel("Day");
+		
+		// adding y-axis constraints
+		y.setLabel("Watts/Gallons");
+		y.setAutoRanging(false);
+		y.setLowerBound(550);
+		y.setUpperBound(1050);
+		y.setTickUnit(50);
+		
+		// going through each row that resulted from the query and adding the kilowatts to the graph
 		while(queryResult.next()) {
 			Integer kilowatts = queryResult.getInt("kilowatts");
-			electricity.getData().add(new XYChart.Data(String.valueOf(i),kilowatts));
+			electricity.getData().add(new XYChart.Data(i,kilowatts));
 			i++;
 		} 
 		
+		// closing the query thread
 		queryResult.close();
+		
+		// adding the data points to the series
 		elecList.add(electricity);
+		
+		// adding the series to the graph
 		usageChart.getData().add(elecList.get(elecList.size() - 1));
 	}
 	
