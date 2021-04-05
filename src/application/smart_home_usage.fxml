@@ -33,7 +33,7 @@
                            <children>
                               <LineChart fx:id="usageChart" prefHeight="578.0" prefWidth="630.0" title="Usage">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" fx:id="x" />
+                                  <NumberAxis side="BOTTOM" fx:id="x" />
                                 </xAxis>
                                 <yAxis>
                                   <NumberAxis fx:id="y" side="LEFT" />

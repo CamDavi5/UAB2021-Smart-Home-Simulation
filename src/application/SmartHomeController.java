@@ -20,6 +20,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -42,6 +44,8 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private Button usageButton;
 	@FXML
+	private Button allLightsButton;
+	@FXML
 	private TextField temperatureTextField;
 	@FXML
 	private TextField temperatureOutsideTextField;
@@ -51,6 +55,8 @@ public class SmartHomeController implements Initializable{
 	private ImageView imageView;
 	@FXML
 	private TextArea quickStatusField;
+	@FXML
+	private Pane lightingOverlay;
 	
 		
 	@FXML
@@ -145,9 +151,6 @@ public class SmartHomeController implements Initializable{
 		temperatureCurrent = 72;
 		temperatureSet = temperatureCurrent;
 		temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
-		// TODO this house floor plan is a placeholder and not the actual house
-//		setImageView(openImage("house.png"));
-//		pane.getChildren().add(imageView);
 	}
 	
 	@FXML
@@ -162,6 +165,75 @@ public class SmartHomeController implements Initializable{
 		} else if (currentColor == Paint.valueOf(onColor)) {
 			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
 			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+		}
+	}
+
+	@FXML
+	public void allLightsButtonPressed() {
+		// If button is "All Lights On", turn all lights on and set button to "All Lights off"
+		if (allLightsButton.getText().equals("All Lights On")){
+			for (Node node : lightingOverlay.getChildren()) {
+				if (node instanceof Circle) {
+					((Circle) node).fillProperty().setValue(Paint.valueOf("Yellow"));
+				}
+			}
+			allLightsButton.setText("All Lights Off");
+			quickStatusField.appendText("\n" + "All Lights Powered On");
+		}
+		
+		else {
+			for (Node node : lightingOverlay.getChildren()) {
+				if (node instanceof Circle) {
+					((Circle) node).fillProperty().setValue(Paint.valueOf("Red"));
+				}
+			}
+			allLightsButton.setText("All Lights On");
+			quickStatusField.appendText("\n" + "All Lights Powered Off");
+		}
+	}
+	
+	@FXML
+	public void toggleAppliancePower (MouseEvent event) {
+		Rectangle itemClicked = (Rectangle) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "Red";
+		String offColor = "DodgerBlue";
+		if (currentColor == Paint.valueOf(offColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+		} else if (currentColor == Paint.valueOf(onColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+		}
+	}
+	
+	@FXML
+	public void toggleWindows (MouseEvent event) {
+		Rectangle itemClicked = (Rectangle) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "Red";
+		String offColor = "BlueViolet";
+		if (currentColor == Paint.valueOf(offColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " sensor open");
+		} else if (currentColor == Paint.valueOf(onColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " sensor closed");
+		}
+	}
+	
+	@FXML
+	public void toggleWater (MouseEvent event) {
+		Polygon itemClicked = (Polygon) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "Red";
+		String offColor = "Aqua";
+		if (currentColor == Paint.valueOf(offColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " flowing");
+		} else if (currentColor == Paint.valueOf(onColor)) {
+			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " not flowing");
 		}
 	}
 }
