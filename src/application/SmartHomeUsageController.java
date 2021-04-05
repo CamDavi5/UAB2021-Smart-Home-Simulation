@@ -21,6 +21,9 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 public class SmartHomeUsageController implements Initializable{
@@ -41,6 +44,17 @@ public class SmartHomeUsageController implements Initializable{
 	private NumberAxis y;
 	@FXML
 	private LineChart<?,?> usageChart;
+	
+	@FXML
+    private TableView<DatabaseTable> usageTable;
+	@FXML
+	private TableColumn<DatabaseTable, String> monthColumn;
+	@FXML
+	private TableColumn<DatabaseTable, Integer> wattageColumn;
+	@FXML
+	private TableColumn<DatabaseTable, Integer> gallonsColumn;
+	@FXML
+	private TableColumn<DatabaseTable, Integer> costColumn;
 	
 	ObservableList<String> monthList = FXCollections.observableArrayList("February", "March", "April");
 	
@@ -106,7 +120,16 @@ public class SmartHomeUsageController implements Initializable{
 			createMonthGraphFeb();
 		}
 	}
-
+	
+	//Returns list of data that can be inserted in the table
+	public ObservableList<DatabaseTable> getData() {
+		ObservableList<DatabaseTable> data = FXCollections.observableArrayList();
+		data.add(new DatabaseTable("February", 390, 444, 1));
+		data.add(new DatabaseTable("March", 300, 480, 1));
+		data.add(new DatabaseTable("April", 300, 45, 5));
+		
+		return data;
+	}
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -115,6 +138,15 @@ public class SmartHomeUsageController implements Initializable{
 		// setting default month to April
 		monthChoiceBox.setValue("April");
 		monthChoiceBox.setItems(monthList);
+		
+		// setup for table columns
+		monthColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, String>("month"));
+		wattageColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Integer>("wattage"));
+		gallonsColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Integer>("gallons"));
+		costColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Integer>("cost"));
+		
+		// fill in data for columns
+		usageTable.setItems(getData());
 	}
 
 }
