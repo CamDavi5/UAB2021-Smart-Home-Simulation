@@ -82,16 +82,18 @@ public class SmartHomeUsageController implements Initializable{
 	}
 	
 	public void createMonthGraphFeb() throws SQLException {
+		usageChart.getData().clear();
+		
 		Integer i = 1;
-
-		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
-		Statement s = Main.c.createStatement();
-		ResultSet queryResult = s.executeQuery(sqlQuery);
+		
 		XYChart.Series electricity = new XYChart.Series();
+		XYChart.Series water = new XYChart.Series();
 		List<XYChart.Series> elecList = new ArrayList<>();
+		List<XYChart.Series> waterList = new ArrayList<>();
 		
 		// naming the line
 		electricity.setName("Electricity");
+		water.setName("Water");
 		
 		// adding x-axis constraints
 		x.setAutoRanging(false);
@@ -103,13 +105,17 @@ public class SmartHomeUsageController implements Initializable{
 		// adding y-axis constraints
 		y.setLabel("Watts/Gallons");
 		y.setAutoRanging(false);
-		y.setLowerBound(550);
-		y.setUpperBound(1050);
-		y.setTickUnit(50);
+		y.setLowerBound(0);
+		y.setUpperBound(50000);
+		y.setTickUnit(1000);
+		
+		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
+		Statement s = Main.c.createStatement();
+		ResultSet queryResult = s.executeQuery(sqlQuery);
 		
 		// going through each row that resulted from the query and adding the kilowatts to the graph
 		while(queryResult.next()) {
-			Integer kilowatts = queryResult.getInt("kilowatts");
+			Long kilowatts = queryResult.getLong("kilowatts");
 			electricity.getData().add(new XYChart.Data(i,kilowatts));
 			i++;
 		} 
@@ -117,11 +123,32 @@ public class SmartHomeUsageController implements Initializable{
 		// closing the query thread
 		queryResult.close();
 		
+		
+		String sqlQuery2 = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
+		Statement s2 = Main.c.createStatement();
+		ResultSet queryResult2 = s2.executeQuery(sqlQuery2);
+		i = 1;
+		
+		// going through each row that resulted from the query and adding the kilowatts to the graph
+		while(queryResult2.next()) {
+			Integer gallons = queryResult2.getInt("gallons");
+			water.getData().add(new XYChart.Data(i,gallons));
+			i++;
+		} 
+		
+		// closing the query thread
+		queryResult2.close();
+		
+		
 		// adding the data points to the series
 		elecList.add(electricity);
+		waterList.add(water);
 		
 		// adding the series to the graph
 		usageChart.getData().add(elecList.get(elecList.size() - 1));
+		usageChart.getData().add(waterList.get(waterList.size() - 1));
+		usageChart.setStyle(".default-color0.chart-series-line { -fx-stroke: #ff0000; }");
+		
 	}
 	
 	
