@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class SmartHomeDiagnosticsController implements Initializable{
@@ -48,4 +49,9 @@ public class SmartHomeDiagnosticsController implements Initializable{
 
 	}
 
+	
+	public void toggle (MouseEvent event) {
+		Object toggleID = event.getSource();
+		System.out.println(toggleID);
+	}
 }

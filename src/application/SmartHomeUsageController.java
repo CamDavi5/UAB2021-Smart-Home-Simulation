@@ -22,6 +22,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -36,7 +37,7 @@ public class SmartHomeUsageController implements Initializable{
 	@FXML
 	private Button diagnosticsButton;
 	@FXML
-	private ChoiceBox<String> monthChoiceBox;
+	private ComboBox<String> monthComboBox;
 	@FXML
 	private Button selectMonthButton;
 	@FXML
@@ -61,12 +62,10 @@ public class SmartHomeUsageController implements Initializable{
 	
 	public void setHomeScene(Scene scene) {
 		firstScene = scene;
-		
 	}
 
 	public void setDiagnosticsScene(Scene scene) {
 		thirdScene = scene;
-		
 	}
 
 	// event listener for home button that sets the scene to home page
@@ -103,10 +102,10 @@ public class SmartHomeUsageController implements Initializable{
 		x.setLabel("Day");
 		
 		// adding y-axis constraints
-		y.setLabel("Watts/Gallons");
+		y.setLabel("Watts/Gallons*");
 		y.setAutoRanging(false);
 		y.setLowerBound(0);
-		y.setUpperBound(1900);
+		y.setUpperBound(50);
 		y.setTickUnit(50);
 		
 		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
@@ -131,7 +130,7 @@ public class SmartHomeUsageController implements Initializable{
 		
 		// going through each row that resulted from the query and adding the kilowatts to the graph
 		while(queryResult2.next()) {
-			Integer gallons = queryResult2.getInt("gallons");
+			Integer gallons = (queryResult2.getInt("gallons"))/100;
 			water.getData().add(new XYChart.Data(i,gallons));
 			i++;
 		} 
@@ -173,10 +172,10 @@ public class SmartHomeUsageController implements Initializable{
 		x.setLabel("Day");
 		
 		// adding y-axis constraints
-		y.setLabel("Watts/Gallons");
+		y.setLabel("Watts/Gallons*");
 		y.setAutoRanging(false);
 		y.setLowerBound(0);
-		y.setUpperBound(1900);
+		y.setUpperBound(50);
 		y.setTickUnit(50);
 		
 		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '3%'";
@@ -201,7 +200,7 @@ public class SmartHomeUsageController implements Initializable{
 		
 		// going through each row that resulted from the query and adding the kilowatts to the graph
 		while(queryResult2.next()) {
-			Integer gallons = queryResult2.getInt("gallons");
+			Integer gallons = (queryResult2.getInt("gallons"))/100;
 			water.getData().add(new XYChart.Data(i,gallons));
 			i++;
 		} 
@@ -241,10 +240,10 @@ public class SmartHomeUsageController implements Initializable{
 		x.setLabel("Day");
 		
 		// adding y-axis constraints
-		y.setLabel("Watts/Gallons");
+		y.setLabel("Watts/Gallons*");
 		y.setAutoRanging(false);
 		y.setLowerBound(0);
-		y.setUpperBound(1900);
+		y.setUpperBound(50);
 		y.setTickUnit(50);
 		
 		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
@@ -269,7 +268,7 @@ public class SmartHomeUsageController implements Initializable{
 		
 		// going through each row that resulted from the query and adding the kilowatts to the graph
 		while(queryResult2.next()) {
-			Integer gallons = queryResult2.getInt("gallons");
+			Integer gallons = (queryResult2.getInt("gallons"))/100;
 			water.getData().add(new XYChart.Data(i,gallons));
 			i++;
 		} 
@@ -290,7 +289,7 @@ public class SmartHomeUsageController implements Initializable{
 	
 	// display the graph with the electricity and water usage
 	public void selectMonthButtonPressed(ActionEvent actionEvent) throws SQLException {
-		String month = monthChoiceBox.getValue();
+		String month = monthComboBox.getValue();
 		
 		if (month == null) {
 			System.out.println("Please select a month");
@@ -389,8 +388,10 @@ public class SmartHomeUsageController implements Initializable{
 		// TODO Auto-generated method stub
 		
 		// setting default month to April
-		monthChoiceBox.setValue("April");
-		monthChoiceBox.setItems(monthList);
+		this.monthComboBox.getItems().removeAll(monthComboBox.getItems());
+		this.monthComboBox.getItems().addAll(monthList);
+		this.monthComboBox.getSelectionModel().select("April");
+
 		
 		try {
 			createMonthGraphApr();

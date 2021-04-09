@@ -56,6 +56,7 @@
     -fx-text-alignment: center;
 }
 
-.choice-box {
+.combo-box {
 	-fx-background-color: #BB86FC;
+	-fx-text-fill: white;
 }

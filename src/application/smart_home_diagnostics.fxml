@@ -3,10 +3,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeDiagnosticsController">
@@ -24,31 +26,36 @@
                <children>
                   <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1F1F1F;" HBox.hgrow="ALWAYS">
                      <children>
-                        <Button layoutX="508.0" layoutY="231.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
-                        <Button layoutX="508.0" layoutY="20.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="ALL LIGHTS OFF">
+                        <Button layoutX="25.0" layoutY="66.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="320.0" text="Wash Dishes &amp; Run Dishwasher">
                            <font>
-                              <Font size="40.0" />
+                              <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button layoutX="25.0" layoutY="231.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="POWER OFF">
+                        <Label layoutX="25.0" layoutY="20.0" text="Simulations:" textFill="WHITE">
                            <font>
-                              <Font size="40.0" />
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Button layoutX="364.0" layoutY="66.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="320.0" text="20 Minute Shower">
+                           <font>
+                              <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button layoutX="25.0" layoutY="20.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="ALL LIGHTS ON">
+                        <Label layoutX="25.0" layoutY="156.0" prefHeight="27.0" prefWidth="173.0" text="Power Toggles:" textFill="WHITE">
                            <font>
-                              <Font size="40.0" />
+                              <Font name="System Bold" size="24.0" />
                            </font>
-                        </Button>
-                        <Button layoutX="25.0" layoutY="444.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
-                        <Button layoutX="508.0" layoutY="444.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
-                        <Button layoutX="940.0" layoutY="20.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="POWER ON">
+                        </Label>
+                        <Rectangle arcHeight="8.0" arcWidth="8.0" fill="#1f93ff00" height="118.0" layoutX="34.0" layoutY="208.0" stroke="WHITE" strokeDashOffset="3.0" strokeLineCap="ROUND" strokeLineJoin="ROUND" strokeMiterLimit="20.0" strokeType="OUTSIDE" strokeWidth="3.0" width="155.0" />
+                        <Label layoutX="48.0" layoutY="189.0" prefHeight="35.0" prefWidth="107.0" style="-fx-background-color: #1F1F1F;" text="Living Room" textFill="WHITE">
                            <font>
-                              <Font size="40.0" />
+                              <Font name="System Bold" size="16.0" />
                            </font>
-                        </Button>
-                        <Button layoutX="940.0" layoutY="231.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
-                        <Button layoutX="940.0" layoutY="444.0" mnemonicParsing="false" prefHeight="175.0" prefWidth="300.0" text="Button" />
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </Label>
+                        <Button fx:id="overheadLight_Kitchen" layoutX="48.0" layoutY="224.0" mnemonicParsing="false" text="Light" />
                      </children>
                   </Pane>
                </children>
