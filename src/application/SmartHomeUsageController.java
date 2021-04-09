@@ -106,8 +106,8 @@ public class SmartHomeUsageController implements Initializable{
 		y.setLabel("Watts/Gallons");
 		y.setAutoRanging(false);
 		y.setLowerBound(0);
-		y.setUpperBound(50000);
-		y.setTickUnit(1000);
+		y.setUpperBound(1900);
+		y.setTickUnit(50);
 		
 		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
 		Statement s = Main.c.createStatement();
@@ -151,6 +151,142 @@ public class SmartHomeUsageController implements Initializable{
 		
 	}
 	
+	public void createMonthGraphMar() throws SQLException {
+		usageChart.getData().clear();
+		
+		Integer i = 1;
+		
+		XYChart.Series electricity = new XYChart.Series();
+		XYChart.Series water = new XYChart.Series();
+		List<XYChart.Series> elecList = new ArrayList<>();
+		List<XYChart.Series> waterList = new ArrayList<>();
+		
+		// naming the line
+		electricity.setName("Electricity");
+		water.setName("Water");
+		
+		// adding x-axis constraints
+		x.setAutoRanging(false);
+		x.setLowerBound(1);
+		x.setUpperBound(31);
+		x.setTickUnit(1);
+		x.setLabel("Day");
+		
+		// adding y-axis constraints
+		y.setLabel("Watts/Gallons");
+		y.setAutoRanging(false);
+		y.setLowerBound(0);
+		y.setUpperBound(1900);
+		y.setTickUnit(50);
+		
+		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '3%'";
+		Statement s = Main.c.createStatement();
+		ResultSet queryResult = s.executeQuery(sqlQuery);
+		
+		// going through each row that resulted from the query and adding the kilowatts to the graph
+		while(queryResult.next()) {
+			Long kilowatts = queryResult.getLong("kilowatts");
+			electricity.getData().add(new XYChart.Data(i,kilowatts));
+			i++;
+		} 
+		
+		// closing the query thread
+		queryResult.close();
+		
+		
+		String sqlQuery2 = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '3%'";
+		Statement s2 = Main.c.createStatement();
+		ResultSet queryResult2 = s2.executeQuery(sqlQuery2);
+		i = 1;
+		
+		// going through each row that resulted from the query and adding the kilowatts to the graph
+		while(queryResult2.next()) {
+			Integer gallons = queryResult2.getInt("gallons");
+			water.getData().add(new XYChart.Data(i,gallons));
+			i++;
+		} 
+		
+		// closing the query thread
+		queryResult2.close();
+		
+		
+		// adding the data points to the series
+		elecList.add(electricity);
+		waterList.add(water);
+		
+		// adding the series to the graph
+		usageChart.getData().add(elecList.get(elecList.size() - 1));
+		usageChart.getData().add(waterList.get(waterList.size() - 1));
+	}
+	
+	public void createMonthGraphApr() throws SQLException {
+		usageChart.getData().clear();
+		
+		Integer i = 1;
+		
+		XYChart.Series electricity = new XYChart.Series();
+		XYChart.Series water = new XYChart.Series();
+		List<XYChart.Series> elecList = new ArrayList<>();
+		List<XYChart.Series> waterList = new ArrayList<>();
+		
+		// naming the line
+		electricity.setName("Electricity");
+		water.setName("Water");
+		
+		// adding x-axis constraints
+		x.setAutoRanging(false);
+		x.setLowerBound(1);
+		x.setUpperBound(30);
+		x.setTickUnit(1);
+		x.setLabel("Day");
+		
+		// adding y-axis constraints
+		y.setLabel("Watts/Gallons");
+		y.setAutoRanging(false);
+		y.setLowerBound(0);
+		y.setUpperBound(1900);
+		y.setTickUnit(50);
+		
+		String sqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
+		Statement s = Main.c.createStatement();
+		ResultSet queryResult = s.executeQuery(sqlQuery);
+		
+		// going through each row that resulted from the query and adding the kilowatts to the graph
+		while(queryResult.next()) {
+			Long kilowatts = queryResult.getLong("kilowatts");
+			electricity.getData().add(new XYChart.Data(i,kilowatts));
+			i++;
+		} 
+		
+		// closing the query thread
+		queryResult.close();
+		
+		
+		String sqlQuery2 = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
+		Statement s2 = Main.c.createStatement();
+		ResultSet queryResult2 = s2.executeQuery(sqlQuery2);
+		i = 1;
+		
+		// going through each row that resulted from the query and adding the kilowatts to the graph
+		while(queryResult2.next()) {
+			Integer gallons = queryResult2.getInt("gallons");
+			water.getData().add(new XYChart.Data(i,gallons));
+			i++;
+		} 
+		
+		// closing the query thread
+		queryResult2.close();
+		
+		
+		// adding the data points to the series
+		elecList.add(electricity);
+		waterList.add(water);
+		
+		// adding the series to the graph
+		usageChart.getData().add(elecList.get(elecList.size() - 1));
+		usageChart.getData().add(waterList.get(waterList.size() - 1));
+	}
+	
 	
 	// display the graph with the electricity and water usage
 	public void selectMonthButtonPressed(ActionEvent actionEvent) throws SQLException {
@@ -160,9 +296,11 @@ public class SmartHomeUsageController implements Initializable{
 			System.out.println("Please select a month");
 		} else if (month == "April") {
 			// generate graph for April
+			createMonthGraphApr();
 			System.out.println("April was selected");
 		} else if (month == "March") {
 			// generate graph for March
+			createMonthGraphMar();
 			System.out.println("March was selected");
 		} else {
 			// month would be February
@@ -171,7 +309,6 @@ public class SmartHomeUsageController implements Initializable{
 			createMonthGraphFeb();
 		}
 	}
-	
 	
 	
 	//Returns list of data that can be inserted in the table
@@ -254,6 +391,12 @@ public class SmartHomeUsageController implements Initializable{
 		// setting default month to April
 		monthChoiceBox.setValue("April");
 		monthChoiceBox.setItems(monthList);
+		
+		try {
+			createMonthGraphApr();
+		} catch (SQLException e1) {
+			System.out.println("Error creating graph.");
+		}
 		
 		// setup for table columns
 		monthColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, String>("month"));
