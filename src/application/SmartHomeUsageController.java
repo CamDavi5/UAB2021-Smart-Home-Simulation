@@ -5,6 +5,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -50,11 +51,11 @@ public class SmartHomeUsageController implements Initializable{
 	@FXML
 	private TableColumn<DatabaseTable, String> monthColumn;
 	@FXML
-	private TableColumn<DatabaseTable, Integer> wattageColumn;
+	private TableColumn<DatabaseTable, Double> wattageColumn;
 	@FXML
-	private TableColumn<DatabaseTable, Integer> gallonsColumn;
+	private TableColumn<DatabaseTable, Double> gallonsColumn;
 	@FXML
-	private TableColumn<DatabaseTable, Integer> costColumn;
+	private TableColumn<DatabaseTable, Double> costColumn;
 	
 	ObservableList<String> monthList = FXCollections.observableArrayList("February", "March", "April");
 	
@@ -145,13 +146,61 @@ public class SmartHomeUsageController implements Initializable{
 	}
 	
 	//Returns list of data that can be inserted in the table
-	public ObservableList<DatabaseTable> getData() {
+	public ObservableList<DatabaseTable> getData() throws SQLException {
 		ObservableList<DatabaseTable> data = FXCollections.observableArrayList();
-		data.add(new DatabaseTable("February", 390, 444, 1));
-		data.add(new DatabaseTable("March", 300, 480, 1));
-		data.add(new DatabaseTable("April", 300, 45, 5));
+		String FEBWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
+		String FEBGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
+		String MARWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '3%'";
+		String MARGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '3%'";
+		String APRWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
+		String APRGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
+		// obtain database contents for table
+		List<Double> totals = TableQuery(FEBWsqlQuery, FEBGsqlQuery);
+		data.add(new DatabaseTable("February", totals.get(0), totals.get(1), totals.get(2)));
+		
+		totals = TableQuery(MARWsqlQuery, MARGsqlQuery);
+		data.add(new DatabaseTable("March", totals.get(0), totals.get(1), totals.get(2)));
+		
+		totals = TableQuery(APRWsqlQuery, APRGsqlQuery);
+		data.add(new DatabaseTable("April", totals.get(0), totals.get(1), totals.get(2)));
 		
 		return data;
+	}
+	
+	// retrieve database contents
+	public List<Double> TableQuery(String WsqlQuery, String GsqlQuery) throws SQLException {
+		List<Double> totals = Arrays.asList(0.0, 0.0, 0.0);
+		double w = 0.0;
+		double g = 0.0;
+		double c = 0.0;
+		
+		// obtain data from electricity_bill
+		Statement tw = Main.c.createStatement();
+		ResultSet queryResultw = tw.executeQuery(WsqlQuery);
+		
+		while(queryResultw.next()) {
+			Double kilowatts = queryResultw.getDouble("kilowatts");
+			w = w + kilowatts;
+			Double wcost = queryResultw.getDouble("total_amount");
+			c = c + wcost;
+		} 
+		totals.set(0, w);
+		queryResultw.close();
+		
+		// obtain data from water_bill
+		Statement tg = Main.c.createStatement();
+		ResultSet queryResultg = tg.executeQuery(GsqlQuery);
+		while(queryResultg.next()) {
+			Double gallons = queryResultg.getDouble("gallons");
+			g = g + gallons;
+			Double gcost = queryResultg.getDouble("amount");
+			c = c + gcost;
+		} 
+		totals.set(1, g);
+		totals.set(2, c);
+		queryResultg.close();
+		
+		return totals;
 	}
 	
 	@Override
@@ -164,12 +213,17 @@ public class SmartHomeUsageController implements Initializable{
 		
 		// setup for table columns
 		monthColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, String>("month"));
-		wattageColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Integer>("wattage"));
-		gallonsColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Integer>("gallons"));
-		costColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Integer>("cost"));
+		wattageColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Double>("wattage"));
+		gallonsColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Double>("gallons"));
+		costColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Double>("cost"));
 		
 		// fill in data for columns
-		usageTable.setItems(getData());
+		try {
+			usageTable.setItems(getData());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -59,7 +59,31 @@ public class Main extends Application {
 
 @Override
 public void start(Stage primaryStage) throws Exception {
-    // setting up first pane and scene
+	
+	// connecting to PostgreSQL database
+    String username ="Team8";
+	String password = "team8";
+	String connectionURL = "jdbc:postgresql://164.111.161.243:5432/Team8DB";
+	
+	// trying to connect to database
+	try {
+		c = DriverManager.getConnection(connectionURL, username, password);
+		System.out.println("CONNECTED TO DATABASE SUCCESSFULLY");
+	} catch (SQLException e) {
+		System.out.println("Cannot connect to database.");
+	} 
+	
+	// closing database connection when application closes
+	primaryStage.setOnCloseRequest(e->{
+		if (c != null) {
+			try {
+				c.close();
+				System.out.println("Database connection closed.");
+			} catch (SQLException e2) {
+				System.out.println("Cannot close connection to database.");
+		}}});
+	
+	// setting up first pane and scene
     FXMLLoader firstPaneLoader = new FXMLLoader(getClass().getResource("smart_home.fxml"));
     Parent firstPane = firstPaneLoader.load();
     Scene firstScene = new Scene(firstPane, hSize, vSize);
@@ -94,27 +118,5 @@ public void start(Stage primaryStage) throws Exception {
     primaryStage.setScene(firstScene);
     primaryStage.show();
     
-    // connecting to PostgreSQL database
-    String username ="Team8";
-	String password = "team8";
-	String connectionURL = "jdbc:postgresql://164.111.161.243:5432/Team8DB";
-	
-	// trying to connect to database
-	try {
-		c = DriverManager.getConnection(connectionURL, username, password);
-		System.out.println("CONNECTED TO DATABASE SUCCESSFULLY");
-	} catch (SQLException e) {
-		System.out.println("Cannot connect to database.");
-	} 
-	
-	// closing database connection when application closes
-	primaryStage.setOnCloseRequest(e->{
-		if (c != null) {
-			try {
-				c.close();
-				System.out.println("Database connection closed.");
-			} catch (SQLException e2) {
-				System.out.println("Cannot close connection to database.");
-		}}});
-}
+	}
 }
