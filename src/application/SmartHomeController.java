@@ -3,6 +3,9 @@ package application;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -57,7 +60,8 @@ public class SmartHomeController implements Initializable{
 	private TextArea quickStatusField;
 	@FXML
 	private Pane lightingOverlay;
-	
+	@FXML
+	private TextField temperatureTextField1;
 		
 	@FXML
 	// increments temperatureSet and displays "set to" temperature for three seconds before returning to current temperature TODO improve the text transition
@@ -145,12 +149,28 @@ public class SmartHomeController implements Initializable{
 		imageView.fitHeightProperty().bind(pane.heightProperty());
 		imageView.fitWidthProperty().bind(pane.widthProperty());
 	}
+	
+	public void setExternalTemp() throws SQLException {
+		String sqlQuery = "SELECT weather.datetime, weather.temp FROM weather ORDER BY weather.datetime DESC LIMIT 1;";
+		Statement s = Main.c.createStatement();
+		ResultSet queryResult = s.executeQuery(sqlQuery);
+		queryResult.next();
+		Integer temp = queryResult.getInt("temp");
+		temperatureTextField1.setText(String.valueOf(temp + farenheight));
+		queryResult.close();
+	}
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		temperatureCurrent = 72;
 		temperatureSet = temperatureCurrent;
 		temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
+		
+		try {
+			setExternalTemp();
+		} catch (SQLException e) {
+			System.out.println("Error setting outside temp");
+		}
 	}
 	
 	@FXML
