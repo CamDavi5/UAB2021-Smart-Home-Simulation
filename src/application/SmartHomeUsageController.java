@@ -172,6 +172,8 @@ public class SmartHomeUsageController implements Initializable{
 		}
 	}
 	
+	
+	
 	//Returns list of data that can be inserted in the table
 	public ObservableList<DatabaseTable> getData() throws SQLException {
 		ObservableList<DatabaseTable> data = FXCollections.observableArrayList();
@@ -183,12 +185,15 @@ public class SmartHomeUsageController implements Initializable{
 		String APRGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
 		// obtain database contents for table
 		List<Double> totals = TableQuery(FEBWsqlQuery, FEBGsqlQuery);
+		totals = roundingData(totals);
 		data.add(new DatabaseTable("February", totals.get(0), totals.get(1), totals.get(2)));
 		
 		totals = TableQuery(MARWsqlQuery, MARGsqlQuery);
+		totals = roundingData(totals);
 		data.add(new DatabaseTable("March", totals.get(0), totals.get(1), totals.get(2)));
 		
 		totals = TableQuery(APRWsqlQuery, APRGsqlQuery);
+		totals = roundingData(totals);
 		data.add(new DatabaseTable("April", totals.get(0), totals.get(1), totals.get(2)));
 		
 		return data;
@@ -227,6 +232,18 @@ public class SmartHomeUsageController implements Initializable{
 		totals.set(2, c);
 		queryResultg.close();
 		
+		return totals;
+	}
+	
+	public List<Double> roundingData(List<Double> totals) {
+		int z = 0;
+		double setas;
+		while (z <= 2) {
+			setas = totals.get(z);
+			setas = Math.round(setas*100.0)/100.0;
+			totals.set(z, setas);
+			z++;
+		}
 		return totals;
 	}
 	
