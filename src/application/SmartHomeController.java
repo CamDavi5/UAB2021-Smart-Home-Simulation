@@ -15,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -49,6 +50,12 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private Button allLightsButton;
 	@FXML
+	private Button allDoorsLockedButton;
+	@FXML
+	private Button garageDoorOpenButton;
+	@FXML
+	private Button entertainmentOnButton;
+	@FXML
 	private TextField temperatureTextField;
 	@FXML
 	private TextField temperatureOutsideTextField;
@@ -61,10 +68,30 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private Pane lightingOverlay;
 	@FXML
-	private TextField temperatureTextField1;
+	private Rectangle door_toGarage;
+	@FXML
+	private Rectangle door_front;
+	@FXML
+	private Rectangle door_garage_1;
+	@FXML
+	private Rectangle door_garage_2;
+	@FXML
+	private Rectangle door_back;
+	@FXML
+	private Label insideLabel;
+	@FXML
+	private Rectangle livingroom_TV;
+	@FXML
+	private Circle lamp_Livinga;
+	@FXML
+	private Circle overheadLight_LR;
+	@FXML
+	private Circle lamp_Livingb;
+	
+	
 		
 	@FXML
-	// increments temperatureSet and displays "set to" temperature for three seconds before returning to current temperature TODO improve the text transition
+	// increments temperatureSet and displays "set to" temperature for three seconds before returning to current temperature
 	public void increaseTemperatureButtonPressed() {
 		temperatureSet = temperatureSet + 1;
 		if (timeline != null) {
@@ -72,11 +99,13 @@ public class SmartHomeController implements Initializable{
 		}
 		temperatureTextField.setStyle("-fx-background-color: #42c5f5;");
     	temperatureTextField.setText(String.valueOf(temperatureSet + farenheight));
+    	insideLabel.setText("Set To");
 		KeyFrame keyFrame = new KeyFrame(
 		        Duration.seconds(3),
 		        event -> {
 		        	temperatureTextField.setStyle("-fx-background-color: white;");
 		        	temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
+		        	insideLabel.setText("Inside");
 		        } 
 		    );
 		timeline.getKeyFrames().add(keyFrame);
@@ -84,7 +113,7 @@ public class SmartHomeController implements Initializable{
 		//TODO tell ac unit to do work
 	}
 	@FXML
-	// decrements temperatureSet and displays "set to" temperature for three seconds before returning to current temperature TODO improve the text transition
+	// decrements temperatureSet and displays "set to" temperature for three seconds before returning to current temperature
 	public void decreaseTemperatureButtonPressed() {
 		temperatureSet = temperatureSet - 1;
 		if (timeline != null) {
@@ -92,11 +121,13 @@ public class SmartHomeController implements Initializable{
 		}
 		temperatureTextField.setStyle("-fx-background-color: #42c5f5;");
     	temperatureTextField.setText(String.valueOf(temperatureSet + farenheight));
+    	insideLabel.setText("Set To");
 		KeyFrame keyFrame = new KeyFrame(
 		        Duration.seconds(3),
 		        event -> {
 		        	temperatureTextField.setStyle("-fx-background-color: white;");
 		        	temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
+		        	insideLabel.setText("Inside");
 		        } 
 		    );
 		timeline.getKeyFrames().add(keyFrame);
@@ -155,8 +186,8 @@ public class SmartHomeController implements Initializable{
 		Statement s = Main.c.createStatement();
 		ResultSet queryResult = s.executeQuery(sqlQuery);
 		queryResult.next();
-		Integer temp = queryResult.getInt("temp");
-		temperatureTextField1.setText(String.valueOf(temp + farenheight));
+		temperatureOutside = queryResult.getInt("temp");
+		temperatureOutsideTextField.setText(String.valueOf(temperatureOutside + farenheight));
 		queryResult.close();
 	}
 
@@ -194,7 +225,7 @@ public class SmartHomeController implements Initializable{
 		if (allLightsButton.getText().equals("All Lights On")){
 			for (Node node : lightingOverlay.getChildren()) {
 				if (node instanceof Circle) {
-					((Circle) node).fillProperty().setValue(Paint.valueOf("Yellow"));
+					((Circle) node).fillProperty().setValue(Paint.valueOf("Red"));
 				}
 			}
 			allLightsButton.setText("All Lights Off");
@@ -204,11 +235,101 @@ public class SmartHomeController implements Initializable{
 		else {
 			for (Node node : lightingOverlay.getChildren()) {
 				if (node instanceof Circle) {
-					((Circle) node).fillProperty().setValue(Paint.valueOf("Red"));
+					((Circle) node).fillProperty().setValue(Paint.valueOf("Yellow"));
 				}
 			}
 			allLightsButton.setText("All Lights On");
 			quickStatusField.appendText("\n" + "All Lights Powered Off");
+		}
+	}
+	
+	@FXML
+	public void allDoorsLockedButtonPressed() {
+		String onColor = "DarkGreen";
+		String offColor = "Red";
+		if (allDoorsLockedButton.getText().equals("All Doors Locked")) {
+			door_toGarage.fillProperty().setValue(Paint.valueOf(onColor));
+			door_front.fillProperty().setValue(Paint.valueOf(onColor));
+			door_back.fillProperty().setValue(Paint.valueOf(onColor));
+			allDoorsLockedButton.setText("All Doors Unlocked");
+			quickStatusField.appendText("\n" + "All Doors Locked");
+		}
+		else {
+			door_toGarage.fillProperty().setValue(Paint.valueOf(offColor));
+			door_front.fillProperty().setValue(Paint.valueOf(offColor));
+			door_back.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + "All Doors Unlocked");
+			allDoorsLockedButton.setText("All Doors Locked");
+		}
+	}
+	
+	@FXML
+	public void garageDoorOpenButtonPressed() {
+		String onColor = "DarkGreen";
+		String offColor = "Red";
+		if (garageDoorOpenButton.getText().equals("Garage Door Open")) {
+			door_garage_1.fillProperty().setValue(Paint.valueOf(offColor));
+			door_garage_2.fillProperty().setValue(Paint.valueOf(offColor));
+			garageDoorOpenButton.setText("Garage Door Close");
+			quickStatusField.appendText("\n" + "Garage doors opened");
+		}
+		else {
+			door_garage_1.fillProperty().setValue(Paint.valueOf(onColor));
+			door_garage_2.fillProperty().setValue(Paint.valueOf(onColor));
+			quickStatusField.appendText("\n" + "Garage doors closed");
+			garageDoorOpenButton.setText("Garage Door Open");
+		}
+		
+		
+	}
+	
+	@FXML
+	public void entertainmentOnButtonPressed() {
+		String tvOnColor = "Red";
+		String tvOffColor = "DodgerBlue";
+		String onColor = "Red";
+		String offColor = "Yellow";
+		if (entertainmentOnButton.getText().equals("Entertainment On")) {
+			livingroom_TV.fillProperty().setValue(Paint.valueOf(tvOnColor));
+			lamp_Livinga.fillProperty().setValue(Paint.valueOf(onColor));
+			overheadLight_LR.fillProperty().setValue(Paint.valueOf(onColor));
+			lamp_Livingb.fillProperty().setValue(Paint.valueOf(onColor));
+			entertainmentOnButton.setText("Entertainment Off");
+			quickStatusField.appendText("\n" + "Entertainment On");
+		}
+		else {
+			livingroom_TV.fillProperty().setValue(Paint.valueOf(tvOffColor));
+			lamp_Livinga.fillProperty().setValue(Paint.valueOf(offColor));
+			overheadLight_LR.fillProperty().setValue(Paint.valueOf(offColor));
+			lamp_Livingb.fillProperty().setValue(Paint.valueOf(offColor));
+			quickStatusField.appendText("\n" + "Entertainment Off");
+			entertainmentOnButton.setText("Entertainment On");
+		}
+	}
+	
+	@FXML
+	public void toggleDoor (MouseEvent event) {
+		Rectangle itemClicked = (Rectangle) event.getSource();
+		Paint currentColor = itemClicked.fillProperty().getValue();
+		String onColor = "DarkGreen";
+		String offColor = "Red";
+		if (itemClicked.getId().toLowerCase().startsWith("garage door")) {
+			if (currentColor == Paint.valueOf(offColor)) {
+				itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " closed");
+			} else if (currentColor == Paint.valueOf(onColor)) {
+				itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " opened");
+			}
+		}
+		else if (itemClicked.getId().toLowerCase().contains("door")) {
+			if (currentColor == Paint.valueOf(offColor)) {
+				itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
+				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " locked");
+			} else if (currentColor == Paint.valueOf(onColor)) {
+				itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
+				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " unlocked");
+			}
 		}
 	}
 	

@@ -60,3 +60,47 @@
 	-fx-background-color: #BB86FC;
 	-fx-text-fill: white;
 }
+
+.chart {
+	-fx-background-color: #1F1F1F;
+}
+.chart-title {
+    -fx-text-fill: #ffffff;
+}
+.axis-label {
+  -fx-text-fill: #ffffff;
+}
+.chart-plot-background {
+    -fx-background-color: #e2ecfe;
+}
+.chart-vertical-grid-lines {
+    -fx-stroke: #3278fa;
+}
+.chart-horizontal-grid-lines {
+    -fx-stroke: #3278fa;
+}
+.chart-alternative-row-fill {
+    -fx-fill: #99bcfd;
+    -fx-stroke: transparent;
+    -fx-stroke-width: 0;
+}
+
+.table-view{
+	-fx-background-color: #1F1F1F;
+}
+
+.table-view .column-header {
+	-fx-background-color: #1F1F1F;
+}
+.table-view .column-header .label{
+	-fx-text-fill: white;
+	-fx-alignment: CENTER;
+}
+
+.table-row-cell{
+    -fx-background-color: #1F1F1F;
+}
+
+.table-view .table-cell{
+    -fx-text-fill: white;
+}

@@ -14,48 +14,6 @@ public class Main extends Application {
 	private int	vSize = 720;
 	private int hSize = 1280;
 	public static Connection c = null;
-	
-/*	
-	private static Stage primaryStage;
-	private BorderPane rootLayout;
-	
-	@Override
-	public void start(Stage primaryStage) {
-	Main.primaryStage = primaryStage;
-	Main.primaryStage.setTitle("Smart Home");
-	
-	initRootLayout();
-	showSmartHome();
-	}
-
-	public void initRootLayout(){
-    	rootLayout = Singleton.getInstance()._rootLayout;//creating the instance
-		Scene scene = Singleton.getInstance()._scene;
-		scene.getStylesheets().add(Main.class.getResource("dark.css").toString());
-		primaryStage.setScene(scene);
-		primaryStage.show();
-    }
-	
-	public void showSmartHome() {
-		try {
-			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(Main.class.getResource("smart_home.fxml"));
-			AnchorPane SmartHome = (AnchorPane) loader.load();
-			rootLayout.setCenter(SmartHome);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static Stage getPrimaryStage() {
-	    return Main.primaryStage;
-	}
-	
-	public static void main(String[] args) {
-		launch(args);
-	}
-}
-*/
 
 @Override
 public void start(Stage primaryStage) throws Exception {

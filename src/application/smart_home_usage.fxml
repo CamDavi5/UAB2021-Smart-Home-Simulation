@@ -28,31 +28,31 @@
             </ButtonBar>
             <VBox prefHeight="526.0" prefWidth="1260.0">
                <children>
-                  <Pane prefHeight="522.0" prefWidth="1260.0" style="-fx-background-color: #ffffff;">
+                  <Pane prefHeight="522.0" prefWidth="1260.0">
                      <children>
                         <LineChart fx:id="usageChart" prefHeight="423.0" prefWidth="1242.0" title="Usage">
                           <xAxis>
-                            <NumberAxis side="BOTTOM" fx:id="x" />
+                            <NumberAxis side="BOTTOM" tickLabelFill="WHITE" fx:id="x" />
                           </xAxis>
                           <yAxis>
-                            <NumberAxis fx:id="y" side="LEFT" />
+                            <NumberAxis fx:id="y" side="LEFT" tickLabelFill="WHITE" />
                           </yAxis>
                         </LineChart>
                         <ComboBox fx:id="monthComboBox" layoutX="474.0" layoutY="453.0" onAction="#selectMonthButtonPressed" prefHeight="32.0" prefWidth="295.0" />
-                        <Text layoutX="27.0" layoutY="465.0" strokeType="OUTSIDE" strokeWidth="0.0" text="*  Gallons are per 100 gallons" />
+                        <Text fill="WHITE" layoutX="27.0" layoutY="465.0" strokeType="OUTSIDE" strokeWidth="0.0" text="*  Gallons are per 100 gallons" />
                         <Circle fill="#1184e8" layoutX="489.0" layoutY="432.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text layoutX="505.0" layoutY="438.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Water" />
+                        <Text fill="WHITE" layoutX="505.0" layoutY="438.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Water" />
                         <Circle fill="RED" layoutX="586.0" layoutY="433.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text layoutX="605.0" layoutY="438.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Electricity" />
+                        <Text fill="WHITE" layoutX="605.0" layoutY="438.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Electricity" />
                         <Circle fill="#12d312" layoutX="704.0" layoutY="432.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text layoutX="720.0" layoutY="439.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cost" />
+                        <Text fill="WHITE" layoutX="720.0" layoutY="439.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cost" />
                      </children>
                   </Pane>
                </children>
             </VBox>
             <HBox alignment="CENTER" prefHeight="115.0" prefWidth="1260.0" VBox.vgrow="ALWAYS">
                <children>
-                  <TableView fx:id="usageTable" prefHeight="107.0" prefWidth="1264.0">
+                  <TableView fx:id="usageTable" prefHeight="107.0" prefWidth="1264.0" style="-fx-background-color: #1F1F1F;">
                     <columns>
                         <TableColumn fx:id="monthColumn" prefWidth="75.0" text="Month" />
                       <TableColumn fx:id="wattageColumn" prefWidth="99.199951171875" text=" Wattage (Kw)" />
