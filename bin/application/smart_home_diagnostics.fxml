@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -11,7 +12,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeDiagnosticsController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeDiagnosticsController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -26,7 +27,7 @@
                <children>
                   <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1F1F1F;" HBox.hgrow="ALWAYS">
                      <children>
-                        <Button layoutX="25.0" layoutY="66.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="320.0" text="Wash Dishes &amp; Run Dishwasher">
+                        <Button fx:id="simulatewashingButton" layoutX="25.0" layoutY="66.0" mnemonicParsing="false" onAction="#simulatewashingButtonPressed" prefHeight="60.0" prefWidth="320.0" text="Wash Dishes &amp; Run Dishwasher">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -36,7 +37,7 @@
                               <Font name="System Bold" size="24.0" />
                            </font>
                         </Label>
-                        <Button layoutX="364.0" layoutY="66.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="320.0" text="20 Minute Shower">
+                        <Button fx:id="simulateshowerButton" layoutX="364.0" layoutY="66.0" mnemonicParsing="false" onAction="#simulateshowerButtonPressed" prefHeight="60.0" prefWidth="320.0" text="20 Minute Shower">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -56,6 +57,12 @@
                            </padding>
                         </Label>
                         <Button fx:id="overheadLight_Kitchen" layoutX="48.0" layoutY="224.0" mnemonicParsing="false" text="Light" />
+                        <TextArea fx:id="simulationField" layoutX="873.0" layoutY="38.0" prefHeight="117.0" prefWidth="337.0" />
+                        <Label layoutX="884.0" layoutY="11.0" text="Simulation Results" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Label>
                      </children>
                   </Pane>
                </children>
