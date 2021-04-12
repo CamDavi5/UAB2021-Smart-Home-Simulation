@@ -40,12 +40,15 @@
                         </LineChart>
                         <ComboBox fx:id="monthComboBox" layoutX="474.0" layoutY="453.0" onAction="#selectMonthButtonPressed" prefHeight="32.0" prefWidth="295.0" />
                         <Text fill="WHITE" layoutX="27.0" layoutY="465.0" strokeType="OUTSIDE" strokeWidth="0.0" text="*  Gallons are per 100 gallons" />
-                        <Circle fill="#1184e8" layoutX="489.0" layoutY="432.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text fill="WHITE" layoutX="505.0" layoutY="438.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Water" />
-                        <Circle fill="RED" layoutX="586.0" layoutY="433.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text fill="WHITE" layoutX="605.0" layoutY="438.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Electricity" />
-                        <Circle fill="#12d312" layoutX="704.0" layoutY="432.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text fill="WHITE" layoutX="720.0" layoutY="439.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cost" />
+                        <Circle fill="#1184e8" layoutX="488.0" layoutY="437.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Text fill="WHITE" layoutX="504.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Water" />
+                        <Circle fill="RED" layoutX="585.0" layoutY="438.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Text fill="WHITE" layoutX="604.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Electricity" />
+                        <Circle fill="#12d312" layoutX="703.0" layoutY="437.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Text fill="WHITE" layoutX="719.0" layoutY="444.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cost" />
+                        <Text fill="WHITE" layoutX="27.0" layoutY="483.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Solid Line = Actual Usage Data" />
+                        <Text fill="WHITE" layoutX="27.0" layoutY="502.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dashed Line = Estimated Usage" />
+                        <Text fill="WHITE" layoutX="27.0" layoutY="519.0" strokeType="OUTSIDE" strokeWidth="0.0" text="(based on two month average)" />
                      </children>
                   </Pane>
                </children>

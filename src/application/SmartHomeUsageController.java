@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -85,17 +86,27 @@ public class SmartHomeUsageController implements Initializable{
 	public void createMonthGraph(int monthNumber, int days) throws SQLException {
 		usageChart.getData().clear();
 		
-		Integer i = 1;
+		int i = 1;
+		
+		Calendar calendar = Calendar.getInstance();
+		int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+		
+		long[] costArr1 = new long[days];
+		long[] costArr2 = new long[days];
 		
 		// creating the series
 		XYChart.Series electricity = new XYChart.Series();
 		XYChart.Series water = new XYChart.Series();
 		XYChart.Series waterEst = new XYChart.Series();
+		XYChart.Series cost = new XYChart.Series();
+		XYChart.Series costEst = new XYChart.Series();
 		
 		// creating the lists to store the data points in
 		List<XYChart.Series> elecList = new ArrayList<>();
 		List<XYChart.Series> waterList = new ArrayList<>();
 		List<XYChart.Series> waterEstList = new ArrayList<>();
+		List<XYChart.Series> costList = new ArrayList<>();
+		List<XYChart.Series> costEstList = new ArrayList<>();
 		
 		// naming the lines
 		electricity.setName("Electricity");
@@ -121,7 +132,9 @@ public class SmartHomeUsageController implements Initializable{
 		
 		// going through each row that resulted from the query and adding the kilowatts to the graph
 		while(queryResult.next()) {
-			Long kilowatts = queryResult.getLong("kilowatts");
+			long kilowatts = queryResult.getLong("kilowatts");
+			costArr1[i - 1] = queryResult.getLong("total_amount");
+			
 			electricity.getData().add(new XYChart.Data(i,kilowatts));
 			i++;
 		} 
@@ -134,22 +147,23 @@ public class SmartHomeUsageController implements Initializable{
 		Statement s2 = Main.c.createStatement();
 		ResultSet queryResult2 = s2.executeQuery(sqlQuery2);
 		i = 1;
-		Integer gallons = 0;
+		int gallons = 0;
 		
 		// going through each row that resulted from the query and adding the gallons to the graph
-		while(i != 12) {
+		while(i != (currentDay + 1)) {
 			queryResult2.next();
 			gallons = (queryResult2.getInt("gallons"))/100;
+			costArr2[i - 1] = queryResult2.getLong("amount");
+			
 			water.getData().add(new XYChart.Data(i,gallons));
 			i++;
 		} 
-		
-		i--;
-		waterEst.getData().add(new XYChart.Data(i, gallons));
-		i++;
+
+		waterEst.getData().add(new XYChart.Data(i - 1, gallons));
 		
 		while(queryResult2.next()) {
 			gallons = (queryResult2.getInt("gallons"))/100;
+			costArr2[i - 1] = queryResult2.getLong("amount");
 			waterEst.getData().add(new XYChart.Data(i, gallons));
 			i++;
 		}
@@ -157,16 +171,38 @@ public class SmartHomeUsageController implements Initializable{
 		// closing the query thread
 		queryResult2.close();
 		
+		long totalCost = costArr1[currentDay - 1] + costArr2[currentDay - 1];
+		
+		costEst.getData().add(new XYChart.Data(currentDay, totalCost));
+		
+		for(int n = 0; n < days; n++) {
+			// adding the electric and water cost
+			totalCost = costArr1[n] + costArr2[n];
+			
+			if(monthNumber != 4) {
+				cost.getData().add(new XYChart.Data(n + 1, totalCost));
+			} else {
+				if(n > currentDay - 1) {
+					costEst.getData().add(new XYChart.Data(n + 1, totalCost));
+				} else {
+					cost.getData().add(new XYChart.Data(n + 1, totalCost));
+				}
+			}
+		}
 		
 		// adding the data points to the series
 		elecList.add(electricity);
 		waterList.add(water);
 		waterEstList.add(waterEst);
+		costList.add(cost);
+		costEstList.add(costEst);
 		
 		// adding the series to the graph
 		usageChart.getData().add(elecList.get(elecList.size() - 1));
 		usageChart.getData().add(waterList.get(waterList.size() - 1));
 		usageChart.getData().add(waterEstList.get(waterEstList.size() - 1));
+		usageChart.getData().add(costList.get(costList.size() - 1));
+		usageChart.getData().add(costEstList.get(costEstList.size() - 1));
 		
 		usageChart.setLegendVisible(false);
 		
@@ -195,6 +231,22 @@ public class SmartHomeUsageController implements Initializable{
 				node.setStyle("-fx-stroke: #1184e8;\n" + "-fx-background-color: #1184e8, white;\n" + "-fx-stroke-dash-array: 1 1 2 10;");
 			}
 			
+			// changing the cost line to green
+			Set<Node> costNodes = usageChart.lookupAll(".series" + 3);
+								
+			// iterating through each node in the set
+			for(Node node : costNodes) {
+				node.setStyle("-fx-stroke: #12d312;\n" + "-fx-background-color: #12d312, white;\n");
+			}
+			
+			// changing the cost line to green
+			Set<Node> costEstNodes = usageChart.lookupAll(".series" + 4);
+											
+			// iterating through each node in the set
+			for(Node node : costEstNodes) {
+				node.setStyle("-fx-stroke: #12d312;\n" + "-fx-background-color: #12d312, white;\n" + "-fx-stroke-dash-array: 1 1 2 10;");
+			}
+			
 		}else {
 			// changing the electricity line to red
 			Set<Node> elecNodes = usageChart.lookupAll(".series" + 0);
@@ -219,6 +271,23 @@ public class SmartHomeUsageController implements Initializable{
 			for(Node node : waterEstNodes) {
 				node.setStyle("-fx-stroke: #1184e8;\n" + "-fx-background-color: #1184e8, white;\n");
 			}
+			
+			// changing the cost line to green
+			Set<Node> costNodes = usageChart.lookupAll(".series" + 3);
+											
+			// iterating through each node in the set
+			for(Node node : costNodes) {
+				node.setStyle("-fx-stroke: #12d312;\n" + "-fx-background-color: #12d312, white;\n");
+			}
+			
+			// changing the cost line to green
+			Set<Node> costEstNodes = usageChart.lookupAll(".series" + 4);
+														
+			// iterating through each node in the set
+			for(Node node : costEstNodes) {
+				node.setStyle("-fx-stroke: #12d312;\n" + "-fx-background-color: #12d312, white;\n" + "-fx-stroke-dash-array: 1 1 2 10;");
+			}
+						
 		}
 	}
 	
