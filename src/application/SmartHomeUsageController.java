@@ -100,6 +100,7 @@ public class SmartHomeUsageController implements Initializable{
 		XYChart.Series waterEst = new XYChart.Series();
 		XYChart.Series cost = new XYChart.Series();
 		XYChart.Series costEst = new XYChart.Series();
+		XYChart.Series electricityEst = new XYChart.Series();
 		
 		// creating the lists to store the data points in
 		List<XYChart.Series> elecList = new ArrayList<>();
@@ -107,6 +108,7 @@ public class SmartHomeUsageController implements Initializable{
 		List<XYChart.Series> waterEstList = new ArrayList<>();
 		List<XYChart.Series> costList = new ArrayList<>();
 		List<XYChart.Series> costEstList = new ArrayList<>();
+		List<XYChart.Series> elecEstList = new ArrayList<>();
 		
 		// naming the lines
 		electricity.setName("Electricity");
@@ -129,15 +131,34 @@ public class SmartHomeUsageController implements Initializable{
 		String sqlQuery = String.format("SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '%d%%'", monthNumber);
 		Statement s = Main.c.createStatement();
 		ResultSet queryResult = s.executeQuery(sqlQuery);
+		long kilowatts = 0;
 		
 		// going through each row that resulted from the query and adding the kilowatts to the graph
-		while(queryResult.next()) {
-			long kilowatts = queryResult.getLong("kilowatts");
+		/*while(queryResult.next()) {
+			kilowatts = queryResult.getLong("kilowatts");
+			costArr1[i - 1] = queryResult.getLong("total_amount");
+			
+			electricity.getData().add(new XYChart.Data(i,kilowatts));
+			i++;
+		} */
+		
+		while(i != (currentDay + 1)) {
+			queryResult.next();
+			kilowatts = queryResult.getLong("kilowatts");
 			costArr1[i - 1] = queryResult.getLong("total_amount");
 			
 			electricity.getData().add(new XYChart.Data(i,kilowatts));
 			i++;
 		} 
+
+		electricityEst.getData().add(new XYChart.Data(i - 1, kilowatts));
+		
+		while(queryResult.next()) {
+			kilowatts = queryResult.getLong("kilowatts");
+			costArr1[i - 1] = queryResult.getLong("total_amount");
+			electricityEst.getData().add(new XYChart.Data(i, kilowatts));
+			i++;
+		}
 		
 		// closing the query thread
 		queryResult.close();
@@ -196,6 +217,7 @@ public class SmartHomeUsageController implements Initializable{
 		waterEstList.add(waterEst);
 		costList.add(cost);
 		costEstList.add(costEst);
+		elecEstList.add(electricityEst);
 		
 		// adding the series to the graph
 		usageChart.getData().add(elecList.get(elecList.size() - 1));
@@ -203,6 +225,7 @@ public class SmartHomeUsageController implements Initializable{
 		usageChart.getData().add(waterEstList.get(waterEstList.size() - 1));
 		usageChart.getData().add(costList.get(costList.size() - 1));
 		usageChart.getData().add(costEstList.get(costEstList.size() - 1));
+		usageChart.getData().add(elecEstList.get(elecEstList.size() - 1));
 		
 		usageChart.setLegendVisible(false);
 		
@@ -213,6 +236,14 @@ public class SmartHomeUsageController implements Initializable{
 			// iterating through each node in the set
 			for(Node node : elecNodes) {
 				node.setStyle("-fx-stroke: #ff0000;\n" + "-fx-background-color: #ff0000, white;");
+			}
+			
+			// changing the water estimate line
+			Set<Node> elecEstNodes = usageChart.lookupAll(".series" + 5);
+											
+			// iterating through each node in the set
+			for(Node node : elecEstNodes) {
+				node.setStyle("-fx-stroke: #ff0000;\n" + "-fx-background-color: #ff0000, white;\n" + "-fx-stroke-dash-array: 1 1 2 10;");
 			}
 			
 			// changing the water line to blue
@@ -286,6 +317,14 @@ public class SmartHomeUsageController implements Initializable{
 			// iterating through each node in the set
 			for(Node node : costEstNodes) {
 				node.setStyle("-fx-stroke: #12d312;\n" + "-fx-background-color: #12d312, white;\n" + "-fx-stroke-dash-array: 1 1 2 10;");
+			}
+			
+			// changing the elec estimate line
+			Set<Node> elecEstNodes = usageChart.lookupAll(".series" + 5);
+														
+			// iterating through each node in the set
+			for(Node node : elecEstNodes) {
+				node.setStyle("-fx-stroke: #ff0000;\n" + "-fx-background-color: #ff0000, white;\n");
 			}
 						
 		}
