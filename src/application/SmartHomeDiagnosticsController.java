@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
@@ -31,6 +33,10 @@ public class SmartHomeDiagnosticsController implements Initializable{
     private Button simulateshowerButton;
 	@FXML
     private TextArea simulationField;
+	@FXML
+	private ChoiceBox<String> lengthOfSimulationChoiceBox;
+	
+	ObservableList<String> lengthsOfSimulation = FXCollections.observableArrayList("5 minutes", "10 minutes", "15 minutes", "20 minutes");
 	
 	public void setHomeScene(Scene scene) {
 		firstScene = scene;
@@ -121,7 +127,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		
 		// hot water heater calculation
 		if (hotpercent != 0) {
-			w = w + (((4000*hotpercent) * (4*gallons))/1000);
+			w = w + (((4000*hotpercent) * (4*gallons)/60)/1000);
 		}
 		
 		// cost calculation combining the wattage and water cost
@@ -149,7 +155,9 @@ public class SmartHomeDiagnosticsController implements Initializable{
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
-    	
+		this.lengthOfSimulationChoiceBox.getItems().removeAll(lengthOfSimulationChoiceBox.getItems());
+		this.lengthOfSimulationChoiceBox.getItems().addAll(lengthsOfSimulation);
+		this.lengthOfSimulationChoiceBox.getSelectionModel().select("5 minutes");
 	}
 
 	

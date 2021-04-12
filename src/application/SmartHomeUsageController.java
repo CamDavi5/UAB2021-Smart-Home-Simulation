@@ -48,6 +48,7 @@ public class SmartHomeUsageController implements Initializable{
 	private NumberAxis y;
 	@FXML
 	private LineChart<?,?> usageChart;
+
 	
 	@FXML
     private TableView<DatabaseTable> usageTable;
@@ -61,6 +62,7 @@ public class SmartHomeUsageController implements Initializable{
 	private TableColumn<DatabaseTable, Double> costColumn;
 	
 	ObservableList<String> monthList = FXCollections.observableArrayList("February", "March", "April");
+	
 	
 	public void setHomeScene(Scene scene) {
 		firstScene = scene;
