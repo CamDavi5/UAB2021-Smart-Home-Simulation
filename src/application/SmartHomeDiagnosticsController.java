@@ -16,13 +16,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 
 public class SmartHomeDiagnosticsController implements Initializable{
 	private Scene firstScene;
 	private Scene secondScene;
+	
 	@FXML
 	private Button HomeButton;
 	@FXML
@@ -35,17 +38,18 @@ public class SmartHomeDiagnosticsController implements Initializable{
     private TextArea simulationField;
 	@FXML
 	private ChoiceBox<String> lengthOfSimulationChoiceBox;
-	
+
+	public SmartHomeController HC = new SmartHomeController();
+
+
 	ObservableList<String> lengthsOfSimulation = FXCollections.observableArrayList("5 minutes", "10 minutes", "15 minutes", "20 minutes");
 	
 	public void setHomeScene(Scene scene) {
 		firstScene = scene;
-		
 	}
 
 	public void setUsageScene(Scene scene) {
-		secondScene = scene;
-		
+		secondScene = scene;		
 	}
 
 	// event listener for home button that sets the scene to home page
@@ -62,11 +66,16 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	
 	// Calculates the shower event and outputs the results
 	@FXML
-    void simulateshowerButtonPressed(ActionEvent event) {
+    public void simulateshowerButtonPressed(ActionEvent event) {
 		simulationField.clear();
 		simulationField.appendText("\n Calculating shower event...");
 		
 		// Shower simulation
+//		UC.toggleOn(UC.app_livingroom_TV.getClass());
+//		HC.toggleTEST("Master Bedroom Overhead Lamp", 1);
+		
+		
+		// Shower calculations
 		List<Double> totals = simulationCalculation(0, 25, .33, 0.65);
 		totals = roundingData(totals);
 		
@@ -154,7 +163,6 @@ public class SmartHomeDiagnosticsController implements Initializable{
     
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
 		this.lengthOfSimulationChoiceBox.getItems().removeAll(lengthOfSimulationChoiceBox.getItems());
 		this.lengthOfSimulationChoiceBox.getItems().addAll(lengthsOfSimulation);
 		this.lengthOfSimulationChoiceBox.getSelectionModel().select("5 minutes");

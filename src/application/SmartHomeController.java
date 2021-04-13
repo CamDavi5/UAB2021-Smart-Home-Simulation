@@ -22,10 +22,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -66,7 +68,7 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private TextArea quickStatusField;
 	@FXML
-	private Pane lightingOverlay;
+	public Pane lightingOverlay;
 	@FXML
 	private Rectangle door_toGarage;
 	@FXML
@@ -80,16 +82,18 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private Label insideLabel;
 	@FXML
-	private Rectangle livingroom_TV;
+	public Rectangle app_livingroom_TV;
 	@FXML
-	private Circle lamp_Livinga;
+	public Circle lamp_Livinga;
 	@FXML
-	private Circle overheadLight_LR;
+	public Circle overheadLight_LR;
 	@FXML
-	private Circle lamp_Livingb;
+	public Circle lamp_Livingb;
 	
+	private double dailyElectricUsage;
+	private double dailyWaterUsage;
+	private double dailyOverallCost;
 	
-		
 	@FXML
 	// increments temperatureSet and displays "set to" temperature for three seconds before returning to current temperature
 	public void increaseTemperatureButtonPressed() {
@@ -205,59 +209,39 @@ public class SmartHomeController implements Initializable{
 	}
 	
 	@FXML
-	public void toggleLightingPower (MouseEvent event) {
-		Circle itemClicked = (Circle) event.getSource();
-		Paint currentColor = itemClicked.fillProperty().getValue();
-		String onColor = "Red";
-		String offColor = "Yellow";
-		if (currentColor == Paint.valueOf(offColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
-		} else if (currentColor == Paint.valueOf(onColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
-		}
-	}
-
-	@FXML
 	public void allLightsButtonPressed() {
 		// If button is "All Lights On", turn all lights on and set button to "All Lights off"
 		if (allLightsButton.getText().equals("All Lights On")){
 			for (Node node : lightingOverlay.getChildren()) {
 				if (node instanceof Circle) {
-					((Circle) node).fillProperty().setValue(Paint.valueOf("Red"));
+					((Circle) node).setFill(Color.RED);
 				}
 			}
 			allLightsButton.setText("All Lights Off");
-			quickStatusField.appendText("\n" + "All Lights Powered On");
-		}
-		
-		else {
+			quickStatusField.appendText("\n" + "All Lights On");
+		} else {
 			for (Node node : lightingOverlay.getChildren()) {
 				if (node instanceof Circle) {
-					((Circle) node).fillProperty().setValue(Paint.valueOf("Yellow"));
+					((Circle) node).setFill(Color.YELLOW);
 				}
 			}
 			allLightsButton.setText("All Lights On");
-			quickStatusField.appendText("\n" + "All Lights Powered Off");
+			quickStatusField.appendText("\n" + "All Lights Off");
 		}
 	}
 	
 	@FXML
 	public void allDoorsLockedButtonPressed() {
-		String onColor = "DarkGreen";
-		String offColor = "Red";
 		if (allDoorsLockedButton.getText().equals("All Doors Locked")) {
-			door_toGarage.fillProperty().setValue(Paint.valueOf(onColor));
-			door_front.fillProperty().setValue(Paint.valueOf(onColor));
-			door_back.fillProperty().setValue(Paint.valueOf(onColor));
+			door_toGarage.setFill(Color.RED);
+			door_front.setFill(Color.RED);
+			door_back.setFill(Color.RED);
 			allDoorsLockedButton.setText("All Doors Unlocked");
 			quickStatusField.appendText("\n" + "All Doors Locked");
-		}
-		else {
-			door_toGarage.fillProperty().setValue(Paint.valueOf(offColor));
-			door_front.fillProperty().setValue(Paint.valueOf(offColor));
-			door_back.fillProperty().setValue(Paint.valueOf(offColor));
+		} else {
+			door_toGarage.setFill(Color.DARKGREEN);
+			door_front.setFill(Color.DARKGREEN);
+			door_back.setFill(Color.DARKGREEN);
 			quickStatusField.appendText("\n" + "All Doors Unlocked");
 			allDoorsLockedButton.setText("All Doors Locked");
 		}
@@ -265,17 +249,17 @@ public class SmartHomeController implements Initializable{
 	
 	@FXML
 	public void garageDoorOpenButtonPressed() {
-		String onColor = "DarkGreen";
-		String offColor = "Red";
+		Paint onColor = Color.DARKGREEN;
+		Paint offColor = Color.RED;
 		if (garageDoorOpenButton.getText().equals("Garage Door Open")) {
-			door_garage_1.fillProperty().setValue(Paint.valueOf(offColor));
-			door_garage_2.fillProperty().setValue(Paint.valueOf(offColor));
+			door_garage_1.setFill(offColor);
+			door_garage_2.setFill(offColor);
 			garageDoorOpenButton.setText("Garage Door Close");
 			quickStatusField.appendText("\n" + "Garage doors opened");
 		}
 		else {
-			door_garage_1.fillProperty().setValue(Paint.valueOf(onColor));
-			door_garage_2.fillProperty().setValue(Paint.valueOf(onColor));
+			door_garage_1.setFill(onColor);
+			door_garage_2.setFill(onColor);
 			quickStatusField.appendText("\n" + "Garage doors closed");
 			garageDoorOpenButton.setText("Garage Door Open");
 		}
@@ -285,96 +269,103 @@ public class SmartHomeController implements Initializable{
 	
 	@FXML
 	public void entertainmentOnButtonPressed() {
-		String tvOnColor = "Red";
-		String tvOffColor = "DodgerBlue";
-		String onColor = "Red";
-		String offColor = "Yellow";
+		Paint onColor = Color.RED;
+		Paint tvOffColor = Color.DODGERBLUE;
+		Paint offColor = Color.YELLOW;
 		if (entertainmentOnButton.getText().equals("Entertainment On")) {
-			livingroom_TV.fillProperty().setValue(Paint.valueOf(tvOnColor));
-			lamp_Livinga.fillProperty().setValue(Paint.valueOf(onColor));
-			overheadLight_LR.fillProperty().setValue(Paint.valueOf(onColor));
-			lamp_Livingb.fillProperty().setValue(Paint.valueOf(onColor));
+			app_livingroom_TV.setFill(onColor);
+			lamp_Livinga.setFill(onColor);
+			overheadLight_LR.setFill(onColor);
+			lamp_Livingb.setFill(onColor);
 			entertainmentOnButton.setText("Entertainment Off");
 			quickStatusField.appendText("\n" + "Entertainment On");
 		}
 		else {
-			livingroom_TV.fillProperty().setValue(Paint.valueOf(tvOffColor));
-			lamp_Livinga.fillProperty().setValue(Paint.valueOf(offColor));
-			overheadLight_LR.fillProperty().setValue(Paint.valueOf(offColor));
-			lamp_Livingb.fillProperty().setValue(Paint.valueOf(offColor));
+			app_livingroom_TV.setFill(tvOffColor);
+			lamp_Livinga.setFill(offColor);
+			overheadLight_LR.setFill(offColor);
+			lamp_Livingb.setFill(offColor);
 			quickStatusField.appendText("\n" + "Entertainment Off");
 			entertainmentOnButton.setText("Entertainment On");
 		}
 	}
 	
-	@FXML
-	public void toggleDoor (MouseEvent event) {
-		Rectangle itemClicked = (Rectangle) event.getSource();
+	// When an item is clicked on Home Screen
+	public void itemClicked (MouseEvent event) {
+		Shape itemClicked = (Shape) event.getSource();
 		Paint currentColor = itemClicked.fillProperty().getValue();
-		String onColor = "DarkGreen";
-		String offColor = "Red";
-		if (itemClicked.getId().toLowerCase().startsWith("garage door")) {
-			if (currentColor == Paint.valueOf(offColor)) {
-				itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
-				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " closed");
-			} else if (currentColor == Paint.valueOf(onColor)) {
-				itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
-				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " opened");
+		if (currentColor == Paint.valueOf("RED")) {
+			toggleOff(itemClicked);
+		} else {
+		toggleOn(itemClicked);
+		
+		}
+	}
+
+
+	void toggleTEST(String id, int toggle) {
+		Shape item = null;
+		System.out.println(id);
+		System.out.println(toggle);
+
+		for (Node node : lightingOverlay.getChildren()) {
+			System.out.println(node);
+			if (node.getId() == id) {
+				item = (Shape) node;
+				System.out.println(item);
+			} else {
+				System.out.println ("No Nodes here by that name.");
 			}
+		if (toggle == 1) {
+			toggleOn(item);
+		} else if (toggle == 2) {
+			toggleOff(item);
 		}
-		else if (itemClicked.getId().toLowerCase().contains("door")) {
-			if (currentColor == Paint.valueOf(offColor)) {
-				itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
-				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " locked");
-			} else if (currentColor == Paint.valueOf(onColor)) {
-				itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
-				quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " unlocked");
-			}
 		}
 	}
 	
-	@FXML
-	public void toggleAppliancePower (MouseEvent event) {
-		Rectangle itemClicked = (Rectangle) event.getSource();
-		Paint currentColor = itemClicked.fillProperty().getValue();
-		String onColor = "Red";
-		String offColor = "DodgerBlue";
-		if (currentColor == Paint.valueOf(offColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
-		} else if (currentColor == Paint.valueOf(onColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " power toggled");
+	// Toggles an item on
+	public void toggleOn (Shape itemClicked) {
+		System.out.println(itemClicked);
+		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
+			changeColorAndMessage(itemClicked, Color.RED, "on.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("App")) {
+			changeColorAndMessage(itemClicked, Color.RED, "on.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("Window")) {
+			changeColorAndMessage(itemClicked, Color.RED, "open.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("Door")) {
+			changeColorAndMessage(itemClicked, Color.RED, "open.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Circle") && itemClicked.getId().contains("exhaustFan")) {
+			changeColorAndMessage(itemClicked, Color.RED, "on.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Polygon")) {
+			changeColorAndMessage(itemClicked, Color.RED, "flowing.");
+		} else {
+			System.out.println ("OOPS! No such indicator to toggle on.");
 		}
 	}
 	
-	@FXML
-	public void toggleWindows (MouseEvent event) {
-		Rectangle itemClicked = (Rectangle) event.getSource();
-		Paint currentColor = itemClicked.fillProperty().getValue();
-		String onColor = "Red";
-		String offColor = "BlueViolet";
-		if (currentColor == Paint.valueOf(offColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " sensor open");
-		} else if (currentColor == Paint.valueOf(onColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " sensor closed");
+	// toggles an item off
+	public void toggleOff (Shape itemClicked) {
+		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
+			changeColorAndMessage (itemClicked, Color.YELLOW, "off.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("App")) {
+			changeColorAndMessage(itemClicked, Color.DODGERBLUE, "off.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("Window")) {
+			changeColorAndMessage(itemClicked, Color.BLUEVIOLET, "closed.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("Door")) {
+			changeColorAndMessage(itemClicked, Color.DARKGREEN, "closed.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Circle") && itemClicked.getId().contains("exhaustFan")) {
+			changeColorAndMessage(itemClicked, Color.YELLOW, "off.");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Polygon")) {
+			changeColorAndMessage(itemClicked, Color.AQUA, "not flowing.");
+		} else {
+			System.out.println ("OOPS! No such indicator to toggle off.");
 		}
 	}
 	
-	@FXML
-	public void toggleWater (MouseEvent event) {
-		Polygon itemClicked = (Polygon) event.getSource();
-		Paint currentColor = itemClicked.fillProperty().getValue();
-		String onColor = "Red";
-		String offColor = "Aqua";
-		if (currentColor == Paint.valueOf(offColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(onColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " flowing");
-		} else if (currentColor == Paint.valueOf(onColor)) {
-			itemClicked.fillProperty().setValue(Paint.valueOf(offColor));
-			quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " not flowing");
-		}
+	// changes the color and the status message
+	public void changeColorAndMessage (Shape itemClicked, Paint color, String text) {
+		itemClicked.setFill(color);
+		quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " " + text);
 	}
 }
