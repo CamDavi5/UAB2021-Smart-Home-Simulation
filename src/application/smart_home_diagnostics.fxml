@@ -29,21 +29,21 @@
                <children>
                   <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #1F1F1F;" HBox.hgrow="ALWAYS">
                      <children>
-                        <Button fx:id="simulatewashingButton" layoutX="29.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulatewashingButtonPressed" prefHeight="60.0" prefWidth="193.0" text="Run Dishwasher">
+                        <ToggleButton fx:id="simulatewashingButton" layoutX="29.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulatewashingButtonPressed" prefHeight="60.0" prefWidth="193.0" text="Run Dishwasher">
                            <font>
                               <Font size="18.0" />
                            </font>
-                        </Button>
+                        </ToggleButton>
                         <Label layoutX="25.0" layoutY="73.0" text="Preconfigured Event Simulations Toggles:" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="24.0" />
                            </font>
                         </Label>
-                        <Button fx:id="simulateshowerButton" layoutX="240.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulateshowerButtonPressed" prefHeight="60.0" prefWidth="153.0" text="Shower">
+                        <ToggleButton fx:id="simulateshowerButton" layoutX="240.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulateshowerButtonPressed" prefHeight="60.0" prefWidth="153.0" text="Shower">
                            <font>
                               <Font size="18.0" />
                            </font>
-                        </Button>
+                        </ToggleButton>
                         <Label layoutX="25.0" layoutY="201.0" prefHeight="35.0" prefWidth="527.0" text="Individual Device Simulation Power Toggles:" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="24.0" />
@@ -281,16 +281,16 @@
                         <ToggleButton id="Outside Faucet Water" layoutX="935.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="Spigot" />
                         <ToggleButton disable="true" layoutX="1034.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="not set" />
                         <ToggleButton disable="true" layoutX="1135.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="not set" />
-                        <Button fx:id="simulateshowerButton1" disable="true" layoutX="410.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulateshowerButtonPressed" prefHeight="60.0" prefWidth="139.0" text="not set">
+                        <ToggleButton disable="true" layoutX="410.0" layoutY="119.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="139.0" text="not set">
                            <font>
                               <Font size="18.0" />
                            </font>
-                        </Button>
-                        <Button fx:id="simulateshowerButton11" disable="true" layoutX="566.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulateshowerButtonPressed" prefHeight="60.0" prefWidth="139.0" text="not set">
+                        </ToggleButton>
+                        <ToggleButton disable="true" layoutX="566.0" layoutY="119.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="139.0" text="not set">
                            <font>
                               <Font size="18.0" />
                            </font>
-                        </Button>
+                        </ToggleButton>
                      </children>
                   </Pane>
                </children>

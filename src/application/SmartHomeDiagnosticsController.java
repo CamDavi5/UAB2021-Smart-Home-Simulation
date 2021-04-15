@@ -35,9 +35,9 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	@FXML
 	private Button UsageButton;
 	@FXML
-    private Button simulatewashingButton;
+    private ToggleButton simulatewashingButton;
     @FXML
-    private Button simulateshowerButton;
+    private ToggleButton simulateshowerButton;
 	@FXML
     private TextArea simulationField;
 	@FXML
@@ -81,8 +81,20 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		simulationField.clear();
 		simulationField.appendText("\n Calculating shower event...");
 		
-		// Shower simulation
-		homeController.diagnosticToggle("Master Bedroom Shower", 1);
+		simulationMinutesUpdate();
+		ToggleButton buttonID = (ToggleButton) event.getSource();
+		
+		if (buttonID.isSelected() == true) {
+			homeController.diagnosticToggle("Master Bedroom Shower", 1);
+			homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 1);
+			homeController.diagnosticToggle("Master Bath Overhead Light", 1);
+			homeController.diagnosticToggle("Appliance - Water Heater", 1);
+		} else if (buttonID.isSelected() == false) {
+			homeController.diagnosticToggle("Master Bedroom Shower", 2);
+			homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 2);
+			homeController.diagnosticToggle("Master Bath Overhead Light", 2);
+			homeController.diagnosticToggle("Appliance - Water Heater", 2);
+		}
 		
 		// Shower calculations
 		List<Double> totals = simulationCalculation(0, 25, .33, 0.65);
@@ -105,6 +117,21 @@ public class SmartHomeDiagnosticsController implements Initializable{
     void simulatewashingButtonPressed(ActionEvent event) {
     	simulationField.clear();
 		simulationField.appendText("\n Calculating washing event...");
+		
+		simulationMinutesUpdate();
+		ToggleButton buttonID = (ToggleButton) event.getSource();
+		
+		if (buttonID.isSelected() == true) {
+			homeController.diagnosticToggle("Appliance - Dishwasher", 1);
+			homeController.diagnosticToggle("Dishwasher Water", 1);
+			homeController.diagnosticToggle("Kitchen Overhead Light", 1);
+			homeController.diagnosticToggle("Appliance - Water Heater", 1);
+		} else if (buttonID.isSelected() == false) {
+			homeController.diagnosticToggle("Appliance - Dishwasher", 2);
+			homeController.diagnosticToggle("Dishwasher Water", 2);
+			homeController.diagnosticToggle("Kitchen Overhead Light", 2);
+			homeController.diagnosticToggle("Appliance - Water Heater", 2);
+		}
 		
 		// Washing with sink simulation
 		List<Double> totals = simulationCalculation(0, 25, .083, 1);
@@ -172,25 +199,6 @@ public class SmartHomeDiagnosticsController implements Initializable{
     
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-	}
-	
-	public void toggleSimulation (ActionEvent event) {
-		simulationMinutesUpdate();
-		Button buttonID = (Button) event.getSource();
-		String toggleID = buttonID.getId().toString();
-		
-		homeController.diagnosticToggle(toggleID, 1);
-		
-		// Calculations
-		// Have to implement this so it discerns what calculations to run
-//		UsageCalculations UC = new UsageCalculations();
-//		Double powerUsage = UC.lightsUsage(timeToSimulate);
-//		Double waterUsage = UC.waterCubicFeetUsage(0);
-//		
-		// Print to Status		
-		// Need to formalize this so it outputs the same way for all items
-//		System.out.println (powerUsage.toString());
-//		System.out.println (waterUsage.toString());
 	}
 	
 	public void toggleSimulation2 (ActionEvent event) {
