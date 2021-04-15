@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -302,30 +304,23 @@ public class SmartHomeController implements Initializable{
 		}
 	}
 
-
-	void toggleTEST(String id, int toggle) {
+	void diagnosticToggle(String id, int toggle) {
 		Shape item = null;
-		System.out.println(id);
-		System.out.println(toggle);
-
 		for (Node node : lightingOverlay.getChildren()) {
-			System.out.println(node);
-			if (node.getId() == id) {
+			if (node.getId().compareToIgnoreCase(id) == 0) {
 				item = (Shape) node;
-				System.out.println(item);
-			} else {
-				System.out.println ("No Nodes here by that name.");
-			}
-		if (toggle == 1) {
-			toggleOn(item);
-		} else if (toggle == 2) {
-			toggleOff(item);
-		}
+				if (toggle == 1) {
+					toggleOn(item);
+				} else if (toggle == 2) {
+					toggleOff(item);
+				}
+			} 
 		}
 	}
 	
 	// Toggles an item on
 	public void toggleOn (Shape itemClicked) {
+		// todo: store event in database table
 		System.out.println(itemClicked);
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
 			changeColorAndMessage(itemClicked, Color.RED, "on.");
@@ -346,6 +341,7 @@ public class SmartHomeController implements Initializable{
 	
 	// toggles an item off
 	public void toggleOff (Shape itemClicked) {
+		// todo: store event in database table
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
 			changeColorAndMessage (itemClicked, Color.YELLOW, "off.");
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("App")) {

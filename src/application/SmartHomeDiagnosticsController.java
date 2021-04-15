@@ -9,12 +9,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -25,6 +28,7 @@ import javafx.stage.Stage;
 public class SmartHomeDiagnosticsController implements Initializable{
 	private Scene firstScene;
 	private Scene secondScene;
+	private SmartHomeController homeController;
 	
 	@FXML
 	private Button HomeButton;
@@ -37,13 +41,11 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	@FXML
     private TextArea simulationField;
 	@FXML
-	private ChoiceBox<String> lengthOfSimulationChoiceBox;
-
-	public SmartHomeController HC = new SmartHomeController();
-
-
-	ObservableList<String> lengthsOfSimulation = FXCollections.observableArrayList("5 minutes", "10 minutes", "15 minutes", "20 minutes");
+	private TextField lengthOfSimulationField;
 	
+	public Double timeToSimulate = 0.0;
+
+
 	public void setHomeScene(Scene scene) {
 		firstScene = scene;
 	}
@@ -64,6 +66,15 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		primaryStage.setScene(secondScene);
 	}
 	
+	@FXML
+	public void simulationMinutesUpdate() {
+		if (lengthOfSimulationField.getText().isEmpty() == true) {
+			this.lengthOfSimulationField.setText("1");
+		} else {
+			this.timeToSimulate = Double.parseDouble(lengthOfSimulationField.getText());
+		}
+	}
+	
 	// Calculates the shower event and outputs the results
 	@FXML
     public void simulateshowerButtonPressed(ActionEvent event) {
@@ -71,9 +82,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		simulationField.appendText("\n Calculating shower event...");
 		
 		// Shower simulation
-//		UC.toggleOn(UC.app_livingroom_TV.getClass());
-//		HC.toggleTEST("Master Bedroom Overhead Lamp", 1);
-		
+		homeController.diagnosticToggle("Master Bedroom Shower", 1);
 		
 		// Shower calculations
 		List<Double> totals = simulationCalculation(0, 25, .33, 0.65);
@@ -163,14 +172,61 @@ public class SmartHomeDiagnosticsController implements Initializable{
     
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		this.lengthOfSimulationChoiceBox.getItems().removeAll(lengthOfSimulationChoiceBox.getItems());
-		this.lengthOfSimulationChoiceBox.getItems().addAll(lengthsOfSimulation);
-		this.lengthOfSimulationChoiceBox.getSelectionModel().select("5 minutes");
 	}
-
 	
-	public void toggle (MouseEvent event) {
-		Object toggleID = event.getSource();
-		System.out.println(toggleID);
+	public void toggleSimulation (ActionEvent event) {
+		simulationMinutesUpdate();
+		Button buttonID = (Button) event.getSource();
+		String toggleID = buttonID.getId().toString();
+		
+		homeController.diagnosticToggle(toggleID, 1);
+		
+		// Calculations
+		// Have to implement this so it discerns what calculations to run
+//		UsageCalculations UC = new UsageCalculations();
+//		Double powerUsage = UC.lightsUsage(timeToSimulate);
+//		Double waterUsage = UC.waterCubicFeetUsage(0);
+//		
+		// Print to Status		
+		// Need to formalize this so it outputs the same way for all items
+//		System.out.println (powerUsage.toString());
+//		System.out.println (waterUsage.toString());
+	}
+	
+	public void toggleSimulation2 (ActionEvent event) {
+		simulationMinutesUpdate();
+		ToggleButton buttonID = (ToggleButton) event.getSource();
+		String toggleID = buttonID.getId().toString();
+		
+		if (buttonID.isSelected() == true) {
+			homeController.diagnosticToggle(toggleID, 1);
+		} else if (buttonID.isSelected() == false) {
+			homeController.diagnosticToggle(toggleID, 2);
+		}
+		
+		// TODO: Calculations
+		// TODO: Have to implement this so it discerns what calculations to run based on type of device
+
+		UsageCalculations UC = new UsageCalculations();
+		
+		// TODO: Go over Usage Calculations to be sure all calculate correctly
+		// Sample Calls of Usage Calculations Class Functions
+//		Double powerUsage = UC.lightsUsage(timeToSimulate);
+//		Double waterUsage = UC.waterCubicFeetUsage(0);
+//		
+		// TODO: Update Simulation Results Status Window with Calculations		
+		// TODO:  Need to formalize this so it outputs the same way for all items
+		// Sample methods that point to status window instead of console
+//		System.out.println (powerUsage.toString());
+//		System.out.println (waterUsage.toString());
+
+		
+		
+	}
+	
+	
+
+	public void setHomeController(SmartHomeController smartHomeController) {
+		this.homeController = smartHomeController;
 	}
 }

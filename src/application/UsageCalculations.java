@@ -24,8 +24,8 @@ public class UsageCalculations {
 	public double clothesWasherGallons = 20;
 			
 	// electric use formulas //
-	public double lightsUsage (double watts, double time) {
-		double usage = (watts * time)/1000;
+	public double lightsUsage (double time) {
+		double usage = (lightWattage * time)/1000;
 		return usage;
 	}
 	
@@ -39,8 +39,8 @@ public class UsageCalculations {
 		return usage;
 	}
 	
-	public double electricCost (double wattsUsed) {
-		double cost = .12 * wattsUsed;
+	public double electricCost (double kilowattsUsed) {
+		double cost = .12 * kilowattsUsed;
 		return cost;
 	}
 	

@@ -70,6 +70,7 @@ public void start(Stage primaryStage) throws Exception {
     SmartHomeDiagnosticsController smartHomeDiagnosticsController = (SmartHomeDiagnosticsController) thirdPageLoader.getController();
     smartHomeDiagnosticsController.setHomeScene(firstScene);
     smartHomeDiagnosticsController.setUsageScene(secondScene);
+    smartHomeDiagnosticsController.setHomeController(smartHomeController);
  
 
     primaryStage.setTitle("Smart Home");

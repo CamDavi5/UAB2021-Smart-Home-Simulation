@@ -48,8 +48,12 @@
     -fx-scale-x: 0.9;
 }
 
-.togglebutton {
+.toggle-button {
 	-fx-background-color: #BB86FC;
+}
+
+.toggle-button:selected {
+	-fx-background-color: #FF0000;
 }
 
 .text-area *.text {
