@@ -79,7 +79,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	@FXML
     public void simulateshowerButtonPressed(ActionEvent event) {
 		simulationField.clear();
-		simulationField.appendText("\n Calculating shower event...");
+		String simulateStart = "\n Calculating shower event for "+String.valueOf(timeToSimulate)+" minutes...";
+		simulationField.appendText(simulateStart);
 		
 		simulationMinutesUpdate();
 		ToggleButton buttonID = (ToggleButton) event.getSource();
@@ -97,7 +98,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		}
 		
 		// Shower calculations
-		List<Double> totals = simulationCalculation(0, 25, .33, 0.65);
+		List<Double> totals = simulationCalculation(0, 25, timeToSimulate/60, 0.65);
 		totals = roundingData(totals);
 		
 		// TextArea output
@@ -116,7 +117,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
     @FXML
     void simulatewashingButtonPressed(ActionEvent event) {
     	simulationField.clear();
-		simulationField.appendText("\n Calculating washing event...");
+    	String simulateStart = "\n Calculating washing event for "+String.valueOf(timeToSimulate)+" minutes...";
+		simulationField.appendText(simulateStart);
 		
 		simulationMinutesUpdate();
 		ToggleButton buttonID = (ToggleButton) event.getSource();
@@ -133,7 +135,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 			homeController.diagnosticToggle("Appliance - Water Heater", 2);
 		}
 		
-		// Washing with sink simulation
+		/** //Washing with sink simulation
 		List<Double> totals = simulationCalculation(0, 25, .083, 1);
 		double sinkw = totals.get(0); 
 		double sinkg = totals.get(1);
@@ -144,6 +146,13 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		totals.set(0, totals.get(0)+sinkw);
 		totals.set(1, totals.get(1)+sinkg);
 		totals.set(2, totals.get(2)+sinkc);
+		totals = roundingData(totals);**/
+		
+		// Dishwasher ONLY simulation
+		List<Double> totals = simulationCalculation(1800, 6, timeToSimulate/60, 1);
+		double sinkw = totals.get(0); 
+		double sinkg = totals.get(1);
+		double sinkc = totals.get(2);
 		totals = roundingData(totals);
 		
 		// TextArea output
@@ -231,10 +240,10 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		
 		
 	}
-	
-	
+		
 
 	public void setHomeController(SmartHomeController smartHomeController) {
 		this.homeController = smartHomeController;
 	}
+
 }
