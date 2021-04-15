@@ -4,7 +4,7 @@ public class UsageCalculations {
 
 	// electrical wattage //
 	public double lightWattage = 60;
-	public double exhaustFanWattage = 70;
+	public double exhaustFanWattage = 30;
 	public double HVACWattage = 3500;
 	public double refridgeratorWattage = 150;
 	public double microwaveWattage = 1100;
