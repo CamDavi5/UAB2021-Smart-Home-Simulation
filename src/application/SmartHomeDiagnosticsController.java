@@ -169,6 +169,9 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				simulationField.appendText(gallons+addon);
 				addon = Double.toString(totals.get(2));
 				simulationField.appendText(cost+addon);
+				
+				simulateshowerButton.setDisable(false);
+				simulatewashingButton.setDisable(false);
 		}
 		}.start();
 	}
@@ -180,7 +183,9 @@ public class SmartHomeDiagnosticsController implements Initializable{
     		public void run() {
     			simulationField.clear();
     			
-    	
+    			simulateshowerButton.setDisable(true);
+				simulatewashingButton.setDisable(true);
+    			
     			simulationMinutesUpdate();
     			ToggleButton buttonID = (ToggleButton) event.getSource();
 		
@@ -245,6 +250,9 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulationField.appendText(gallons+addon);
     			addon = Double.toString(totals.get(2));
     			simulationField.appendText(cost+addon);
+    			
+    			simulateshowerButton.setDisable(false);
+				simulatewashingButton.setDisable(false);
     	}
     	}.start();
     }
