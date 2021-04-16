@@ -172,6 +172,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				
 				simulateshowerButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
+				simulateshowerButton.setSelected(false);
 		}
 		}.start();
 	}
@@ -253,6 +254,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			
     			simulateshowerButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
+				simulatewashingButton.setSelected(false);
     	}
     	}.start();
     }
