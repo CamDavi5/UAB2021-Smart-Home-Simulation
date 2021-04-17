@@ -24,18 +24,8 @@ public class UsageCalculations {
 	public double clothesWasherGallons = 20;
 			
 	// electric use formulas //
-	public double lightsUsage (double time) {
-		double usage = (lightWattage * time)/1000;
-		return usage;
-	}
-	
-	public double applianceUsage (double watts, double time) {
+	public double electricUsage (double watts, double time) {
 		double usage = (watts * time)/1000;
-		return usage;
-	}
-	
-	public double hotwaterHeaterUsage (double watts, double waterUsedPercent, double gallonsUsed) {
-		double usage = ((watts) * (4 * (gallonsUsed * waterUsedPercent) / 60) / 1000);
 		return usage;
 	}
 	
@@ -55,15 +45,22 @@ public class UsageCalculations {
 		return cost;
 	}
 	
+	// specific appliance or event costs where hot water is involved
+	public double hotwaterHeaterUsageCost (double watts, double waterUsedPercent, double gallonsUsed) {
+		double usage = ((watts) * (4 * (gallonsUsed * waterUsedPercent) / 60) / 1000);
+		double cost = electricCost(usage);
+		return cost;
+	}
+	
 	public double bathCost (double bathGallons, double hotwaterPercentage, double coldwaterPercentage) {
-		double hotWaterCost = hotwaterHeaterUsage(waterHeaterWattage, hotwaterPercentage, bathGallons);
+		double hotWaterCost = hotwaterHeaterUsageCost(waterHeaterWattage, hotwaterPercentage, bathGallons);
 		double coldWaterCost = waterCost(waterCubicFeetUsage(coldwaterPercentage * bathGallons));
 		double bathCost = hotWaterCost + coldWaterCost; 
 		return bathCost;
 	}
 	
 	public double showerCost (double showerGallons, double hotwaterPercentage, double coldwaterPercentage) {
-		double hotWaterCost = hotwaterHeaterUsage(waterHeaterWattage, hotwaterPercentage, showerGallons);
+		double hotWaterCost = hotwaterHeaterUsageCost(waterHeaterWattage, hotwaterPercentage, showerGallons);
 		double coldWaterCost = waterCost(waterCubicFeetUsage(coldwaterPercentage * showerGallons));
 		double showerCost = hotWaterCost + coldWaterCost; 
 		return showerCost;
@@ -71,15 +68,15 @@ public class UsageCalculations {
 	
 	// formulas for appliances that use water and electricity simultaneously //
 	public double dishwasherCost (double dishwasherGallons, double time) {
-		double hotwaterCost = hotwaterHeaterUsage(dishwasherWattage, 100, dishwasherGallons);
-		double dishwasherElectricCost = applianceUsage(dishwasherWattage, time);
+		double hotwaterCost = hotwaterHeaterUsageCost(dishwasherWattage, 100, dishwasherGallons);
+		double dishwasherElectricCost = electricUsage(dishwasherWattage, time);
 		double dishwasherCost = hotwaterCost + dishwasherElectricCost;
 		return dishwasherCost;
 	}
 	
 	public double clothesWasherCost (double clothesWasherGallons, double time) {
-		double hotwaterCost = hotwaterHeaterUsage(clothesWasherWattage, 100, clothesWasherGallons);
-		double clothesWasherElectricCost = applianceUsage(clothesWasherWattage, time);
+		double hotwaterCost = hotwaterHeaterUsageCost(clothesWasherWattage, 100, clothesWasherGallons);
+		double clothesWasherElectricCost = electricUsage(clothesWasherWattage, time);
 		double clothesWasherCost = hotwaterCost + clothesWasherElectricCost;
 		return clothesWasherCost;
 	}

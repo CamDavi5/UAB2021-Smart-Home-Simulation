@@ -1,5 +1,7 @@
 package application;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +17,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -42,8 +45,17 @@ public class SmartHomeDiagnosticsController implements Initializable{
     private TextArea simulationField;
 	@FXML
 	private TextField lengthOfSimulationField;
+	@FXML
+	private Label gallonsUsedLabel;
+	@FXML
+	private Label kilowattsUsedLabel;
+	@FXML
+	private Label overallCostLabel;
 	
 	public Double timeToSimulate = 0.0;
+	public Double overallCost = 0.0;
+	public Double gallonsUsed = 0.0;
+	public Double kilowattsUsed = 0.0;
 
 
 	public void setHomeScene(Scene scene) {
@@ -298,43 +310,103 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		return totals;
 	}
     
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+    
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
     	simulationField.setEditable(false);
 	}
 	
 	public void toggleSimulation2 (ActionEvent event) {
+		UsageCalculations UC = new UsageCalculations();
 		simulationMinutesUpdate();
 		ToggleButton buttonID = (ToggleButton) event.getSource();
 		String toggleID = buttonID.getId().toString();
 		
 		if (buttonID.isSelected() == true) {
 			homeController.diagnosticToggle(toggleID, 1);
+			
+			if (toggleID.contains("Light") || toggleID.contains("Lamp")) {
+				costCalculations(UC.lightWattage, 0.0);
+			
+			} else if (toggleID.contains("Exhaust Fan")) {
+				costCalculations(UC.exhaustFanWattage, 0.0);
+
+			} else if (toggleID.contains("Living Room TV")) {
+				costCalculations(UC.livingRoomTVWattage, 0.0);
+				
+			} else if (toggleID.contains("Dishwasher")) {
+				// TODO: Big Appliance Special Cost Calculations;
+				
+			} else if (toggleID.contains("Washer")) {
+				// TODO: Big Appliance Special Cost Calculations;
+				
+			} else if (toggleID.contains("Dryer")) {
+				costCalculations(UC.clothesDryerWattage, 0.0);			
+				
+			} else if (toggleID.contains("Refridgerator")) {
+				costCalculations(UC.refridgeratorWattage, 0.0);
+				
+			} else if (toggleID.contains("Stove")) {
+				costCalculations(UC.stoveWattage, 0.0);
+				
+			} else if (toggleID.contains("Oven")) {
+				costCalculations(UC.ovenWattage, 0.0);
+				
+			} else if (toggleID.contains("Microwave")) {
+				costCalculations(UC.microwaveWattage, 0.0);
+				
 		} else if (buttonID.isSelected() == false) {
 			homeController.diagnosticToggle(toggleID, 2);
 		}
-		
-		// TODO: Calculations
-		// TODO: Have to implement this so it discerns what calculations to run based on type of device
-
+		}		
+	}
+	
+	public void costCalculations (Double wattage, Double gallons) {
 		UsageCalculations UC = new UsageCalculations();
-		
-		// TODO: Go over Usage Calculations to be sure all calculate correctly
-		// Sample Calls of Usage Calculations Class Functions
-//		Double powerUsage = UC.lightsUsage(timeToSimulate);
-//		Double waterUsage = UC.waterCubicFeetUsage(0);
-//		
-		// TODO: Update Simulation Results Status Window with Calculations		
-		// TODO:  Need to formalize this so it outputs the same way for all items
-		// Sample methods that point to status window instead of console
-//		System.out.println (powerUsage.toString());
-//		System.out.println (waterUsage.toString());
+		Double electricUsage = UC.electricUsage(wattage, timeToSimulate);
+		Double electricCost = UC.electricCost(electricUsage);
+		Double waterUsage = UC.waterCubicFeetUsage(gallons);
+		Double waterCost = UC.waterCost(waterUsage);
+		Double totalCost = electricCost + waterCost;
+		overallCost = round((overallCost + totalCost), 2);
+		gallonsUsed = round((gallonsUsed + waterUsage), 2);
+		kilowattsUsed = round((kilowattsUsed + electricUsage), 4);
+		statusWindowUpdate(electricUsage, waterUsage, totalCost, overallCost);
+		updateIndicators();
+	}
+	
+	public void statusWindowUpdate (Double electricUsage, Double waterUsage, Double totalCost, Double overallCost) {
 
+		String watts = "\n Calculated kilowatts used: ";
+		String gallons = "\n Calculated gallons used: ";
+		String cost = "\n Calculated overall cost: ";
+		String addon = Double.toString(electricUsage);
+		simulationField.appendText(watts+addon);
+		addon = Double.toString(waterUsage);
+		simulationField.appendText(gallons+addon);
+		addon = Double.toString(totalCost);
+		simulationField.appendText(cost+addon);
 		
+		String oCost = "\n**********************\n Calculated overall cost: ";
+		addon = Double.toString(overallCost);
+		simulationField.appendText(oCost+addon + "\n**********************");		
+	}
+	
+	public void updateIndicators () {
+		String cost = "$ ";
+		gallonsUsedLabel.setText(gallonsUsed.toString());
+		kilowattsUsedLabel.setText(kilowattsUsed.toString());
+		overallCostLabel.setText(cost+overallCost.toString());
 		
 	}
 		
-
 	public void setHomeController(SmartHomeController smartHomeController) {
 		this.homeController = smartHomeController;
 	}

@@ -64,7 +64,7 @@
                               <Font name="System Bold" size="16.0" />
                            </font>
                         </Label>
-                        <TextField id="lengthOfSimulationTextField" fx:id="lengthOfSimulationField" alignment="CENTER" layoutX="496.0" layoutY="25.0" prefHeight="25.0" prefWidth="42.0" promptText="1" text="1">
+                        <TextField id="lengthOfSimulationTextField" fx:id="lengthOfSimulationField" alignment="CENTER" layoutX="496.0" layoutY="25.0" prefHeight="30.0" prefWidth="71.0" promptText="1" text="1">
                            <font>
                               <Font name="System Bold" size="14.0" />
                            </font>
@@ -291,6 +291,24 @@
                               <Font size="18.0" />
                            </font>
                         </ToggleButton>
+                        <Label layoutX="607.0" layoutY="30.0" text="Killowatts:" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="626.0" layoutY="57.0" text="Gallons:" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="634.0" layoutY="82.0" text="Cost:" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="kilowattsUsedLabel" layoutX="694.0" layoutY="30.0" text="0.0" textFill="WHITE" />
+                        <Label fx:id="gallonsUsedLabel" layoutX="694.0" layoutY="57.0" text="0.0" textFill="WHITE" />
+                        <Label fx:id="overallCostLabel" layoutX="690.0" layoutY="82.0" text="\$0.00" textFill="WHITE" />
                      </children>
                   </Pane>
                </children>
