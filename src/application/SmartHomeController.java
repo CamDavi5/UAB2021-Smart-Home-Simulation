@@ -250,10 +250,11 @@ public class SmartHomeController implements Initializable{
 		    );
 		timeline.getKeyFrames().add(keyFrame);
 		timeline.play();
-		handleSetTemperature();
+		//handleSetTemperature(); TODO fix this function and then uncomment
 		hvacTimeline.play();
 	}
 	
+	/* TODO THIS DOES NOT WORK MIGHT NEED TO HANDLE IN THE DATABASE SIMILAR TO OTHER EVENTS
 	private void handleSetTemperature() {
 		temperatureDifference = getCurrentTemperature() - getSetTemperature();
 		System.out.println(getCurrentTemperature());
@@ -275,6 +276,7 @@ public class SmartHomeController implements Initializable{
 			hvacTimeline.getKeyFrames().add(keyFrame);
 		}
 	}
+	*/
 	
 	/*
 	private void handleSetTemperature() {
@@ -522,8 +524,14 @@ public class SmartHomeController implements Initializable{
 		if (timestampResult.next()) {
 			startTimeString = timestampResult.getString(1);
 		}
-		
-		System.out.println(timeDifference(strToTime(startTimeString), strToTime(endTimeString), ChronoUnit.SECONDS));
+		///TODO TODO TODO TODO TODO TODO TODO
+		///TODO TODO TODO TODO TODO TODO TODO
+		///TODO TODO TODO TODO TODO TODO TODO
+		// USE THIS VALUE FOR THE CALCULATIONS
+		long difference = timeDifference(strToTime(startTimeString), strToTime(endTimeString), ChronoUnit.SECONDS);
+		///TODO TODO TODO TODO TODO TODO TODO
+		///TODO TODO TODO TODO TODO TODO TODO
+		///TODO TODO TODO TODO TODO TODO TODO
 	}
 	
 	// changes the color and the status message
