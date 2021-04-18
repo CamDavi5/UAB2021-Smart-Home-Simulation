@@ -6,9 +6,19 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -24,6 +34,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -40,6 +51,7 @@ public class SmartHomeController implements Initializable{
 	private Scene secondScene;
 	private Scene thirdScene;
 	private Timeline timeline = new Timeline();
+	private Timeline hvacTimeline = new Timeline();
 	private String farenheight = "°F";
 	@FXML
 	private Button increaseTemperatureButton;
@@ -62,9 +74,17 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private TextField temperatureTextField;
 	@FXML
+	private TextField temperatureSetTextField;
+	@FXML
 	private TextField temperatureOutsideTextField;
 	@FXML
 	private Pane pane;
+	@FXML
+	private StackPane temperaturePane;
+	@FXML
+	private StackPane currentPane;
+	@FXML
+	private StackPane setToPane;
 	@FXML
 	private ImageView imageView;
 	@FXML
@@ -84,6 +104,10 @@ public class SmartHomeController implements Initializable{
 	@FXML
 	private Label insideLabel;
 	@FXML
+	private Label outsideLabel;
+	@FXML
+	private Label setToLabel;
+	@FXML
 	public Rectangle app_livingroom_TV;
 	@FXML
 	public Circle lamp_Livinga;
@@ -95,51 +119,9 @@ public class SmartHomeController implements Initializable{
 	private double dailyElectricUsage;
 	private double dailyWaterUsage;
 	private double dailyOverallCost;
-	
-	@FXML
-	// increments temperatureSet and displays "set to" temperature for three seconds before returning to current temperature
-	public void increaseTemperatureButtonPressed() {
-		temperatureSet = temperatureSet + 1;
-		if (timeline != null) {
-			timeline.stop();
-		}
-		temperatureTextField.setStyle("-fx-background-color: #42c5f5;");
-    	temperatureTextField.setText(String.valueOf(temperatureSet + farenheight));
-    	insideLabel.setText("Set To");
-		KeyFrame keyFrame = new KeyFrame(
-		        Duration.seconds(3),
-		        event -> {
-		        	temperatureTextField.setStyle("-fx-background-color: white;");
-		        	temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
-		        	insideLabel.setText("Inside");
-		        } 
-		    );
-		timeline.getKeyFrames().add(keyFrame);
-		timeline.play();
-		//TODO tell ac unit to do work
-	}
-	@FXML
-	// decrements temperatureSet and displays "set to" temperature for three seconds before returning to current temperature
-	public void decreaseTemperatureButtonPressed() {
-		temperatureSet = temperatureSet - 1;
-		if (timeline != null) {
-			timeline.stop();
-		}
-		temperatureTextField.setStyle("-fx-background-color: #42c5f5;");
-    	temperatureTextField.setText(String.valueOf(temperatureSet + farenheight));
-    	insideLabel.setText("Set To");
-		KeyFrame keyFrame = new KeyFrame(
-		        Duration.seconds(3),
-		        event -> {
-		        	temperatureTextField.setStyle("-fx-background-color: white;");
-		        	temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
-		        	insideLabel.setText("Inside");
-		        } 
-		    );
-		timeline.getKeyFrames().add(keyFrame);
-		timeline.play();
-		//tell ac unit to do work
-	}
+	private int temperatureDifference;
+	private boolean tempStable;
+	public ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();	
 	
 	// sets the usage scene
 	public void setUsageScene(Scene scene) {
@@ -149,6 +131,37 @@ public class SmartHomeController implements Initializable{
 	// sets the diagnostics scene
 	public void setDiagnosticsScene(Scene scene) {
 		thirdScene = scene;
+	}
+	
+	public void setCurrentTemperature(int temperature) {
+		this.temperatureCurrent = temperature;
+		temperatureTextField.setText(String.valueOf(temperatureCurrent) + farenheight);
+	}
+	
+	public void setSetTemperature(int temperature) {
+		this.temperatureSet = temperature;
+		temperatureSetTextField.setText(String.valueOf(temperatureSet) + farenheight);
+	}
+
+	public void setOutsideTemperature(int temperature) {
+		temperatureOutside = temperature;
+		temperatureOutsideTextField.setText(String.valueOf(temperatureOutside) + farenheight);
+	}
+	
+	public int getCurrentTemperature() {
+		return temperatureCurrent;
+	}
+
+	public int getSetTemperature() {
+		return temperatureSet;
+	}
+	
+	public int getOutsideTemperature() {
+		return temperatureOutside;
+	}
+	
+	public ScheduledExecutorService getScheduleTasks() {
+		return ses;
 	}
 	
 	@FXML
@@ -187,28 +200,143 @@ public class SmartHomeController implements Initializable{
 		imageView.fitWidthProperty().bind(pane.widthProperty());
 	}
 	
-	public void setExternalTemp() throws SQLException {
-		String sqlQuery = "SELECT weather.datetime, weather.temp FROM weather ORDER BY weather.datetime DESC LIMIT 1;";
-		Statement s = Main.c.createStatement();
-		ResultSet queryResult = s.executeQuery(sqlQuery);
-		queryResult.next();
-		temperatureOutside = queryResult.getInt("temp");
-		temperatureOutsideTextField.setText(String.valueOf(temperatureOutside + farenheight));
-		queryResult.close();
+	// every hour, update the outside temperature
+	public void externalTempUpdater() throws SQLException {
+		// schedules commands to run every hour
+		ses.scheduleAtFixedRate(new Runnable() {
+		    // query database for outside temp and set it
+			@Override
+		    public void run(){
+		    	String sqlQuery = "SELECT weather.datetime, weather.temp FROM weather ORDER BY weather.datetime DESC LIMIT 1;";
+				Statement s;
+				try {
+					s = Main.c.createStatement();
+					ResultSet queryResult = s.executeQuery(sqlQuery);
+					queryResult.next();
+					setOutsideTemperature(queryResult.getInt("temp"));
+					queryResult.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		    }
+		}, 0, 1, TimeUnit.HOURS);
 	}
-
-	@Override
-	public void initialize(URL arg0, ResourceBundle arg1) {
-		temperatureCurrent = 72;
-		temperatureSet = temperatureCurrent;
-		temperatureTextField.setText(String.valueOf(temperatureCurrent + farenheight));
-		
-		try {
-			setExternalTemp();
-		} catch (SQLException e) {
-			System.out.println("Error setting outside temp");
+	
+	// increments or decrements temperatureSet and displays "set to" temperature 
+	// for three seconds before returning to inside temperature
+	@FXML
+	public void temperatureButtonPressed(ActionEvent buttonEvent) {
+		if (buttonEvent.getSource() == increaseTemperatureButton) {
+			setSetTemperature(getSetTemperature() + 1);
+			currentPane.setVisible(false);
+		}
+		else {
+			setSetTemperature(getSetTemperature() - 1);
+			currentPane.setVisible(false);
+		}
+		// if a previous timeline exists, stop it to prevent animation from finishing
+		if (timeline != null) {
+			timeline.stop();
+		}
+		if (hvacTimeline != null) {
+			hvacTimeline.stop();
+		}
+    	// after 3 seconds, return textField to "Inside" temperature
+		KeyFrame keyFrame = new KeyFrame(
+		        Duration.seconds(3),
+		        event -> {
+		        	currentPane.setVisible(true);
+		        } 
+		    );
+		timeline.getKeyFrames().add(keyFrame);
+		timeline.play();
+		handleSetTemperature();
+		hvacTimeline.play();
+	}
+	
+	private void handleSetTemperature() {
+		temperatureDifference = getCurrentTemperature() - getSetTemperature();
+		System.out.println(getCurrentTemperature());
+		System.out.println(getSetTemperature());
+		for (int i = 0; i < Math.abs(temperatureDifference); i++) {
+			System.out.println(temperatureDifference);
+			KeyFrame keyFrame = new KeyFrame(
+					Duration.seconds(5),
+					event -> {
+						if (temperatureDifference < 0) {
+							System.out.println("heating");
+							setCurrentTemperature(getCurrentTemperature() + 1);
+						}
+						if (temperatureDifference > 0) {
+							System.out.println("cooling");
+							setCurrentTemperature(getCurrentTemperature() - 1);
+						}
+					});
+			hvacTimeline.getKeyFrames().add(keyFrame);
 		}
 	}
+	
+	/*
+	private void handleSetTemperature() {
+		tempStable = false;
+		temperatureDifference = getCurrentTemperature() - getSetTemperature();
+		if (temperatureDifference < 0) {
+			System.out.println("heating");
+			temperatureDifference++;
+			System.out.println(temperatureDifference);
+			timer = new Timer();
+			TimerTask timerTask = new TimerTask() {
+				public void run() {
+					setCurrentTemperature(getCurrentTemperature() + 1);
+					updateCurrent();
+				}
+			};
+			timer.schedule(timerTask, 10000);
+		}
+		else if (temperatureDifference > 0){
+			System.out.println("cooling");
+			temperatureDifference--;
+			System.out.println(temperatureDifference);
+			timer = new Timer();
+			TimerTask timerTask = new TimerTask() {
+				public void run() {
+					setCurrentTemperature(getCurrentTemperature() - 1);
+					updateCurrent();
+				}
+			};
+			timer.schedule(timerTask, 10000);
+		}
+		else {
+			tempStable = true;
+		}
+	}
+	private void handleSetTemperature() {
+		long delay = 60000;
+		long period = 60000;
+		temperatureDifference = getCurrentTemperature() - getSetTemperature();
+		if (temperatureDifference != 0) {
+			TimerTask timerTask = new TimerTask() {
+				public void run() {
+					if (temperatureDifference < 0) {
+						System.out.println("heating");
+						temperatureDifference++;
+						setCurrentTemperature(getCurrentTemperature() + 1);
+					}
+					else if (temperatureDifference > 0){
+						System.out.println("cooling");
+						temperatureDifference--;
+						setCurrentTemperature(getCurrentTemperature() - 1);
+					}
+					else {
+						//TODO
+					}
+				}
+			};
+		timer.scheduleAtFixedRate(timerTask, delay, period);
+		System.out.println("updating current temp");
+		}
+	}
+	*/	
 	
 	@FXML
 	public void allLightsButtonPressed() {
@@ -293,7 +421,7 @@ public class SmartHomeController implements Initializable{
 	}
 	
 	// When an item is clicked on Home Screen
-	public void itemClicked (MouseEvent event) {
+	public void itemClicked (MouseEvent event) throws SQLException {
 		Shape itemClicked = (Shape) event.getSource();
 		Paint currentColor = itemClicked.fillProperty().getValue();
 		if (currentColor == Paint.valueOf("RED")) {
@@ -304,7 +432,7 @@ public class SmartHomeController implements Initializable{
 		}
 	}
 
-	void diagnosticToggle(String id, int toggle) {
+	void diagnosticToggle(String id, int toggle) throws SQLException {
 		Shape item = null;
 		for (Node node : lightingOverlay.getChildren()) {
 			if (node.getId().compareToIgnoreCase(id) == 0) {
@@ -319,8 +447,11 @@ public class SmartHomeController implements Initializable{
 	}
 	
 	// Toggles an item on
-	public void toggleOn (Shape itemClicked) {
-		// todo: store event in database table
+	public void toggleOn (Shape itemClicked) throws SQLException {
+		
+		String startTime = getEventTime(itemClicked);
+		String id = itemClicked.getId();
+		
 		System.out.println(itemClicked);
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
 			changeColorAndMessage(itemClicked, Color.RED, "on.");
@@ -337,11 +468,29 @@ public class SmartHomeController implements Initializable{
 		} else {
 			System.out.println ("OOPS! No such indicator to toggle on.");
 		}
+		
+		// sqlQuery to insert timestamp for toggleOn event
+		String sqlQuery = String.format(
+				"UPDATE public.live_events "
+				+ "SET on_status = FALSE "
+				+ "WHERE event_id=\'%s\';"
+				+ "UPDATE public.live_events "
+				+ "SET time_stamp = \'%s\' "
+				+ "WHERE event_id=\'%s\';"
+				+ "UPDATE public.live_events "
+				+ "SET on_status = TRUE "
+				+ "WHERE event_id=\'%s\';", id, startTime, id, id);
+		Statement s = Main.c.createStatement();
+		int queryResult = s.executeUpdate(sqlQuery);
 	}
 	
 	// toggles an item off
-	public void toggleOff (Shape itemClicked) {
-		// todo: store event in database table
+	public void toggleOff (Shape itemClicked) throws SQLException {
+		
+		String endTimeString = getEventTime(itemClicked);
+		String startTimeString = null;
+		String id = itemClicked.getId();
+		
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
 			changeColorAndMessage (itemClicked, Color.YELLOW, "off.");
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("App")) {
@@ -357,11 +506,80 @@ public class SmartHomeController implements Initializable{
 		} else {
 			System.out.println ("OOPS! No such indicator to toggle off.");
 		}
+		
+		// sqlQuery to set status to off
+		String statusOff = String.format("UPDATE public.live_events "
+				+ "SET on_status = FALSE "
+				+ "WHERE event_id=\'%s\';", id);
+		// sqlQuery to get the timestamp
+		String sqlQuery = String.format("SELECT time_stamp from public.live_events "
+				+ "WHERE event_id=\'%s\'", id);
+		Statement statusUpdate = Main.c.createStatement();
+		Statement timestamp = Main.c.createStatement();
+		int statusUpdateResult = statusUpdate.executeUpdate(statusOff);
+		ResultSet timestampResult = timestamp.executeQuery(sqlQuery);
+		
+		if (timestampResult.next()) {
+			startTimeString = timestampResult.getString(1);
+		}
+		
+		System.out.println(timeDifference(strToTime(startTimeString), strToTime(endTimeString), ChronoUnit.SECONDS));
 	}
 	
 	// changes the color and the status message
 	public void changeColorAndMessage (Shape itemClicked, Paint color, String text) {
 		itemClicked.setFill(color);
 		quickStatusField.appendText("\n" + String.valueOf(itemClicked.getId()) + " " + text);
+	}
+	
+	// creates a timestamp when called
+	public String getEventTime(Shape itemClicked) {
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		return timestamp.toString();
+	}
+	
+	// converts string from database back into ZonedDateTime;
+	/*
+	public ZonedDateTime stringToZonedDateTime(String timestring) {
+		Timestamp timestamp = Timestamp.valueOf(timestring);
+		LocalDateTime localDateTime = timestamp.toLocalDateTime();
+		ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
+		return zonedDateTime;
+	}
+	*/
+	
+	public Timestamp strToTime(String timestring) {
+		Timestamp timestamp = Timestamp.valueOf(timestring);
+		return timestamp;
+		
+	}
+	
+	// calculates time difference between two Timestamps, first convert to LocalDateTime
+	static long timeDifference(Timestamp d1, Timestamp d2, ChronoUnit unit){
+		LocalDateTime localDateTimeStart = d1.toLocalDateTime();
+		LocalDateTime localDateTimeEnd = d2.toLocalDateTime();
+	    return unit.between(localDateTimeStart, localDateTimeEnd);
+	}
+	
+	// initialize all toggle items in the database
+	public void initToggleItems() throws SQLException {
+		//TODO sqlQuery to add item by name if not already in table)
+		String sqlQuery = String.format("foo");
+		Statement s = Main.c.createStatement();
+		for (Node node : lightingOverlay.getChildren()) {
+			String event_id = node.getId();
+			
+		}
+	}
+	
+	@Override
+	public void initialize(URL arg0, ResourceBundle arg1) {
+		setCurrentTemperature(72);
+		setSetTemperature(getCurrentTemperature());
+		try {
+			externalTempUpdater();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

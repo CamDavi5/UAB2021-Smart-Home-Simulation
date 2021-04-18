@@ -22,11 +22,14 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
@@ -221,6 +224,7 @@ public class SmartHomeUsageController implements Initializable{
 		costEstList.add(costEst);
 		elecEstList.add(electricityEst);
 		
+		
 		// adding the series to the graph
 		usageChart.getData().add(elecList.get(elecList.size() - 1));
 		usageChart.getData().add(waterList.get(waterList.size() - 1));
@@ -230,7 +234,7 @@ public class SmartHomeUsageController implements Initializable{
 		usageChart.getData().add(elecEstList.get(elecEstList.size() - 1));
 		
 		usageChart.setLegendVisible(false);
-		
+
 		if(monthNumber == 4) {
 			// changing the electricity line to red
 			Set<Node> elecNodes = usageChart.lookupAll(".series" + 0);
@@ -328,7 +332,6 @@ public class SmartHomeUsageController implements Initializable{
 			for(Node node : elecEstNodes) {
 				node.setStyle("-fx-stroke: #ff0000;\n" + "-fx-background-color: #ff0000, white;\n");
 			}
-						
 		}
 	}
 	

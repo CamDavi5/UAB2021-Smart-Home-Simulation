@@ -18,7 +18,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" prefHeight="1000.0" prefWidth="1600.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -111,32 +111,51 @@
                   </Pane>
                   <VBox alignment="CENTER" prefHeight="650.0" prefWidth="360.0" spacing="10.0" style="-fx-background-color: #1F1F1F;">
                      <children>
-                        <StackPane alignment="TOP_LEFT">
+                        <StackPane fx:id="temperaturePane" alignment="TOP_LEFT">
                            <VBox.margin>
                               <Insets bottom="5.0" left="15.0" right="15.0" top="15.0" />
                            </VBox.margin>
                            <children>
-                              <TextField fx:id="temperatureTextField" alignment="CENTER" editable="false" prefHeight="100.0" prefWidth="226.0" style="-fx-background-color: ffffff;">
-                                 <font>
-                                    <Font size="50.0" />
-                                 </font>
-                              </TextField>
-                              <Label fx:id="insideLabel" text="Inside">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font></Label>
+                              <StackPane fx:id="setToPane" alignment="TOP_LEFT">
+                                 <children>
+                                    <TextField fx:id="temperatureSetTextField" alignment="CENTER" editable="false" prefHeight="100.0" prefWidth="226.0" style="-fx-background-color: #42c5f5;">
+                                       <font>
+                                          <Font size="50.0" />
+                                       </font>
+                                    </TextField>
+                                    <Label fx:id="setToLabel" text="Set To:">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </StackPane>
+                              <StackPane fx:id="currentPane" alignment="TOP_LEFT">
+                                 <children>
+                                    <TextField fx:id="temperatureTextField" alignment="CENTER" editable="false" prefHeight="100.0" prefWidth="226.0">
+                                       <font>
+                                          <Font size="50.0" />
+                                       </font>
+                                    </TextField>
+                                    <Label fx:id="insideLabel" text="Inside">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </StackPane>
                            </children>
                         </StackPane>
                         <HBox alignment="CENTER" prefHeight="50.0" spacing="10.0">
                            <children>
-                              <Button fx:id="decreaseTemperatureButton" alignment="CENTER" mnemonicParsing="false" onAction="#decreaseTemperatureButtonPressed" prefHeight="35.0" prefWidth="100.0" text="&lt;">
+                              <Button fx:id="decreaseTemperatureButton" alignment="CENTER" mnemonicParsing="false" onAction="#temperatureButtonPressed" prefHeight="35.0" prefWidth="100.0" text="&lt;">
                                  <HBox.margin>
                                     <Insets left="25.0" />
                                  </HBox.margin>
                                  <font>
                                     <Font name="System Bold" size="18.0" />
                                  </font></Button>
-                            <Button fx:id="increaseTemperatureButton" alignment="CENTER" mnemonicParsing="false" onAction="#increaseTemperatureButtonPressed" prefHeight="35.0" prefWidth="100.0" text="&gt;">
+                            <Button fx:id="increaseTemperatureButton" alignment="CENTER" mnemonicParsing="false" onAction="#temperatureButtonPressed" prefHeight="35.0" prefWidth="100.0" text="&gt;">
                                  <HBox.margin>
                                     <Insets right="25.0" />
                                  </HBox.margin>

@@ -1,8 +1,7 @@
 package application;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -17,7 +16,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -45,17 +43,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
     private TextArea simulationField;
 	@FXML
 	private TextField lengthOfSimulationField;
-	@FXML
-	private Label gallonsUsedLabel;
-	@FXML
-	private Label kilowattsUsedLabel;
-	@FXML
-	private Label overallCostLabel;
 	
 	public Double timeToSimulate = 0.0;
-	public Double overallCost = 0.0;
-	public Double gallonsUsed = 0.0;
-	public Double kilowattsUsed = 0.0;
 
 
 	public void setHomeScene(Scene scene) {
@@ -127,28 +116,32 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				} */
 				
 				// turning on shower, fan, and light
-				homeController.diagnosticToggle("Master Bedroom Shower", 1);
-				homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 1);
-				homeController.diagnosticToggle("Master Bath Overhead Light", 1);
+				try {
+					homeController.diagnosticToggle("Master Bedroom Shower", 1);
+					homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 1);
+					homeController.diagnosticToggle("Master Bath Overhead Light", 1);
+					
+					// waiting while person "takes" a shower
+					pause(10000);
+					
+					// turning off shower, fan, and light
+					homeController.diagnosticToggle("Master Bedroom Shower", 2);
+					homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 2);
+					homeController.diagnosticToggle("Master Bath Overhead Light", 2);
+					
+					// turning on water heater
+					homeController.diagnosticToggle("Appliance - Water Heater", 1);
+					
+					// waiting while water heater heats more water
+					pause(10000);
+					
+					// turning off water heater
+					homeController.diagnosticToggle("Appliance - Water Heater", 2);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
-				// waiting while person "takes" a shower
-				pause(10000);
-				
-				// turning off shower, fan, and light
-				homeController.diagnosticToggle("Master Bedroom Shower", 2);
-				homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 2);
-				homeController.diagnosticToggle("Master Bath Overhead Light", 2);
-				
-				// turning on water heater
-				homeController.diagnosticToggle("Appliance - Water Heater", 1);
-				
-				// waiting while water heater heats more water
-				pause(10000);
-				
-				// turning off water heater
-				homeController.diagnosticToggle("Appliance - Water Heater", 2);
-				
-		
 				// Shower (+ Water Heater) calculations
 				List<Double> totals = simulationCalculation(0, 25, timeToSimulate/60, 0.65);
 				double tempw = totals.get(0); 
@@ -218,26 +211,32 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			}*/
     			
     			// turning on dishwasher, dishwasher water, and kitchen light
-    			homeController.diagnosticToggle("Appliance - Dishwasher", 1);
-				homeController.diagnosticToggle("Dishwasher Water", 1);
-				homeController.diagnosticToggle("Kitchen Overhead Light", 1);
+    			try {
+					homeController.diagnosticToggle("Appliance - Dishwasher", 1);
+					homeController.diagnosticToggle("Dishwasher Water", 1);
+					homeController.diagnosticToggle("Kitchen Overhead Light", 1);
+					
+					// waiting while dishes are washed
+					pause(10000);
+					
+					// turning off dishwasher, dishwasher water, and kitchen light
+					homeController.diagnosticToggle("Appliance - Dishwasher", 2);
+					homeController.diagnosticToggle("Dishwasher Water", 2);
+					homeController.diagnosticToggle("Kitchen Overhead Light", 2);
+					
+					// turning on water heater 
+					homeController.diagnosticToggle("Appliance - Water Heater", 1);
+					
+					// waiting while water heater heats water
+					pause(10000);
+					
+					// turning water heater off
+					homeController.diagnosticToggle("Appliance - Water Heater", 2);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
-				// waiting while dishes are washed
-				pause(10000);
-				
-				// turning off dishwasher, dishwasher water, and kitchen light
-				homeController.diagnosticToggle("Appliance - Dishwasher", 2);
-				homeController.diagnosticToggle("Dishwasher Water", 2);
-				homeController.diagnosticToggle("Kitchen Overhead Light", 2);
-				
-				// turning on water heater 
-				homeController.diagnosticToggle("Appliance - Water Heater", 1);
-				
-				// waiting while water heater heats water
-				pause(10000);
-				
-				// turning water heater off
-				homeController.diagnosticToggle("Appliance - Water Heater", 2);
 		
     			// Dishwasher (+ Water Heater) calculation
     			List<Double> totals = simulationCalculation(1800, 6, timeToSimulate/60, 1.0);
@@ -310,103 +309,43 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		return totals;
 	}
     
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
-    }
-    
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
     	simulationField.setEditable(false);
 	}
 	
-	public void toggleSimulation2 (ActionEvent event) {
-		UsageCalculations UC = new UsageCalculations();
+	public void toggleSimulation2 (ActionEvent event) throws SQLException {
 		simulationMinutesUpdate();
 		ToggleButton buttonID = (ToggleButton) event.getSource();
 		String toggleID = buttonID.getId().toString();
 		
 		if (buttonID.isSelected() == true) {
 			homeController.diagnosticToggle(toggleID, 1);
-			
-			if (toggleID.contains("Light") || toggleID.contains("Lamp")) {
-				costCalculations(UC.lightWattage, 0.0);
-			
-			} else if (toggleID.contains("Exhaust Fan")) {
-				costCalculations(UC.exhaustFanWattage, 0.0);
-
-			} else if (toggleID.contains("Living Room TV")) {
-				costCalculations(UC.livingRoomTVWattage, 0.0);
-				
-			} else if (toggleID.contains("Dishwasher")) {
-				// TODO: Big Appliance Special Cost Calculations;
-				
-			} else if (toggleID.contains("Washer")) {
-				// TODO: Big Appliance Special Cost Calculations;
-				
-			} else if (toggleID.contains("Dryer")) {
-				costCalculations(UC.clothesDryerWattage, 0.0);			
-				
-			} else if (toggleID.contains("Refridgerator")) {
-				costCalculations(UC.refridgeratorWattage, 0.0);
-				
-			} else if (toggleID.contains("Stove")) {
-				costCalculations(UC.stoveWattage, 0.0);
-				
-			} else if (toggleID.contains("Oven")) {
-				costCalculations(UC.ovenWattage, 0.0);
-				
-			} else if (toggleID.contains("Microwave")) {
-				costCalculations(UC.microwaveWattage, 0.0);
-				
 		} else if (buttonID.isSelected() == false) {
 			homeController.diagnosticToggle(toggleID, 2);
 		}
-		}		
-	}
-	
-	public void costCalculations (Double wattage, Double gallons) {
-		UsageCalculations UC = new UsageCalculations();
-		Double electricUsage = UC.electricUsage(wattage, timeToSimulate);
-		Double electricCost = UC.electricCost(electricUsage);
-		Double waterUsage = UC.waterCubicFeetUsage(gallons);
-		Double waterCost = UC.waterCost(waterUsage);
-		Double totalCost = electricCost + waterCost;
-		overallCost = round((overallCost + totalCost), 2);
-		gallonsUsed = round((gallonsUsed + waterUsage), 2);
-		kilowattsUsed = round((kilowattsUsed + electricUsage), 4);
-		statusWindowUpdate(electricUsage, waterUsage, totalCost, overallCost);
-		updateIndicators();
-	}
-	
-	public void statusWindowUpdate (Double electricUsage, Double waterUsage, Double totalCost, Double overallCost) {
+		
+		// TODO: Calculations
+		// TODO: Have to implement this so it discerns what calculations to run based on type of device
 
-		String watts = "\n Calculated kilowatts used: ";
-		String gallons = "\n Calculated gallons used: ";
-		String cost = "\n Calculated overall cost: ";
-		String addon = Double.toString(electricUsage);
-		simulationField.appendText(watts+addon);
-		addon = Double.toString(waterUsage);
-		simulationField.appendText(gallons+addon);
-		addon = Double.toString(totalCost);
-		simulationField.appendText(cost+addon);
+		UsageCalculations UC = new UsageCalculations();
 		
-		String oCost = "\n**********************\n Calculated overall cost: ";
-		addon = Double.toString(overallCost);
-		simulationField.appendText(oCost+addon + "\n**********************");		
-	}
-	
-	public void updateIndicators () {
-		String cost = "$ ";
-		gallonsUsedLabel.setText(gallonsUsed.toString());
-		kilowattsUsedLabel.setText(kilowattsUsed.toString());
-		overallCostLabel.setText(cost+overallCost.toString());
+		// TODO: Go over Usage Calculations to be sure all calculate correctly
+		// Sample Calls of Usage Calculations Class Functions
+//		Double powerUsage = UC.lightsUsage(timeToSimulate);
+//		Double waterUsage = UC.waterCubicFeetUsage(0);
+//		
+		// TODO: Update Simulation Results Status Window with Calculations		
+		// TODO:  Need to formalize this so it outputs the same way for all items
+		// Sample methods that point to status window instead of console
+//		System.out.println (powerUsage.toString());
+//		System.out.println (waterUsage.toString());
+
+		
 		
 	}
 		
+
 	public void setHomeController(SmartHomeController smartHomeController) {
 		this.homeController = smartHomeController;
 	}

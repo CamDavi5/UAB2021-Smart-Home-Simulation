@@ -14,6 +14,9 @@ public class Main extends Application {
 	private int	vSize = 720;
 	private int hSize = 1280;
 	public static Connection c = null;
+	public SmartHomeController smartHomeController;
+	public SmartHomeDiagnosticsController smartHomeDiagnosticsController;
+	public SmartHomeUsageController smartHomeUsageController;
 
 @Override
 public void start(Stage primaryStage) throws Exception {
@@ -36,6 +39,7 @@ public void start(Stage primaryStage) throws Exception {
 		if (c != null) {
 			try {
 				c.close();
+				smartHomeController.getScheduleTasks().shutdownNow();
 				System.out.println("Database connection closed.");
 			} catch (SQLException e2) {
 				System.out.println("Cannot close connection to database.");
@@ -57,22 +61,21 @@ public void start(Stage primaryStage) throws Exception {
     Scene thirdScene = new Scene(thirdPane, hSize, vSize);
 
     // setting up second and third scene in first scene
-    SmartHomeController smartHomeController = (SmartHomeController) firstPaneLoader.getController();
+    smartHomeController = (SmartHomeController) firstPaneLoader.getController();
     smartHomeController.setUsageScene(secondScene);
     smartHomeController.setDiagnosticsScene(thirdScene);
 
     // setting up first and third scene in second scene
-    SmartHomeUsageController smartHomeUsageController = (SmartHomeUsageController) secondPageLoader.getController();
+    smartHomeUsageController = (SmartHomeUsageController) secondPageLoader.getController();
     smartHomeUsageController.setHomeScene(firstScene);
     smartHomeUsageController.setDiagnosticsScene(thirdScene);
     
     // setting up first and second scene in first scene
-    SmartHomeDiagnosticsController smartHomeDiagnosticsController = (SmartHomeDiagnosticsController) thirdPageLoader.getController();
+    smartHomeDiagnosticsController = (SmartHomeDiagnosticsController) thirdPageLoader.getController();
     smartHomeDiagnosticsController.setHomeScene(firstScene);
     smartHomeDiagnosticsController.setUsageScene(secondScene);
     smartHomeDiagnosticsController.setHomeController(smartHomeController);
  
-
     primaryStage.setTitle("Smart Home");
     primaryStage.setScene(firstScene);
     primaryStage.show();
