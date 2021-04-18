@@ -3,6 +3,7 @@ package application;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -117,26 +118,32 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				
 		
 				// turning on shower, fan, and light
-				homeController.diagnosticToggle("Master Bedroom Shower", 1);
-				homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 1);
-				homeController.diagnosticToggle("Master Bath Overhead Light", 1);
+				try {
+					homeController.diagnosticToggle("Master Bedroom Shower", 1);
+					homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 1);
+					homeController.diagnosticToggle("Master Bath Overhead Light", 1);
+					
+					// waiting while person "takes" a shower
+					pause(10000);
+					
+					// turning off shower, fan, and light
+					homeController.diagnosticToggle("Master Bedroom Shower", 2);
+					homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 2);
+					homeController.diagnosticToggle("Master Bath Overhead Light", 2);
+					
+					// turning on water heater
+					homeController.diagnosticToggle("Appliance - Water Heater", 1);
+					
+					// waiting while water heater heats more water
+					pause(10000);
+					
+					// turning off water heater
+					homeController.diagnosticToggle("Appliance - Water Heater", 2);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
-				// waiting while person "takes" a shower
-				pause(10000);
-				
-				// turning off shower, fan, and light
-				homeController.diagnosticToggle("Master Bedroom Shower", 2);
-				homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 2);
-				homeController.diagnosticToggle("Master Bath Overhead Light", 2);
-				
-				// turning on water heater
-				homeController.diagnosticToggle("Appliance - Water Heater", 1);
-				
-				// waiting while water heater heats more water
-				pause(10000);
-				
-				// turning off water heater
-				homeController.diagnosticToggle("Appliance - Water Heater", 2);
 				
 		
 				// Shower (+ Water Heater) calculations
@@ -197,26 +204,32 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			
  			
     			// turning on dishwasher, dishwasher water, and kitchen light
-    			homeController.diagnosticToggle("Appliance - Dishwasher", 1);
-				homeController.diagnosticToggle("Dishwasher Water", 1);
-				homeController.diagnosticToggle("Kitchen Overhead Light", 1);
+    			try {
+					homeController.diagnosticToggle("Appliance - Dishwasher", 1);
+					homeController.diagnosticToggle("Dishwasher Water", 1);
+					homeController.diagnosticToggle("Kitchen Overhead Light", 1);
+					
+					// waiting while dishes are washed
+					pause(10000);
+					
+					// turning off dishwasher, dishwasher water, and kitchen light
+					homeController.diagnosticToggle("Appliance - Dishwasher", 2);
+					homeController.diagnosticToggle("Dishwasher Water", 2);
+					homeController.diagnosticToggle("Kitchen Overhead Light", 2);
+					
+					// turning on water heater 
+					homeController.diagnosticToggle("Appliance - Water Heater", 1);
+					
+					// waiting while water heater heats water
+					pause(10000);
+					
+					// turning water heater off
+					homeController.diagnosticToggle("Appliance - Water Heater", 2);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
-				// waiting while dishes are washed
-				pause(10000);
-				
-				// turning off dishwasher, dishwasher water, and kitchen light
-				homeController.diagnosticToggle("Appliance - Dishwasher", 2);
-				homeController.diagnosticToggle("Dishwasher Water", 2);
-				homeController.diagnosticToggle("Kitchen Overhead Light", 2);
-				
-				// turning on water heater 
-				homeController.diagnosticToggle("Appliance - Water Heater", 1);
-				
-				// waiting while water heater heats water
-				pause(10000);
-				
-				// turning water heater off
-				homeController.diagnosticToggle("Appliance - Water Heater", 2);
 		
     			// Dishwasher (+ Water Heater) calculation
     			List<Double> totals = simulationCalculation(1800, 6, timeToSimulate/60, 1.0);
@@ -304,7 +317,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	
     
     // Function occurs when a device is toggled
-	public void toggleSimulation2 (ActionEvent event) {
+	public void toggleSimulation2 (ActionEvent event) throws SQLException {
 		UsageCalculations UC = new UsageCalculations();
 		simulationMinutesUpdate();
 		ToggleButton buttonID = (ToggleButton) event.getSource();
