@@ -39,7 +39,7 @@
                               <Font name="System Bold" size="24.0" />
                            </font>
                         </Label>
-                        <ToggleButton fx:id="simulateshowerButton" layoutX="240.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulateshowerButtonPressed" prefHeight="60.0" prefWidth="153.0" text="Shower">
+                        <ToggleButton fx:id="simulateshowerButton" layoutX="240.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulateshowerButtonPressed" prefHeight="60.0" prefWidth="153.0" text="Take a Shower">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -58,8 +58,8 @@
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </padding>
                         </Label>
-                        <TextArea fx:id="simulationField" layoutX="803.0" layoutY="43.0" prefHeight="112.0" prefWidth="436.0" />
-                        <Label layoutX="806.0" layoutY="13.0" text="Simulation Results" textFill="WHITE">
+                        <TextArea fx:id="simulationField" layoutX="915.0" layoutY="43.0" prefHeight="112.0" prefWidth="324.0" />
+                        <Label layoutX="914.0" layoutY="13.0" text="Event Simulation Results" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="16.0" />
                            </font>
@@ -281,7 +281,7 @@
                         <ToggleButton id="Outside Faucet Water" layoutX="935.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="Spigot" />
                         <ToggleButton disable="true" layoutX="1034.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="not set" />
                         <ToggleButton disable="true" layoutX="1135.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="not set" />
-                        <ToggleButton disable="true" layoutX="410.0" layoutY="119.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="139.0" text="not set">
+                        <ToggleButton layoutX="410.0" layoutY="119.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="139.0" text="Wash Clothes">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -291,24 +291,35 @@
                               <Font size="18.0" />
                            </font>
                         </ToggleButton>
-                        <Label layoutX="607.0" layoutY="30.0" text="Killowatts:" textFill="WHITE">
+                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="TRANSPARENT" height="76.0" layoutX="605.0" layoutY="17.0" stroke="#bb86fc" strokeDashOffset="50.0" strokeLineCap="ROUND" strokeLineJoin="ROUND" strokeMiterLimit="20.0" strokeType="INSIDE" strokeWidth="4.0" width="285.0" />
+                        <Label layoutX="627.0" layoutY="29.0" text="Killowatts:" textFill="WHITE">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="16.0" />
                            </font>
                         </Label>
-                        <Label layoutX="626.0" layoutY="57.0" text="Gallons:" textFill="WHITE">
+                        <Label layoutX="732.0" layoutY="29.0" text="Gallons:" textFill="WHITE">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="16.0" />
                            </font>
                         </Label>
-                        <Label layoutX="634.0" layoutY="82.0" text="Cost:" textFill="WHITE">
+                        <Label layoutX="823.0" layoutY="29.0" text="Cost:" textFill="WHITE">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="16.0" />
                            </font>
                         </Label>
-                        <Label fx:id="kilowattsUsedLabel" layoutX="694.0" layoutY="30.0" text="0.0" textFill="WHITE" />
-                        <Label fx:id="gallonsUsedLabel" layoutX="694.0" layoutY="57.0" text="0.0" textFill="WHITE" />
-                        <Label fx:id="overallCostLabel" layoutX="690.0" layoutY="82.0" text="\$0.00" textFill="WHITE" />
+                        <Label fx:id="kilowattsUsedLabel" layoutX="638.0" layoutY="59.0" text="0.0000" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font></Label>
+                        <Label fx:id="gallonsUsedLabel" layoutX="751.0" layoutY="59.0" text="0.0" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font></Label>
+                        <Label fx:id="overallCostLabel" layoutX="823.0" layoutY="59.0" text="\$0.00" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font></Label>
+                        <Button layoutX="790.0" layoutY="89.0" mnemonicParsing="false" onAction="#resetIndicators" text="Reset Indicators" />
                      </children>
                   </Pane>
                </children>

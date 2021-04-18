@@ -53,6 +53,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	private Label overallCostLabel;
 	
 	public Double timeToSimulate = 0.0;
+	
+	// USAGE READOUT VARIABLES
 	public Double overallCost = 0.0;
 	public Double gallonsUsed = 0.0;
 	public Double kilowattsUsed = 0.0;
@@ -113,19 +115,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				String simulateStart = "\n Calculating shower event for "+String.valueOf(timeToSimulate)+" minutes...";
 				simulationField.appendText(simulateStart);
 				
-				// I just commented this out for now
-				/*if (buttonID.isSelected() == true) {
-					homeController.diagnosticToggle("Master Bedroom Shower", 1);
-					homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 1);
-					homeController.diagnosticToggle("Master Bath Overhead Light", 1);
-					homeController.diagnosticToggle("Appliance - Water Heater", 1);
-				} else if (buttonID.isSelected() == false) {
-					homeController.diagnosticToggle("Master Bedroom Shower", 2);
-					homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 2);
-					homeController.diagnosticToggle("Master Bath Overhead Light", 2);
-					homeController.diagnosticToggle("Appliance - Water Heater", 2);
-				} */
-				
+		
 				// turning on shower, fan, and light
 				homeController.diagnosticToggle("Master Bedroom Shower", 1);
 				homeController.diagnosticToggle("Master Bedroom Exhaust Fan", 1);
@@ -205,18 +195,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			String simulateStart = "\n Calculating washing event for "+String.valueOf(timeToSimulate)+" minutes...";
     			simulationField.appendText(simulateStart);
     			
-    			/*if (buttonID.isSelected() == true) {
-    				homeController.diagnosticToggle("Appliance - Dishwasher", 1);
-    				homeController.diagnosticToggle("Dishwasher Water", 1);
-    				homeController.diagnosticToggle("Kitchen Overhead Light", 1);
-    				homeController.diagnosticToggle("Appliance - Water Heater", 1);
-    			} else if (buttonID.isSelected() == false) {
-    				homeController.diagnosticToggle("Appliance - Dishwasher", 2);
-    				homeController.diagnosticToggle("Dishwasher Water", 2);
-    				homeController.diagnosticToggle("Kitchen Overhead Light", 2);
-    				homeController.diagnosticToggle("Appliance - Water Heater", 2);
-    			}*/
-    			
+ 			
     			// turning on dishwasher, dishwasher water, and kitchen light
     			homeController.diagnosticToggle("Appliance - Dishwasher", 1);
 				homeController.diagnosticToggle("Dishwasher Water", 1);
@@ -323,6 +302,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
     	simulationField.setEditable(false);
 	}
 	
+    
+    // Function occurs when a device is toggled
 	public void toggleSimulation2 (ActionEvent event) {
 		UsageCalculations UC = new UsageCalculations();
 		simulationMinutesUpdate();
@@ -333,42 +314,170 @@ public class SmartHomeDiagnosticsController implements Initializable{
 			homeController.diagnosticToggle(toggleID, 1);
 			
 			if (toggleID.contains("Light") || toggleID.contains("Lamp")) {
-				costCalculations(UC.lightWattage, 0.0);
+				costCalculationsOn(UC.lightWattage, 0.0);
 			
 			} else if (toggleID.contains("Exhaust Fan")) {
-				costCalculations(UC.exhaustFanWattage, 0.0);
+				costCalculationsOn(UC.exhaustFanWattage, 0.0);
 
 			} else if (toggleID.contains("Living Room TV")) {
-				costCalculations(UC.livingRoomTVWattage, 0.0);
+				costCalculationsOn(UC.livingRoomTVWattage, 0.0);
 				
 			} else if (toggleID.contains("Dishwasher")) {
-				// TODO: Big Appliance Special Cost Calculations;
+				// Calculates only electric usage for this appliance with this toggle
+				costCalculationsOn(UC.dishwasherWattage, 0.0);
 				
 			} else if (toggleID.contains("Washer")) {
-				// TODO: Big Appliance Special Cost Calculations;
+				// Calculates only electric usage for this appliance with this toggle
+				costCalculationsOn(UC.clothesWasherWattage, 0.0);
+				
+			} else if (toggleID.contains("Washing Machine Water")) {
+				// Calculation based on 20 gallons per load, 30 minutes per load ==> .67 gallons/minute
+				// Simulates only cold water usage
+				costCalculationsOn(0.0, .67 * timeToSimulate);
 				
 			} else if (toggleID.contains("Dryer")) {
-				costCalculations(UC.clothesDryerWattage, 0.0);			
+				costCalculationsOn(UC.clothesDryerWattage, 0.0);			
 				
 			} else if (toggleID.contains("Refridgerator")) {
-				costCalculations(UC.refridgeratorWattage, 0.0);
+				costCalculationsOn(UC.refridgeratorWattage, 0.0);
 				
 			} else if (toggleID.contains("Stove")) {
-				costCalculations(UC.stoveWattage, 0.0);
+				costCalculationsOn(UC.stoveWattage, 0.0);
 				
 			} else if (toggleID.contains("Oven")) {
-				costCalculations(UC.ovenWattage, 0.0);
+				costCalculationsOn(UC.ovenWattage, 0.0);
 				
 			} else if (toggleID.contains("Microwave")) {
-				costCalculations(UC.microwaveWattage, 0.0);
+				costCalculationsOn(UC.microwaveWattage, 0.0);
 				
+			} else if (toggleID.contains("Window")) {
+				//TODO: Uncertain what impact this action will have on house temp
+				//For now, the parameters have no impact
+				costCalculationsOn(0.0, 0.0);
+				
+			} else if (toggleID.contains("Door")) {
+				//TODO: Uncertain what impact this action will have on house temp
+				//For now, the parameters have no impact
+				costCalculationsOn(0.0, 0.0);
+				
+			} else if (toggleID.contains("Bathroom") && (toggleID.contains("Sink"))) {
+				//Obtained avg. gpm of faucet from https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
+				//assumes a cold water simulation
+				costCalculationsOn(0.0, 1.5 * timeToSimulate);
+				
+			} else if (toggleID.contains("Kitchen Sink")) {
+				//Obtained avg. gpm of faucet from https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
+				//assumes a cold water simulation
+				costCalculationsOn(0.0, 2.2 * timeToSimulate);
+				
+			} else if (toggleID.contains("Toilet Water")) {
+				//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+				costCalculationsOn(0.0, 2.5 * timeToSimulate);
+				
+			} else if (toggleID.contains("Shower")) {
+				//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+				costCalculationsOn(0.0, 2.25 * timeToSimulate);
+				
+			} else if (toggleID.contains("Outside Faucet")) {
+				//Obtained avg. gpm of toilet from https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
+				costCalculationsOn(0.0, 13 * timeToSimulate);
+				
+			} else if (toggleID.contains("Dishwashwer Water")) {
+				//Used cost of 6 gallons per 45 minute load, totaling .13 gallons per minute
+				//assumes a cold water simulation
+				costCalculationsOn(0.0, 0.13 * timeToSimulate);
+				
+			} else if (toggleID.contains("Water Heater")) {
+				//Calculates only electric usage for this appliance with this toggle
+				costCalculationsOn(UC.waterHeaterWattage, 0.0);
+			}
+		
 		} else if (buttonID.isSelected() == false) {
 			homeController.diagnosticToggle(toggleID, 2);
-		}
+		
+			if (toggleID.contains("Light") || toggleID.contains("Lamp")) {
+				costCalculationsOff(UC.lightWattage, 0.0);
+			
+			} else if (toggleID.contains("Exhaust Fan")) {
+				costCalculationsOff(UC.exhaustFanWattage, 0.0);
+
+			} else if (toggleID.contains("Living Room TV")) {
+				costCalculationsOff(UC.livingRoomTVWattage, 0.0);
+				
+			} else if (toggleID.contains("Dishwasher")) {
+				// Just calculates electric usage for the appliance itself, no water calculation here. That is done via even simulation.
+				costCalculationsOff(UC.dishwasherWattage, 0.0);
+				
+			} else if (toggleID.contains("Washer")) {
+				// Calculates only electric usage for this appliance with this toggle
+				costCalculationsOff(UC.clothesWasherWattage, 0.0);
+				
+			} else if (toggleID.contains("Washing Machine Water")) {
+				// Calculation based on 20 gallons per load, 30 minutes per load ==> .67 gallons/minute
+				// Simulates only cold water usage
+				costCalculationsOff(0.0, .67 * timeToSimulate);
+				
+			} else if (toggleID.contains("Dryer")) {
+				costCalculationsOff(UC.clothesDryerWattage, 0.0);			
+				
+			} else if (toggleID.contains("Refridgerator")) {
+				costCalculationsOff(UC.refridgeratorWattage, 0.0);
+				
+			} else if (toggleID.contains("Stove")) {
+				costCalculationsOff(UC.stoveWattage, 0.0);
+				
+			} else if (toggleID.contains("Oven")) {
+				costCalculationsOff(UC.ovenWattage, 0.0);
+				
+			} else if (toggleID.contains("Microwave")) {
+				costCalculationsOff(UC.microwaveWattage, 0.0);
+				
+			} else if (toggleID.contains("Window")) {
+				//TODO: Uncertain what impact this action will have on house temp
+				//For now, the parameters have no impact
+				costCalculationsOff(0.0, 0.0);
+				
+			} else if (toggleID.contains("Door")) {
+				//TODO: Uncertain what impact this action will have on house temp
+				//For now, the parameters have no impact
+				costCalculationsOff(0.0, 0.0);
+				
+			} else if (toggleID.contains("Bathroom") && (toggleID.contains("Sink"))) {
+				//Obtained avg. gpm of faucet from https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
+				//assumes a cold water simulation
+				costCalculationsOff(0.0, 1.5 * timeToSimulate);
+				
+			} else if (toggleID.contains("Kitchen Sink")) {
+				//Obtained avg. gpm of faucet from https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
+				//assumes a cold water simulation
+				costCalculationsOff(1.5, 2.2 * timeToSimulate);
+				
+			} else if (toggleID.contains("Toilet Water")) {
+				//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+				costCalculationsOff(0.0, 2.5 * timeToSimulate);	
+				
+			} else if (toggleID.contains("Shower")) {
+				//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+				costCalculationsOff(0.0, 2.25 * timeToSimulate);
+				
+			} else if (toggleID.contains("Outside Faucet")) {
+				//Obtained avg. gpm of toilet from https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
+				costCalculationsOff(0.0, 13 * timeToSimulate);
+				
+			} else if (toggleID.contains("Dishwashwer Water")) {
+				//Used cost of 6 gallons per 45 minute load, totaling .13 gallons per minute
+				//assumes a cold water simulation
+				costCalculationsOff(0.0, 0.13 * timeToSimulate);
+				
+			} else if (toggleID.contains("Water Heater")) {
+				//Calculates only electric usage for this appliance with this toggle
+				costCalculationsOff(UC.waterHeaterWattage, 0.0);
+			}
 		}		
 	}
 	
-	public void costCalculations (Double wattage, Double gallons) {
+	// Calculates the Electric and Water Usage and the Overall Cost when toggled ON, adding it to the Usage Readout 
+	public void costCalculationsOn (Double wattage, Double gallons) {
 		UsageCalculations UC = new UsageCalculations();
 		Double electricUsage = UC.electricUsage(wattage, timeToSimulate);
 		Double electricCost = UC.electricCost(electricUsage);
@@ -378,7 +487,22 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		overallCost = round((overallCost + totalCost), 2);
 		gallonsUsed = round((gallonsUsed + waterUsage), 2);
 		kilowattsUsed = round((kilowattsUsed + electricUsage), 4);
-		statusWindowUpdate(electricUsage, waterUsage, totalCost, overallCost);
+//		statusWindowUpdate(electricUsage, waterUsage, totalCost, overallCost);
+		updateIndicators();
+	}
+	
+	// Calculates the Electric and Water Usage and the Overall Cost when toggled OFF, subtracting it from the Usage Readout 
+	public void costCalculationsOff (Double wattage, Double gallons) {
+		UsageCalculations UC = new UsageCalculations();
+		Double electricUsage = UC.electricUsage(wattage, timeToSimulate);
+		Double electricCost = UC.electricCost(electricUsage);
+		Double waterUsage = UC.waterCubicFeetUsage(gallons);
+		Double waterCost = UC.waterCost(waterUsage);
+		Double totalCost = electricCost + waterCost;
+		overallCost = round((overallCost - totalCost), 2);
+		gallonsUsed = round((gallonsUsed - waterUsage), 2);
+		kilowattsUsed = round((kilowattsUsed - electricUsage), 4);
+//		statusWindowUpdate(electricUsage, waterUsage, totalCost, overallCost);
 		updateIndicators();
 	}
 	
@@ -404,7 +528,13 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		gallonsUsedLabel.setText(gallonsUsed.toString());
 		kilowattsUsedLabel.setText(kilowattsUsed.toString());
 		overallCostLabel.setText(cost+overallCost.toString());
-		
+	}
+	
+	public void resetIndicators () {
+		overallCost = 0.0;
+		kilowattsUsed = 0.0000;
+		overallCost = 0.00;
+		updateIndicators();
 	}
 		
 	public void setHomeController(SmartHomeController smartHomeController) {
