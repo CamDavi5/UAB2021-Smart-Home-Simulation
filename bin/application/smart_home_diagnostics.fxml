@@ -14,7 +14,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeDiagnosticsController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeDiagnosticsController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -281,7 +281,7 @@
                         <ToggleButton id="Outside Faucet Water" layoutX="935.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="Spigot" />
                         <ToggleButton disable="true" layoutX="1034.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="not set" />
                         <ToggleButton disable="true" layoutX="1135.0" layoutY="193.0" mnemonicParsing="false" onAction="#toggleSimulation2" prefWidth="90.0" text="not set" />
-                        <ToggleButton layoutX="410.0" layoutY="119.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="139.0" text="Wash Clothes">
+                        <ToggleButton fx:id="simulateclotheswashButton" layoutX="410.0" layoutY="119.0" mnemonicParsing="false" onAction="#simulateclotheswashButtonPressed" prefHeight="60.0" prefWidth="139.0" text="Wash Clothes">
                            <font>
                               <Font size="18.0" />
                            </font>

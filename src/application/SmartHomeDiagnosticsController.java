@@ -47,6 +47,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	@FXML
 	private TextField lengthOfSimulationField;
 	@FXML
+    private ToggleButton simulateclotheswashButton;
+	@FXML
 	private Label gallonsUsedLabel;
 	@FXML
 	private Label kilowattsUsedLabel;
@@ -109,6 +111,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				// disabling buttons while simulation is running
 				simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
+				simulateclotheswashButton.setDisable(true);
 				
 				simulationMinutesUpdate();
 				ToggleButton buttonID = (ToggleButton) event.getSource();
@@ -180,6 +183,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				simulationField.appendText(cost+addon);
 				
 				simulateshowerButton.setDisable(false);
+				simulateclotheswashButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
 				simulateshowerButton.setSelected(false);
 		}
@@ -195,11 +199,12 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			
     			simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
+				simulateclotheswashButton.setDisable(true);
     			
     			simulationMinutesUpdate();
     			ToggleButton buttonID = (ToggleButton) event.getSource();
 		
-    			String simulateStart = "\n Calculating washing event for "+String.valueOf(timeToSimulate)+" minutes...";
+    			String simulateStart = "\n Calculating dish washing event for "+String.valueOf(timeToSimulate)+" minutes...";
     			simulationField.appendText(simulateStart);
     			
  			
@@ -257,12 +262,99 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulationField.appendText(cost+addon);
     			
     			simulateshowerButton.setDisable(false);
+    			simulateclotheswashButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
 				simulatewashingButton.setSelected(false);
     	}
     	}.start();
     }
 	
+    // Calculates the clothes washing event and outputs the results
+    @FXML
+    void simulateclotheswashButtonPressed(ActionEvent event) {
+    	new Thread() {
+    		public void run() {
+    			simulationField.clear();
+    			
+    			simulateshowerButton.setDisable(true);
+				simulatewashingButton.setDisable(true);
+				simulateclotheswashButton.setDisable(true);
+    			
+    			simulationMinutesUpdate();
+    			ToggleButton buttonID = (ToggleButton) event.getSource();
+		
+    			String simulateStart = "\n Calculating clothes washing event for "+String.valueOf(timeToSimulate)+" minutes...";
+    			simulationField.appendText(simulateStart);
+    			
+ 			
+    			// turning on clothes washer, clothes washer water, and dryer
+    			try {
+    				homeController.diagnosticToggle("Appliance - Washer", 1);
+					homeController.diagnosticToggle("Washing Machine Water", 1);
+					
+					// waiting while clothes are washed
+					pause(10000);
+					
+					// turning off clothes washer and clothes washer water
+					homeController.diagnosticToggle("Appliance - Washer", 2);
+					homeController.diagnosticToggle("Washing Machine Water", 2);
+					
+					// turning on water heater 
+					homeController.diagnosticToggle("Appliance - Water Heater", 1);
+					
+					// waiting while water heater heats water
+					pause(10000);
+					
+					// turning water heater off
+					homeController.diagnosticToggle("Appliance - Water Heater", 2);
+					
+					// turning on dryer
+					homeController.diagnosticToggle("Appliance - Dryer", 1);
+					
+					// waiting while clothes are dried
+					pause(10000);
+					
+					// turning off dryer
+					homeController.diagnosticToggle("Appliance - Dryer", 2);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+		
+    			// Clothes washer (+ Water Heater) calculation
+    			List<Double> totals = simulationCalculation(500, 20, timeToSimulate/60, .85);
+    			double tempw = totals.get(0); 
+    			double tempg = totals.get(1);
+    			double tempc = totals.get(2);
+		
+		
+    			// Clothes dryer calculation 
+    			totals = simulationCalculation(3000, 0, timeToSimulate/60, 0.0);
+    			totals.set(0, totals.get(0)+tempw);
+    			totals.set(1, totals.get(1)+tempg);
+    			totals.set(2, totals.get(2)+tempc);
+    			totals = roundingData(totals);
+		
+    			// TextArea output
+    			String watts = "\n Calculated kilowatts used: ";
+    			String gallons = "\n Calculated gallons used: ";
+    			String cost = "\n Calculated overall cost: ";
+    			String addon = Double.toString(totals.get(0));
+    			simulationField.appendText(watts+addon);
+    			addon = Double.toString(totals.get(1));
+    			simulationField.appendText(gallons+addon);
+    			addon = Double.toString(totals.get(2));
+    			simulationField.appendText(cost+addon);
+    			
+    			simulateshowerButton.setDisable(false);
+				simulatewashingButton.setDisable(false);
+				simulateclotheswashButton.setDisable(false);
+				simulateclotheswashButton.setSelected(false);
+    	}
+    	}.start();
+    }    
+    
     // Calculates for any given simulation
     public List<Double> simulationCalculation(int watts, int gallons, double time, double hotpercent) {
 		List<Double> totals = Arrays.asList(0.0, 0.0, 0.0);
