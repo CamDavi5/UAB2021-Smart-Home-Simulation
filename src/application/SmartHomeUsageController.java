@@ -244,7 +244,7 @@ public class SmartHomeUsageController implements Initializable{
 				node.setStyle("-fx-stroke: #ff0000;\n" + "-fx-background-color: #ff0000, white;");
 			}
 			
-			// changing the water estimate line
+			// changing the electricity estimate line
 			Set<Node> elecEstNodes = usageChart.lookupAll(".series" + 5);
 											
 			// iterating through each node in the set

@@ -471,19 +471,35 @@ public class SmartHomeController implements Initializable{
 			System.out.println ("OOPS! No such indicator to toggle on.");
 		}
 		
-		// sqlQuery to insert timestamp for toggleOn event
-		String sqlQuery = String.format(
-				"UPDATE public.live_events "
-				+ "SET on_status = FALSE "
-				+ "WHERE event_id=\'%s\';"
-				+ "UPDATE public.live_events "
-				+ "SET time_stamp = \'%s\' "
-				+ "WHERE event_id=\'%s\';"
-				+ "UPDATE public.live_events "
-				+ "SET on_status = TRUE "
-				+ "WHERE event_id=\'%s\';", id, startTime, id, id);
-		Statement s = Main.c.createStatement();
-		int queryResult = s.executeUpdate(sqlQuery);
+		// sql statement to check if sensor is in database already
+		String sqlStatement = String.format("SELECT * FROM public.live_events WHERE event_id =\'%s\';", id);
+		Statement s2 = Main.c.createStatement();
+		ResultSet query = s2.executeQuery(sqlStatement);
+		
+		// checking if sensor is already in the event database
+		if (query.next()) {
+			// the sensor was already in the database, so just update the timestamp
+			
+			// sqlQuery to insert timestamp for toggleOn event
+			String sqlQuery = String.format(
+					"UPDATE public.live_events "
+					+ "SET on_status = FALSE "
+					+ "WHERE event_id=\'%s\';"
+					+ "UPDATE public.live_events "
+					+ "SET time_stamp = \'%s\' "
+					+ "WHERE event_id=\'%s\';"
+					+ "UPDATE public.live_events "
+					+ "SET on_status = TRUE "
+					+ "WHERE event_id=\'%s\';", id, startTime, id, id);
+			Statement s = Main.c.createStatement();
+			s.executeUpdate(sqlQuery);
+		} else {
+			// the sensor was not in the database, so insert sensor id and timestamp
+			String sqlInsert = String.format(
+					"INSERT INTO public.live_events "
+					+ "VALUES (\'%s\', \'%s\', TRUE);", id, startTime);
+			s2.executeUpdate(sqlInsert);
+		} 
 	}
 	
 	// toggles an item off
@@ -518,7 +534,7 @@ public class SmartHomeController implements Initializable{
 				+ "WHERE event_id=\'%s\'", id);
 		Statement statusUpdate = Main.c.createStatement();
 		Statement timestamp = Main.c.createStatement();
-		int statusUpdateResult = statusUpdate.executeUpdate(statusOff);
+		statusUpdate.executeUpdate(statusOff);
 		ResultSet timestampResult = timestamp.executeQuery(sqlQuery);
 		
 		if (timestampResult.next()) {
@@ -569,6 +585,7 @@ public class SmartHomeController implements Initializable{
 	    return unit.between(localDateTimeStart, localDateTimeEnd);
 	}
 	
+	/*
 	// initialize all toggle items in the database
 	public void initToggleItems() throws SQLException {
 		//TODO sqlQuery to add item by name if not already in table)
@@ -578,7 +595,7 @@ public class SmartHomeController implements Initializable{
 			String event_id = node.getId();
 			
 		}
-	}
+	} */
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
