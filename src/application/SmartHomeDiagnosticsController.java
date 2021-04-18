@@ -418,7 +418,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				costCalculationsOff(UC.livingRoomTVWattage, 0.0);
 				
 			} else if (toggleID.contains("Dishwasher")) {
-				// Just calculates electric usage for the appliance itself, no water calculation here. That is done via even simulation.
+				// Just calculates electric usage for the appliance itself, no water calculation here. That is done via event simulation.
 				costCalculationsOff(UC.dishwasherWattage, 0.0);
 				
 			} else if (toggleID.contains("Washer")) {

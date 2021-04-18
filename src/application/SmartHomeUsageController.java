@@ -51,6 +51,10 @@ public class SmartHomeUsageController implements Initializable{
 	private NumberAxis y;
 	@FXML
 	private LineChart<?,?> usageChart;
+	@FXML
+	private Button refreshTableButton;
+	@FXML
+	private Button refreshGraphButton;
 
 	
 	@FXML
@@ -85,6 +89,30 @@ public class SmartHomeUsageController implements Initializable{
 	public void diagnosticsButtonPressed(ActionEvent actionEvent) {
 		Stage primaryStage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
 		primaryStage.setScene(thirdScene);
+	}
+	
+	// event listener for refresh button that updates the table values
+	public void refreshTableButtonPressed(ActionEvent actionEvent) {
+		// TODO make this button refresh the table with updated values on the usage page
+	}
+	
+	// event listener for refresh button that updates the graph
+	public void refreshGraphButtonPressed(ActionEvent actionEvent) throws SQLException {
+String month = monthComboBox.getValue();
+		
+		if (month == null) {
+			System.out.println("Please select a month");
+		} else if (month == "April") {
+			// generate graph for April
+			createMonthGraph(4, 30);
+		} else if (month == "March") {
+			// generate graph for March
+			createMonthGraph(3, 31);
+		} else {
+			// month would be February
+			// generate graph for February
+			createMonthGraph(2, 28);
+		}
 	}
 	
 	// create the line graph that shows monthly usage
@@ -133,7 +161,7 @@ public class SmartHomeUsageController implements Initializable{
 		y.setUpperBound(50);
 		y.setTickUnit(5);
 		
-		String sqlQuery = String.format("SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '%d%%'", monthNumber);
+		String sqlQuery = String.format("SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '%d%%' ORDER BY start_date", monthNumber);
 		Statement s = Main.c.createStatement();
 		ResultSet queryResult = s.executeQuery(sqlQuery);
 		long kilowatts = 0;
@@ -169,7 +197,7 @@ public class SmartHomeUsageController implements Initializable{
 		queryResult.close();
 		
 
-		String sqlQuery2 = String.format("SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '%d%%'", monthNumber);
+		String sqlQuery2 = String.format("SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '%d%%' ORDER BY start_date", monthNumber);
 		Statement s2 = Main.c.createStatement();
 		ResultSet queryResult2 = s2.executeQuery(sqlQuery2);
 		i = 1;

@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -548,6 +549,160 @@ public class SmartHomeController implements Initializable{
 		///TODO TODO TODO TODO TODO TODO TODO
 		///TODO TODO TODO TODO TODO TODO TODO
 		///TODO TODO TODO TODO TODO TODO TODO
+		
+		calculateUsage(id, difference);
+	}
+	
+	public void calculateUsage(String id, long difference) throws SQLException {
+		UsageCalculations UC = new UsageCalculations();
+		long minutesOn = difference / 60;
+		
+		double kilowattsUsed = 0.0;
+		double elecCost = 0.0;
+		double gallonsUsed = 0.0;
+		double waterCost = 0.0;
+		
+		if (id.contains("Light") || id.contains("Lamp")) {
+			// calculating light usage
+			kilowattsUsed = UC.electricUsage(UC.lightWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Exhaust Fan")) {
+			// calculating exhaust fan usage
+			kilowattsUsed = UC.electricUsage(UC.exhaustFanWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+
+		} else if (id.contains("Living Room TV")) {
+			// calculating living room tv usage
+			kilowattsUsed = UC.electricUsage(UC.livingRoomTVWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Dishwasher")) {
+			// Calculates only electric usage for this appliance with this toggle
+			kilowattsUsed = UC.electricUsage(UC.dishwasherWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Washer")) {
+			// Calculates only electric usage for this appliance with this toggle
+			kilowattsUsed = UC.electricUsage(UC.clothesWasherWattage, minutesOn);
+			
+		} else if (id.contains("Washing Machine Water")) {
+			// Calculation based on 20 gallons per load, 30 minutes per load ==> .67 gallons/minute
+			// Simulates only cold water usage
+			gallonsUsed = UC.waterCubicFeetUsage(.67 * minutesOn);
+			waterCost = UC.waterCost(gallonsUsed);
+			
+		} else if (id.contains("Dryer")) {
+			// calculating dryer usage
+			kilowattsUsed = UC.electricUsage(UC.clothesDryerWattage, minutesOn);			
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Refridgerator")) {
+			// calculating fridge usage
+			kilowattsUsed = UC.electricUsage(UC.refridgeratorWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Stove")) {
+			// calculating stove usage
+			kilowattsUsed = UC.electricUsage(UC.stoveWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Oven")) {
+			// calculating oven usage
+			kilowattsUsed = UC.electricUsage(UC.ovenWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Microwave")) {
+			// calculating microwave usage
+			kilowattsUsed = UC.electricUsage(UC.microwaveWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+		
+		} else if (id.contains("Bedroom TV")) {
+			// calculating bedroom tv usage
+			kilowattsUsed = UC.electricUsage(UC.bedroomTVWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("Window")) {
+			//TODO: Uncertain what impact this action will have on house temp
+			
+		} else if (id.contains("Door")) {
+			//TODO: Uncertain what impact this action will have on house temp
+			
+		} else if (id.contains("Bathroom") && (id.contains("Sink"))) {
+			//Obtained avg. gpm of faucet from https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
+			//assumes a cold water simulation
+			gallonsUsed = UC.waterCubicFeetUsage(1.5 * minutesOn);
+			waterCost = UC.waterCost(gallonsUsed);
+			
+		} else if (id.contains("Kitchen Sink")) {
+			//Obtained avg. gpm of faucet from https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
+			//assumes a cold water simulation
+			gallonsUsed = UC.waterCubicFeetUsage(2.2 * minutesOn);
+			waterCost = UC.waterCost(gallonsUsed);
+			
+		} else if (id.contains("Toilet Water")) {
+			//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+			gallonsUsed = UC.waterCubicFeetUsage(2.5 * minutesOn);
+			waterCost = UC.waterCost(gallonsUsed);
+			
+		} else if (id.contains("Shower")) {
+			//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+			gallonsUsed = UC.waterCubicFeetUsage(2.25 * minutesOn);
+			waterCost = UC.waterCost(gallonsUsed);
+			
+		} else if (id.contains("Outside Faucet")) {
+			//Obtained avg. gpm of toilet from https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
+			gallonsUsed = UC.waterCubicFeetUsage(13 * minutesOn);
+			waterCost = UC.waterCost(gallonsUsed);
+			
+		} else if (id.contains("Dishwashwer Water")) {
+			//Used cost of 6 gallons per 45 minute load, totaling .13 gallons per minute
+			//assumes a cold water simulation
+			gallonsUsed = UC.waterCubicFeetUsage(0.13 * minutesOn);
+			waterCost = UC.waterCost(gallonsUsed);
+			
+		} else if (id.contains("Water Heater")) {
+			//Calculates only electric usage for this appliance with this toggle
+			kilowattsUsed = UC.electricUsage(UC.waterHeaterWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+			
+		} else if (id.contains("HVAC")) {
+			// calculating hvac usage
+			kilowattsUsed = UC.electricUsage(UC.HVACWattage, minutesOn);
+			elecCost = UC.electricCost(kilowattsUsed);
+		}
+		
+		
+	
+		// console output for testing
+		System.out.println(id + " - Kilowatts: " + kilowattsUsed + " ElecCost: $" + elecCost + " Gallons: " + gallonsUsed + " WaterCost: $" + waterCost);
+		
+		updateUsagePage(kilowattsUsed, elecCost, gallonsUsed, waterCost);
+	}
+	
+	// updates the usage graph and table with the usage amounts from the live events
+	public void updateUsagePage(double kilowattsUsed, double elecCost, double gallonsUsed, double waterCost) throws SQLException {
+		Calendar calendar = Calendar.getInstance();
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int month = calendar.get(Calendar.MONTH) + 1;
+		
+		String sqlDate = String.format("%d%d21", month, day);
+		
+		String sqlQuery = String.format(
+				"UPDATE electricity_bill "
+				+ "SET kilowatts = kilowatts + %f "
+				+ "WHERE start_date = \'%s\';"
+				+ "UPDATE electricity_bill "
+				+ "SET total_amount = total_amount + %f "
+				+ "WHERE start_date = \'%s\';"
+				+ "UPDATE water_bill "
+				+ "SET gallons = gallons + %f "
+				+ "WHERE start_date = \'%s\';"
+				+ "UPDATE water_bill "
+				+ "SET amount = amount + %f "
+				+ "WHERE start_date = \'%s\';", kilowattsUsed, sqlDate, elecCost, sqlDate, gallonsUsed, sqlDate, waterCost, sqlDate);
+		Statement s = Main.c.createStatement();
+		s.executeUpdate(sqlQuery);
 	}
 	
 	// changes the color and the status message
