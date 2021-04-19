@@ -15,7 +15,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeUsageController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeUsageController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -26,42 +26,42 @@
                   <Button fx:id="diagnosticsButton" mnemonicParsing="false" onAction="#diagnosticsButtonPressed" text="Diagnostics" />
               </buttons>
             </ButtonBar>
-            <VBox prefHeight="526.0" prefWidth="1260.0">
+            <VBox prefHeight="497.0" prefWidth="1260.0">
                <children>
-                  <Pane prefHeight="522.0" prefWidth="1260.0">
+                  <Pane prefHeight="482.0" prefWidth="1260.0">
                      <children>
-                        <LineChart fx:id="usageChart" prefHeight="423.0" prefWidth="1242.0" title="Usage">
+                        <LineChart fx:id="usageChart" prefHeight="387.0" prefWidth="1242.0" title="Usage">
                           <xAxis>
-                            <NumberAxis side="BOTTOM" tickLabelFill="WHITE" fx:id="x" />
+                            <NumberAxis prefHeight="44.0" prefWidth="1185.0" side="BOTTOM" tickLabelFill="WHITE" fx:id="x" />
                           </xAxis>
                           <yAxis>
-                            <NumberAxis fx:id="y" side="LEFT" tickLabelFill="WHITE" />
+                            <NumberAxis fx:id="y" autoRanging="false" side="LEFT" tickLabelFill="WHITE" />
                           </yAxis>
                         </LineChart>
-                        <ComboBox fx:id="monthComboBox" layoutX="474.0" layoutY="453.0" onAction="#selectMonthButtonPressed" prefHeight="32.0" prefWidth="295.0" />
-                        <Text fill="WHITE" layoutX="27.0" layoutY="465.0" strokeType="OUTSIDE" strokeWidth="0.0" text="*  Gallons are per 100 gallons" />
-                        <Circle fill="#1184e8" layoutX="488.0" layoutY="437.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text fill="WHITE" layoutX="504.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Water" />
-                        <Circle fill="RED" layoutX="585.0" layoutY="438.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Text fill="WHITE" layoutX="604.0" layoutY="443.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Electricity" />
-                        <Circle fill="#12d312" layoutX="703.0" layoutY="437.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
-                        <Button fx:id="refreshTableButton" layoutX="1146.0" layoutY="499.0" mnemonicParsing="false" onAction="#refreshTableButtonPressed" text="Refresh Table" />
-                        <Text fill="WHITE" layoutX="719.0" layoutY="444.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cost" />
-                        <Text fill="WHITE" layoutX="27.0" layoutY="483.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Solid Line = Actual Usage Data" />
-                        <Text fill="WHITE" layoutX="27.0" layoutY="502.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dashed Line = Estimated Usage" />
-                        <Text fill="WHITE" layoutX="27.0" layoutY="519.0" strokeType="OUTSIDE" strokeWidth="0.0" text="(based on two month average)" />
-                        <Button fx:id="refreshGraphButton" layoutX="1026.0" layoutY="499.0" mnemonicParsing="false" onAction="#refreshGraphButtonPressed" text="Refresh Graph" />
+                        <ComboBox fx:id="monthComboBox" layoutX="474.0" layoutY="423.0" onAction="#selectMonthButtonPressed" prefHeight="32.0" prefWidth="295.0" />
+                        <Text fill="WHITE" layoutX="26.0" layoutY="414.0" strokeType="OUTSIDE" strokeWidth="0.0" text="*  Gallons are per 100 gallons" />
+                        <Circle fill="#1184e8" layoutX="488.0" layoutY="407.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Text fill="WHITE" layoutX="504.0" layoutY="413.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Water" />
+                        <Circle fill="RED" layoutX="585.0" layoutY="408.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Text fill="WHITE" layoutX="604.0" layoutY="413.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Electricity" />
+                        <Circle fill="#12d312" layoutX="703.0" layoutY="407.0" radius="8.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Button fx:id="refreshTableButton" layoutX="1147.0" layoutY="424.0" mnemonicParsing="false" onAction="#refreshTableButtonPressed" text="Refresh Table" />
+                        <Text fill="WHITE" layoutX="719.0" layoutY="414.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cost" />
+                        <Text fill="WHITE" layoutX="26.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Solid Line = Actual Usage Data" />
+                        <Text fill="WHITE" layoutX="26.0" layoutY="451.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dashed Line = Estimated Usage" />
+                        <Text fill="WHITE" layoutX="26.0" layoutY="468.0" strokeType="OUTSIDE" strokeWidth="0.0" text="(based on two month average)" />
+                        <Button fx:id="refreshGraphButton" layoutX="1027.0" layoutY="424.0" mnemonicParsing="false" onAction="#refreshGraphButtonPressed" text="Refresh Graph" />
                      </children>
                   </Pane>
                </children>
             </VBox>
             <HBox alignment="CENTER" prefHeight="115.0" prefWidth="1260.0" VBox.vgrow="ALWAYS">
                <children>
-                  <TableView fx:id="usageTable" prefHeight="107.0" prefWidth="1264.0" style="-fx-background-color: #1F1F1F;">
+                  <TableView fx:id="usageTable" prefHeight="168.0" prefWidth="1260.0" style="-fx-background-color: #1F1F1F;">
                     <columns>
                         <TableColumn fx:id="monthColumn" prefWidth="75.0" text="Month" />
-                      <TableColumn fx:id="wattageColumn" prefWidth="99.199951171875" text=" Wattage (Kw)" />
-                      <TableColumn fx:id="gallonsColumn" prefWidth="107.20001220703125" text="Gallons" />
+                      <TableColumn fx:id="wattageColumn" prefWidth="313.0" text=" Wattage (Kw)" />
+                      <TableColumn fx:id="gallonsColumn" prefWidth="316.0" text="Gallons" />
                         <TableColumn fx:id="costColumn" prefWidth="108.0" text="Overall Cost (USD)" />
                     </columns>
                      <columnResizePolicy>

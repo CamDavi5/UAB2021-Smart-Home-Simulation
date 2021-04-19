@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -98,7 +101,7 @@ public class SmartHomeUsageController implements Initializable{
 	
 	// event listener for refresh button that updates the graph
 	public void refreshGraphButtonPressed(ActionEvent actionEvent) throws SQLException {
-String month = monthComboBox.getValue();
+		String month = monthComboBox.getValue();
 		
 		if (month == null) {
 			System.out.println("Please select a month");
@@ -143,6 +146,7 @@ String month = monthComboBox.getValue();
 		List<XYChart.Series> costEstList = new ArrayList<>();
 		List<XYChart.Series> elecEstList = new ArrayList<>();
 		
+		
 		// naming the lines
 		electricity.setName("Electricity");
 		water.setName("Water");
@@ -156,9 +160,9 @@ String month = monthComboBox.getValue();
 		
 		// adding y-axis constraints
 		y.setLabel("Dollars/Kilowatts/Gallons*");
-		y.setAutoRanging(false);
-		y.setLowerBound(0);
-		y.setUpperBound(50);
+		y.setAutoRanging(true);
+//		y.setLowerBound(0);
+//		y.setUpperBound(50);
 		y.setTickUnit(5);
 		
 		String sqlQuery = String.format("SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '%d%%' ORDER BY start_date", monthNumber);
