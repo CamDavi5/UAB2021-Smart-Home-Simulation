@@ -509,6 +509,7 @@ public class SmartHomeController implements Initializable {
 	public void calculateUsage(String id, long difference) throws SQLException {
 		UsageCalculations UC = new UsageCalculations();
 		long minutesOn = difference / 60;
+		long hoursOn = minutesOn / 60;
 
 		double kilowattsUsed = 0.0;
 		double elecCost = 0.0;
@@ -517,63 +518,63 @@ public class SmartHomeController implements Initializable {
 
 		if (id.contains("Light") || id.contains("Lamp")) {
 			// calculating light usage
-			kilowattsUsed = UC.electricUsage(UC.lightWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.lightWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Exhaust Fan")) {
 			// calculating exhaust fan usage
-			kilowattsUsed = UC.electricUsage(UC.exhaustFanWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.exhaustFanWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Living Room TV")) {
 			// calculating living room tv usage
-			kilowattsUsed = UC.electricUsage(UC.livingRoomTVWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.livingRoomTVWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Dishwasher")) {
 			// Calculates only electric usage for this appliance with this toggle
-			kilowattsUsed = UC.electricUsage(UC.dishwasherWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.dishwasherWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Washer")) {
 			// Calculates only electric usage for this appliance with this toggle
-			kilowattsUsed = UC.electricUsage(UC.clothesWasherWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.clothesWasherWattage, hoursOn);
 
 		} else if (id.contains("Washing Machine Water")) {
 			// Calculation based on 20 gallons per load, 30 minutes per load ==> .67
 			// gallons/minute
 			// Simulates only cold water usage
-			gallonsUsed = UC.waterCubicFeetUsage(.67 * minutesOn);
+			gallonsUsed = UC.waterCubicFeetUsage(.67 * hoursOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Dryer")) {
 			// calculating dryer usage
-			kilowattsUsed = UC.electricUsage(UC.clothesDryerWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.clothesDryerWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Refridgerator")) {
 			// calculating fridge usage
-			kilowattsUsed = UC.electricUsage(UC.refridgeratorWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.refridgeratorWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Stove")) {
 			// calculating stove usage
-			kilowattsUsed = UC.electricUsage(UC.stoveWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.stoveWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Oven")) {
 			// calculating oven usage
-			kilowattsUsed = UC.electricUsage(UC.ovenWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.ovenWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Microwave")) {
 			// calculating microwave usage
-			kilowattsUsed = UC.electricUsage(UC.microwaveWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.microwaveWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Bedroom TV")) {
 			// calculating bedroom tv usage
-			kilowattsUsed = UC.electricUsage(UC.bedroomTVWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.bedroomTVWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Window")) {
@@ -586,48 +587,48 @@ public class SmartHomeController implements Initializable {
 			// Obtained avg. gpm of faucet from
 			// https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
 			// assumes a cold water simulation
-			gallonsUsed = UC.waterCubicFeetUsage(1.5 * minutesOn);
+			gallonsUsed = UC.waterCubicFeetUsage(1.5 * hoursOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Kitchen Sink")) {
 			// Obtained avg. gpm of faucet from
 			// https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
 			// assumes a cold water simulation
-			gallonsUsed = UC.waterCubicFeetUsage(2.2 * minutesOn);
+			gallonsUsed = UC.waterCubicFeetUsage(2.2 * hoursOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Toilet Water")) {
 			// Obtained avg. gpm of toilet from
 			// https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
-			gallonsUsed = UC.waterCubicFeetUsage(2.5 * minutesOn);
+			gallonsUsed = UC.waterCubicFeetUsage(2.5 * hoursOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Shower")) {
 			// Obtained avg. gpm of toilet from
 			// https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
-			gallonsUsed = UC.waterCubicFeetUsage(2.25 * minutesOn);
+			gallonsUsed = UC.waterCubicFeetUsage(2.25 * hoursOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Outside Faucet")) {
 			// Obtained avg. gpm of toilet from
 			// https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
-			gallonsUsed = UC.waterCubicFeetUsage(13 * minutesOn);
+			gallonsUsed = UC.waterCubicFeetUsage(13 * hoursOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Dishwashwer Water")) {
 			// Used cost of 6 gallons per 45 minute load, totaling .13 gallons per minute
 			// assumes a cold water simulation
-			gallonsUsed = UC.waterCubicFeetUsage(0.13 * minutesOn);
+			gallonsUsed = UC.waterCubicFeetUsage(0.13 * hoursOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Water Heater")) {
 			// Calculates only electric usage for this appliance with this toggle
-			kilowattsUsed = UC.electricUsage(UC.waterHeaterWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.waterHeaterWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("HVAC")) {
 			// calculating hvac usage
-			kilowattsUsed = UC.electricUsage(UC.HVACWattage, minutesOn);
+			kilowattsUsed = UC.electricUsage(UC.HVACWattage, hoursOn);
 			elecCost = UC.electricCost(kilowattsUsed);
 		}
 
