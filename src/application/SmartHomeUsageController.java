@@ -393,12 +393,12 @@ public class SmartHomeUsageController implements Initializable{
 	//Returns list of data that can be inserted in the table
 	public ObservableList<DatabaseTable> getData() throws SQLException {
 		ObservableList<DatabaseTable> data = FXCollections.observableArrayList();
-		String FEBWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
-		String FEBGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '2%'";
-		String MARWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '3%'";
-		String MARGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '3%'";
-		String APRWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
-		String APRGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
+		String FEBWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%' ORDER BY start_date";
+		String FEBGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '2%' ORDER BY start_date";
+		String MARWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '3%' ORDER BY start_date";
+		String MARGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '3%' ORDER BY start_date";
+		String APRWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '4%' ORDER BY start_date";
+		String APRGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '4%' ORDER BY start_date";
 		// obtain database contents for table
 		List<Double> totals = TableQuery(FEBWsqlQuery, FEBGsqlQuery, true);
 		totals = roundingData(totals);

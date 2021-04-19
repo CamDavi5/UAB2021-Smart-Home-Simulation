@@ -549,7 +549,7 @@ public class SmartHomeController implements Initializable {
 			// Calculation based on 20 gallons per load, 30 minutes per load ==> .67
 			// gallons/minute
 			// Simulates only cold water usage
-			gallonsUsed = UC.waterCubicFeetUsage(.67 * hoursOn);
+			gallonsUsed = UC.waterCubicFeetUsage(.67 * minutesOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Dryer")) {
@@ -592,38 +592,38 @@ public class SmartHomeController implements Initializable {
 			// Obtained avg. gpm of faucet from
 			// https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
 			// assumes a cold water simulation
-			gallonsUsed = UC.waterCubicFeetUsage(1.5 * hoursOn);
+			gallonsUsed = UC.waterCubicFeetUsage(1.5 * minutesOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Kitchen Sink")) {
 			// Obtained avg. gpm of faucet from
 			// https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
 			// assumes a cold water simulation
-			gallonsUsed = UC.waterCubicFeetUsage(2.2 * hoursOn);
+			gallonsUsed = UC.waterCubicFeetUsage(2.2 * minutesOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Toilet Water")) {
 			// Obtained avg. gpm of toilet from
 			// https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
-			gallonsUsed = UC.waterCubicFeetUsage(2.5 * hoursOn);
+			gallonsUsed = UC.waterCubicFeetUsage(2.5 * minutesOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Shower")) {
 			// Obtained avg. gpm of toilet from
 			// https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
-			gallonsUsed = UC.waterCubicFeetUsage(2.25 * hoursOn);
+			gallonsUsed = UC.waterCubicFeetUsage(2.25 * minutesOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Outside Faucet")) {
 			// Obtained avg. gpm of toilet from
 			// https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
-			gallonsUsed = UC.waterCubicFeetUsage(13 * hoursOn);
+			gallonsUsed = UC.waterCubicFeetUsage(13 * minutesOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Dishwashwer Water")) {
 			// Used cost of 6 gallons per 45 minute load, totaling .13 gallons per minute
 			// assumes a cold water simulation
-			gallonsUsed = UC.waterCubicFeetUsage(0.13 * hoursOn);
+			gallonsUsed = UC.waterCubicFeetUsage(0.13 * minutesOn);
 			waterCost = UC.waterCost(gallonsUsed);
 
 		} else if (id.contains("Water Heater")) {
