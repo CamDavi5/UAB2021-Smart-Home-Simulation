@@ -92,8 +92,8 @@ public class SmartHomeUsageController implements Initializable{
 	}
 	
 	// event listener for refresh button that updates the table values
-	public void refreshTableButtonPressed(ActionEvent actionEvent) {
-		// TODO make this button refresh the table with updated values on the usage page
+	public void refreshTableButtonPressed(ActionEvent actionEvent) throws SQLException {
+		usageTable.setItems(getData());
 	}
 	
 	// event listener for refresh button that updates the graph
