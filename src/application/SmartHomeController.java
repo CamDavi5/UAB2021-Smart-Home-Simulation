@@ -304,7 +304,7 @@ public class SmartHomeController implements Initializable {
 		if (allLightsButton.getText().equals("All Lights On")) {
 			for (Node node : lightingOverlay.getChildren()) {
 				if (node instanceof Circle && ((Circle) node).getFill() == Color.YELLOW) {
-					toggleOn((Circle) node);
+					toggleOn((Circle) node, false);
 				}
 			}
 			allLightsButton.setText("All Lights Off");
@@ -312,7 +312,7 @@ public class SmartHomeController implements Initializable {
 		} else {
 			for (Node node : lightingOverlay.getChildren()) {
 				if (node instanceof Circle && ((Circle) node).getFill() == Color.RED) {
-					toggleOff((Circle) node);
+					toggleOff((Circle) node, false);
 				}
 			}
 			allLightsButton.setText("All Lights On");
@@ -326,7 +326,7 @@ public class SmartHomeController implements Initializable {
 		if (allDoorsLockedButton.getText().equals("All Doors Locked")) {
 			for (Rectangle door : doors) {
 				if (door.getFill() == Color.DARKGREEN) { 
-					toggleOn(door);
+					toggleOn(door, false);
 				}
 			}
 			allDoorsLockedButton.setText("All Doors Unlocked");
@@ -334,7 +334,7 @@ public class SmartHomeController implements Initializable {
 		} else {
 			for (Rectangle door : doors) {
 				if (door.getFill() == Color.RED) {
-					toggleOff(door);
+					toggleOff(door, false);
 				}
 			}
 			quickStatusField.appendText("\n" + "All Doors Unlocked");
@@ -348,7 +348,7 @@ public class SmartHomeController implements Initializable {
 		if (garageDoorOpenButton.getText().equals("Garage Door Open")) {
 			for (Rectangle door : garageDoors) {
 				if (door.getFill() == Color.DARKGREEN) { 
-					toggleOn(door);
+					toggleOn(door, false);
 				}
 			}
 			garageDoorOpenButton.setText("Garage Door Close");
@@ -356,7 +356,7 @@ public class SmartHomeController implements Initializable {
 		} else {
 			for (Rectangle door : garageDoors) {
 				if (door.getFill() == Color.RED) {
-					toggleOff(door);
+					toggleOff(door, false);
 				}
 			}
 			quickStatusField.appendText("\n" + "Garage doors closed");
@@ -370,7 +370,7 @@ public class SmartHomeController implements Initializable {
 		if (entertainmentOnButton.getText().equals("Entertainment On")) {
 			for (Shape event : entertainment) {
 				if (event.getFill() == Color.YELLOW || event.getFill() == Color.DODGERBLUE) { 
-					toggleOn(event);
+					toggleOn(event, false);
 				}
 			}
 			entertainmentOnButton.setText("Entertainment Off");
@@ -378,7 +378,7 @@ public class SmartHomeController implements Initializable {
 		} else {
 			for (Shape event : entertainment) {
 				if (event.getFill() == Color.RED) { 
-					toggleOff(event);
+					toggleOff(event, false);
 				}
 			}
 			quickStatusField.appendText("\n" + "Entertainment Off");
@@ -391,9 +391,9 @@ public class SmartHomeController implements Initializable {
 		Shape itemClicked = (Shape) event.getSource();
 		Paint currentColor = itemClicked.fillProperty().getValue();
 		if (currentColor == Paint.valueOf("RED")) {
-			toggleOff(itemClicked);
+			toggleOff(itemClicked, false);
 		} else {
-			toggleOn(itemClicked);
+			toggleOn(itemClicked, false);
 
 		}
 	}
@@ -404,16 +404,16 @@ public class SmartHomeController implements Initializable {
 			if (node.getId().compareToIgnoreCase(id) == 0) {
 				item = (Shape) node;
 				if (toggle == 1) {
-					toggleOn(item);
+					toggleOn(item, true);
 				} else if (toggle == 2) {
-					toggleOff(item);
+					toggleOff(item, true);
 				}
 			}
 		}
 	}
 
 	// Toggles an item on
-	public void toggleOn(Shape itemClicked) throws SQLException {
+	public void toggleOn(Shape itemClicked, Boolean fromDiagToggle) throws SQLException {
 
 		String startTime = getEventTime(itemClicked);
 		String id = itemClicked.getId();
@@ -437,33 +437,35 @@ public class SmartHomeController implements Initializable {
 			System.out.println("OOPS! No such indicator to toggle on.");
 		}
 
-		// sql statement to check if sensor is in database already
-		String sqlStatement = String.format("SELECT * FROM public.live_events WHERE event_id =\'%s\';", id);
-		Statement s2 = Main.c.createStatement();
-		ResultSet query = s2.executeQuery(sqlStatement);
-
-		// checking if sensor is already in the event database
-		if (query.next()) {
-			// the sensor was already in the database, so just update the timestamp
-
-			// sqlQuery to insert timestamp for toggleOn event
-			String sqlQuery = String.format(
-					"UPDATE public.live_events " + "SET on_status = FALSE " + "WHERE event_id=\'%s\';"
-							+ "UPDATE public.live_events " + "SET time_stamp = \'%s\' " + "WHERE event_id=\'%s\';"
-							+ "UPDATE public.live_events " + "SET on_status = TRUE " + "WHERE event_id=\'%s\';",
-					id, startTime, id, id);
-			Statement s = Main.c.createStatement();
-			s.executeUpdate(sqlQuery);
-		} else {
-			// the sensor was not in the database, so insert sensor id and timestamp
-			String sqlInsert = String.format("INSERT INTO public.live_events " + "VALUES (\'%s\', \'%s\', TRUE);", id,
-					startTime);
-			s2.executeUpdate(sqlInsert);
+		if (fromDiagToggle == false) {
+			// sql statement to check if sensor is in database already
+			String sqlStatement = String.format("SELECT * FROM public.live_events WHERE event_id =\'%s\';", id);
+			Statement s2 = Main.c.createStatement();
+			ResultSet query = s2.executeQuery(sqlStatement);
+	
+			// checking if sensor is already in the event database
+			if (query.next()) {
+				// the sensor was already in the database, so just update the timestamp
+	
+				// sqlQuery to insert timestamp for toggleOn event
+				String sqlQuery = String.format(
+						"UPDATE public.live_events " + "SET on_status = FALSE " + "WHERE event_id=\'%s\';"
+								+ "UPDATE public.live_events " + "SET time_stamp = \'%s\' " + "WHERE event_id=\'%s\';"
+								+ "UPDATE public.live_events " + "SET on_status = TRUE " + "WHERE event_id=\'%s\';",
+						id, startTime, id, id);
+				Statement s = Main.c.createStatement();
+				s.executeUpdate(sqlQuery);
+			} else {
+				// the sensor was not in the database, so insert sensor id and timestamp
+				String sqlInsert = String.format("INSERT INTO public.live_events " + "VALUES (\'%s\', \'%s\', TRUE);", id,
+						startTime);
+				s2.executeUpdate(sqlInsert);
+			}
 		}
 	}
 
 	// toggles an item off
-	public void toggleOff(Shape itemClicked) throws SQLException {
+	public void toggleOff(Shape itemClicked, Boolean fromDiagToggle) throws SQLException {
 
 		String endTimeString = getEventTime(itemClicked);
 		String startTimeString = null;
@@ -487,23 +489,26 @@ public class SmartHomeController implements Initializable {
 		} else {
 			System.out.println("OOPS! No such indicator to toggle off.");
 		}
-
-		// sqlQuery to set status to off
-		String statusOff = String
-				.format("UPDATE public.live_events " + "SET on_status = FALSE " + "WHERE event_id=\'%s\';", id);
-		// sqlQuery to get the timestamp
-		String sqlQuery = String.format("SELECT time_stamp from public.live_events " + "WHERE event_id=\'%s\'", id);
-		Statement statusUpdate = Main.c.createStatement();
-		Statement timestamp = Main.c.createStatement();
-		statusUpdate.executeUpdate(statusOff);
-		ResultSet timestampResult = timestamp.executeQuery(sqlQuery);
-
-		if (timestampResult.next()) {
-			startTimeString = timestampResult.getString(1);
+		
+		
+		if (fromDiagToggle == false) {
+			// sqlQuery to set status to off
+			String statusOff = String
+					.format("UPDATE public.live_events " + "SET on_status = FALSE " + "WHERE event_id=\'%s\';", id);
+			// sqlQuery to get the timestamp
+			String sqlQuery = String.format("SELECT time_stamp from public.live_events " + "WHERE event_id=\'%s\'", id);
+			Statement statusUpdate = Main.c.createStatement();
+			Statement timestamp = Main.c.createStatement();
+			statusUpdate.executeUpdate(statusOff);
+			ResultSet timestampResult = timestamp.executeQuery(sqlQuery);
+	
+			if (timestampResult.next()) {
+				startTimeString = timestampResult.getString(1);
+			}
+			// IF STATEMENT HERE IF WE WANT TO 
+			long difference = timeDifference(strToTime(startTimeString), strToTime(endTimeString), ChronoUnit.SECONDS);
+			calculateUsage(id, difference);
 		}
-
-		long difference = timeDifference(strToTime(startTimeString), strToTime(endTimeString), ChronoUnit.SECONDS);
-		calculateUsage(id, difference);
 	}
 
 	public void calculateUsage(String id, long difference) throws SQLException {
