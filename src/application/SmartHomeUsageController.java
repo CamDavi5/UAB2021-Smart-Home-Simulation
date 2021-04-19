@@ -396,54 +396,98 @@ String month = monthComboBox.getValue();
 		String APRWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
 		String APRGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '4%'";
 		// obtain database contents for table
-		List<Double> totals = TableQuery(FEBWsqlQuery, FEBGsqlQuery);
+		List<Double> totals = TableQuery(FEBWsqlQuery, FEBGsqlQuery, true);
 		totals = roundingData(totals);
 		data.add(new DatabaseTable("February", totals.get(0), totals.get(1), totals.get(2)));
 		
-		totals = TableQuery(MARWsqlQuery, MARGsqlQuery);
+		totals = TableQuery(MARWsqlQuery, MARGsqlQuery, true);
 		totals = roundingData(totals);
 		data.add(new DatabaseTable("March", totals.get(0), totals.get(1), totals.get(2)));
 		
-		totals = TableQuery(APRWsqlQuery, APRGsqlQuery);
+		totals = TableQuery(APRWsqlQuery, APRGsqlQuery, false);
 		totals = roundingData(totals);
 		data.add(new DatabaseTable("April", totals.get(0), totals.get(1), totals.get(2)));
+		
+		totals = TableQuery(APRWsqlQuery, APRGsqlQuery, true);
+		totals = roundingData(totals);
+		data.add(new DatabaseTable("April (EST)", totals.get(0), totals.get(1), totals.get(2)));
 		
 		return data;
 	}
 	
 	// retrieve database contents
-	public List<Double> TableQuery(String WsqlQuery, String GsqlQuery) throws SQLException {
+	public List<Double> TableQuery(String WsqlQuery, String GsqlQuery, boolean fullmonth) throws SQLException {
 		List<Double> totals = Arrays.asList(0.0, 0.0, 0.0);
 		double w = 0.0;
 		double g = 0.0;
-		double c = 0.0;
+		double c = 0.0;	
 		
-		// obtain data from electricity_bill
-		Statement tw = Main.c.createStatement();
-		ResultSet queryResultw = tw.executeQuery(WsqlQuery);
+		// obtains data for the incomplete month Ex. April
+		if (fullmonth == false) {
+			// obtain data from electricity_bill
+			Statement tw = Main.c.createStatement();
+			ResultSet queryResultw = tw.executeQuery(WsqlQuery);
+			
+			Calendar calendar = Calendar.getInstance();
+			int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+			int d = 1;
+			
+			while(d < (currentDay + 1)) {
+				queryResultw.next();
+				Double kilowatts = queryResultw.getDouble("kilowatts");
+				w = w + kilowatts;
+				Double wcost = queryResultw.getDouble("total_amount");
+				c = c + wcost;
+				d++;
+			} 
+			totals.set(0, w);
+			queryResultw.close();
 		
-		while(queryResultw.next()) {
-			Double kilowatts = queryResultw.getDouble("kilowatts");
-			w = w + kilowatts;
-			Double wcost = queryResultw.getDouble("total_amount");
-			c = c + wcost;
-		} 
-		totals.set(0, w);
-		queryResultw.close();
+			// obtain data from water_bill
+			Statement tg = Main.c.createStatement();
+			ResultSet queryResultg = tg.executeQuery(GsqlQuery);
+			d = 1;
+			
+			while(d < (currentDay + 1)) {
+				queryResultg.next();
+				Double gallons = queryResultg.getDouble("gallons");
+				g = g + gallons;
+				Double gcost = queryResultg.getDouble("amount");
+				c = c + gcost;
+				d++;
+			} 
+			totals.set(1, g);
+			totals.set(2, c);
+			queryResultg.close();
+		}
+		// obtains data for the complete months including the prediction for April
+		else {
+			// obtain data from electricity_bill
+			Statement tw = Main.c.createStatement();
+			ResultSet queryResultw = tw.executeQuery(WsqlQuery);
+			
+			while(queryResultw.next()) {
+				Double kilowatts = queryResultw.getDouble("kilowatts");
+				w = w + kilowatts;
+				Double wcost = queryResultw.getDouble("total_amount");
+				c = c + wcost;
+			} 
+			totals.set(0, w);
+			queryResultw.close();
 		
-		// obtain data from water_bill
-		Statement tg = Main.c.createStatement();
-		ResultSet queryResultg = tg.executeQuery(GsqlQuery);
-		while(queryResultg.next()) {
-			Double gallons = queryResultg.getDouble("gallons");
-			g = g + gallons;
-			Double gcost = queryResultg.getDouble("amount");
-			c = c + gcost;
-		} 
-		totals.set(1, g);
-		totals.set(2, c);
-		queryResultg.close();
-		
+			// obtain data from water_bill
+			Statement tg = Main.c.createStatement();
+			ResultSet queryResultg = tg.executeQuery(GsqlQuery);
+			while(queryResultg.next()) {
+				Double gallons = queryResultg.getDouble("gallons");
+				g = g + gallons;
+				Double gcost = queryResultg.getDouble("amount");
+				c = c + gcost;
+			} 
+			totals.set(1, g);
+			totals.set(2, c);
+			queryResultg.close();
+		}
 		return totals;
 	}
 	
