@@ -513,8 +513,8 @@ public class SmartHomeController implements Initializable {
 
 	public void calculateUsage(String id, long difference) throws SQLException {
 		UsageCalculations UC = new UsageCalculations();
-		long minutesOn = difference / 60;
-		long hoursOn = minutesOn / 60;
+		double minutesOn = (double) difference / 60;
+		double hoursOn = (double) minutesOn / 60;
 
 		double kilowattsUsed = 0.0;
 		double elecCost = 0.0;
@@ -638,7 +638,7 @@ public class SmartHomeController implements Initializable {
 		}
 
 		// console output for testing
-		System.out.println(id + " - Kilowatts: " + kilowattsUsed + " ElecCost: $" + elecCost + " Gallons: "
+		System.out.println(id + " was on for " + difference + " secs " + minutesOn + " mins " + hoursOn + " hours" + " - Kilowatts: " + kilowattsUsed + " ElecCost: $" + elecCost + " Gallons: "
 				+ gallonsUsed + " WaterCost: $" + waterCost);
 
 		updateUsagePage(kilowattsUsed, elecCost, gallonsUsed, waterCost);
