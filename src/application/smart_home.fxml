@@ -18,7 +18,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: #121212;" stylesheets="@dark.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SmartHomeController">
    <children>
       <VBox layoutX="10.0" layoutY="10.0" prefHeight="1000.0" prefWidth="1600.0" spacing="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -116,7 +116,7 @@
                               <Insets bottom="5.0" left="15.0" right="15.0" top="15.0" />
                            </VBox.margin>
                            <children>
-                              <StackPane fx:id="currentPane" alignment="TOP_LEFT" prefHeight="100.0" style="-fx-background-color: #ffffff;">
+                              <StackPane fx:id="currentPane" alignment="TOP_LEFT" prefHeight="100.0">
                                  <children>
                                     <TextField fx:id="temperatureTextField" alignment="CENTER" editable="false" prefHeight="100.0">
                                        <font>

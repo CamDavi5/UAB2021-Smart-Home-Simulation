@@ -123,6 +123,11 @@ public class SmartHomeController implements Initializable {
 	private double dailyOverallCost;
 	private int temperatureDifference;
 	private boolean tempStable;
+	private int seconds;
+	private int hvacDuration;
+	private int hvacOutsideDuration;
+	private int hvacDoorsDuration;
+	private int hvacWindowsDuration;
 
 	private ArrayList<Rectangle> doors = new ArrayList<>();
 	private ArrayList<Rectangle> garageDoors = new ArrayList<>();
@@ -139,42 +144,51 @@ public class SmartHomeController implements Initializable {
 	public void setDiagnosticsScene(Scene scene) {
 		thirdScene = scene;
 	}
-
+	
+	// sets the current temperature
 	public void setCurrentTemperature(int temperature) {
 		this.temperatureCurrent = temperature;
 		temperatureTextField.setText(String.valueOf(temperatureCurrent) + farenheight);
 	}
 	
+	// sets the temperature difference
 	public void setTemperatureDifference(int temperature) {
 		this.temperatureDifference = temperature;
 	}
-
+	
+	// sets the set to temperature and updates label
 	public void setSetTemperature(int temperature) {
 		this.temperatureSet = temperature;
 		setLabel.setText("Set to: " + String.valueOf(temperatureSet) + farenheight);
 	}
-
+	
+	// sets the outside temperature and updates label
 	public void setOutsideTemperature(int temperature) {
 		temperatureOutside = temperature;
 		temperatureOutsideTextField.setText(String.valueOf(temperatureOutside) + farenheight);
 	}
-
+	
+	// gets the current temperature
 	public int getCurrentTemperature() {
 		return temperatureCurrent;
 	}
 	
+	// gets the temperature difference
 	public int getTemperatureDifference() {
 		return temperatureDifference;
 	}
 
+	// gets the set temperature
 	public int getSetTemperature() {
 		return temperatureSet;
 	}
-
+	
+	// gets the outside temperature
 	public int getOutsideTemperature() {
 		return temperatureOutside;
 	}
 
+	// gets the scheduled task (for closing properly on program close) see main
 	public ScheduledExecutorService getScheduleTasks() {
 		return ses;
 	}
@@ -215,40 +229,65 @@ public class SmartHomeController implements Initializable {
 		imageView.fitWidthProperty().bind(pane.widthProperty());
 	}
 	
+	// used for demonstration purposes, changes the timescale of the hvac automatic operations
+	public void hvacTimeScale(int seconds) {
+		hvacDuration = seconds;
+		hvacOutsideDuration = seconds*60;
+		hvacDoorsDuration = seconds*5;
+		hvacWindowsDuration = seconds*5;
+		
+	}
+	
+	// used to turn on hvac and ensures that it is off before attempting to turn it on
+	public void turnOnHVAC() throws SQLException {
+		updateTempDiff();
+		// if hvac is not on
+		if (!getHvacStatus() && getTemperatureDifference() != 0) {
+			toggleOn((Shape)app_hvac, false);
+		}
+		if(getTemperatureDifference()>0) {
+			temperatureTextField.setStyle("-fx-background-color:" + "#92DFF3");
+		}
+		else {
+			temperatureTextField.setStyle("-fx-background-color:" + "#EF7C24");
+		}
+	}
+	
 	// increments or decrements temperatureSet and displays "set to" temperature
 	// for three seconds before returning to inside temperature
 	@FXML
 	public void temperatureButtonPressed(ActionEvent buttonEvent) throws SQLException {
+		// handles increase temperature
 		if (buttonEvent.getSource() == increaseTemperatureButton) {
 			setSetTemperature(getSetTemperature() + 1);
-			updateTempDiff();
-		} else {
+			turnOnHVAC();
+			timeline.playFromStart();
+		}
+		// handles decrease temperature
+		else {
 			setSetTemperature(getSetTemperature() - 1);
-			updateTempDiff();
+			turnOnHVAC();
+			timeline.playFromStart();
 		}
-		if (!getHvacStatus()) {
-			toggleOn((Shape)app_hvac, false);
-			if(getTemperatureDifference()>0) {
-				temperatureTextField.setStyle("-fx-background-color:" + "#92DFF3");
-			}
-			else if(getTemperatureDifference()<0) {
-				temperatureTextField.setStyle("-fx-background-color:" + "#EF7C24");
-			}
-			else {
-				temperatureTextField.setStyle("-fx-background-color:" + "#FFFFFF");
-			}
-		}
+		// if hvac is not on already, turn on the hvac unit
+		turnOnHVAC();
 	}
 	
 	// uses timeline animations to handle temperature changes in the UI
-	public void hvacEvent() {
-		final Duration TEMP_CHANGE = Duration.minutes(1);
+	public void hvacEvent() throws SQLException {
+		final Duration TEMP_CHANGE = Duration.seconds(hvacDuration);
 		timeline = new Timeline(
 				new KeyFrame(
-						Duration.ZERO,
+						TEMP_CHANGE,
 						new EventHandler<ActionEvent>() {
 							@Override 
 							public void handle(ActionEvent actionEvent) {
+								// if hvac is not on already, turn on the hvac unit
+								try {
+									turnOnHVAC();
+								} catch (SQLException e1) {
+									e1.printStackTrace();
+								}
 								// current - set > 0, lower current temperature
 								if(getTemperatureDifference()>0) {
 									temperatureTextField.setStyle("-fx-background-color:" + "#92DFF3");
@@ -261,11 +300,11 @@ public class SmartHomeController implements Initializable {
 									setCurrentTemperature(getCurrentTemperature()+1);
 									updateTempDiff();
 								}
-								// temperature is stable
+								// temperature is stable, turn off the hvac
 								if(stableTemperature()) {
+									temperatureTextField.setStyle("-fx-background-color:" + "#FFFFFF");
 									try {
 										if(getHvacStatus()) {
-											temperatureTextField.setStyle("-fx-background-color:" + "#FFFFFF");
 											toggleOff((Shape)app_hvac, false);
 										}
 									} catch (SQLException e) {
@@ -274,24 +313,15 @@ public class SmartHomeController implements Initializable {
 								}
 							}
 						}
-					),
-				new KeyFrame(TEMP_CHANGE)
-		);
+					));
 	    timeline.setCycleCount(Timeline.INDEFINITE);
 	    timeline.play();
-	    try {
-			if(getHvacStatus() && (getTemperatureDifference() == 0)) {
-				temperatureTextField.setStyle("-fx-background-color:" + "#FFFFFF");
-				toggleOff((Shape)app_hvac, false);
-			}
-	    } catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	// uses timeline animations to handle outside temp balance changes in the UI
 		public void hvacOutside() {
-			final Duration TEMP_CHANGE = Duration.hours(1);
+			// duration to check statuses and update temperatures
+			final Duration TEMP_CHANGE = Duration.seconds(hvacOutsideDuration);
 			timelineOutside = new Timeline(
 					new KeyFrame(
 							TEMP_CHANGE,
@@ -299,17 +329,19 @@ public class SmartHomeController implements Initializable {
 								@Override 
 								public void handle(ActionEvent actionEvent) {
 									int externalDifference = getCurrentTemperature() - getOutsideTemperature();
-									// heating
+									// raise the house temperature if outside is warmer
 									if (externalDifference < 0) {
 										int tempChange = 2 * (Math.abs(externalDifference) / 10);
 										setCurrentTemperature(getCurrentTemperature() + tempChange);
 										updateTempDiff();
+										timeline.playFromStart();
 									}
-									// cooling
+									// lower the house temperature if outside is cooler
 									else if (externalDifference > 0) {
 										int tempChange = 2 * (Math.abs(externalDifference) / 10);
 										setCurrentTemperature(getCurrentTemperature() - tempChange);
 										updateTempDiff();
+										timeline.playFromStart();
 									}
 								}
 							}
@@ -320,7 +352,8 @@ public class SmartHomeController implements Initializable {
 		
 	// uses timeline animations to handle door temp balance changes in the UI
 	public void hvacDoors() {
-		final Duration TEMP_CHANGE = Duration.minutes(5);
+		// duration to check statuses and update temperatures
+		final Duration TEMP_CHANGE = Duration.seconds(hvacDoorsDuration);
 		timelineDoors = new Timeline(
 				new KeyFrame(
 						TEMP_CHANGE,
@@ -329,10 +362,12 @@ public class SmartHomeController implements Initializable {
 							public void handle(ActionEvent actionEvent) {
 								int doorsOpen = 0;
 								int externalDifference = getCurrentTemperature() - getOutsideTemperature();
+								// check if doors are open
 								String sqlQuery = "SELECT COUNT( * ) as \"Number of Rows\"\r\n"
 										+ "FROM public.live_events\r\n"
 										+ "WHERE event_id LIKE '%Door%' and on_status = true;";
 								Statement s;
+								// query for status
 								try {
 									s = Main.c.createStatement();
 									ResultSet queryResult = s.executeQuery(sqlQuery);
@@ -343,19 +378,22 @@ public class SmartHomeController implements Initializable {
 									e.printStackTrace();
 								}
 								if (doorsOpen > 0) {
-									// heating
+									// raise the house temperature if outside is warmer
 									if (externalDifference < 0) {
 										int tempChange = 2 * (Math.abs(externalDifference) / 10);
 										setCurrentTemperature(getCurrentTemperature() + tempChange);
 										updateTempDiff();
+										timeline.playFromStart();
 									}
-									// cooling
+									// lower the house temeprature if outside is cooler
 									if (externalDifference > 0) {
 										int tempChange = 2 * (Math.abs(externalDifference) / 10);
 										setCurrentTemperature(getCurrentTemperature() - tempChange);
 										updateTempDiff();
+										timeline.playFromStart();
 									}
 								}
+								// do nothing, no status change needed
 								else {
 									return;
 								}
@@ -368,7 +406,8 @@ public class SmartHomeController implements Initializable {
 				
 	// uses timeline animations to handle window temp balance changes in the UI
 	public void hvacWindows() {
-		final Duration TEMP_CHANGE = Duration.minutes(5);
+		// duration to check statuses and update temperatures
+		final Duration TEMP_CHANGE = Duration.seconds(hvacWindowsDuration);
 		timelineWindows = new Timeline(
 				new KeyFrame(
 						TEMP_CHANGE,
@@ -377,10 +416,12 @@ public class SmartHomeController implements Initializable {
 							public void handle(ActionEvent actionEvent) {
 								int windowsOpen = 0;
 								int externalDifference = getCurrentTemperature() - getOutsideTemperature();
+								// check if windows are open
 								String sqlQuery = "SELECT COUNT( * ) as \"Number of Rows\"\r\n"
 										+ "FROM public.live_events\r\n"
 										+ "WHERE event_id LIKE '%window%' and on_status = true;";
 								Statement s;
+								// query for status
 								try {
 									s = Main.c.createStatement();
 									ResultSet queryResult = s.executeQuery(sqlQuery);
@@ -390,20 +431,24 @@ public class SmartHomeController implements Initializable {
 								} catch (SQLException e) {
 									e.printStackTrace();
 								}
+								// if windows are open, perform actions
 								if (windowsOpen > 0) {
-									// heating
+									// raise the house temperature if outside is warmer
 									if (externalDifference < 0) {
 										int tempChange = 1 * (Math.abs(externalDifference) / 10);
 										setCurrentTemperature(getCurrentTemperature() + tempChange);
 										updateTempDiff();
+										timeline.playFromStart();
 									}
-									// cooling
+									// lower the house temperature if outside is cooler
 									if (externalDifference > 0) {
 										int tempChange = 1 * (Math.abs(externalDifference) / 10);
 										setCurrentTemperature(getCurrentTemperature() - tempChange);
 										updateTempDiff();
+										timeline.playFromStart();
 									}
 								}
+								// do nothing, no status change needed
 								else {
 									return;
 								}
@@ -414,11 +459,6 @@ public class SmartHomeController implements Initializable {
 	    timelineWindows.play();
 	}
 	
-	public int totalStatusOn() {
-		int totalOn = 0;
-		
-		return totalOn;
-	}
 	// Gets the on_status of the hvac unit
 	public Boolean getHvacStatus() throws SQLException {
 		String sqlQuery = "SELECT on_status FROM public.live_events WHERE event_id = \'Appliance - HVAC\'";
@@ -469,6 +509,7 @@ public class SmartHomeController implements Initializable {
 	}
 
 	@FXML
+	// turns on all the lights or turns off all the lights
 	public void allLightsButtonPressed() throws SQLException {
 		// If button is "All Lights On", turn all lights on and set button to "All
 		// Lights off"
@@ -480,6 +521,7 @@ public class SmartHomeController implements Initializable {
 			}
 			allLightsButton.setText("All Lights Off");
 			quickStatusField.appendText("\n" + "All Lights On");
+		// button was already used once, turn off all the lights
 		} else {
 			for (Node node : lightingOverlay.getChildren()) {
 				if (node instanceof Circle && ((Circle) node).getFill() == Color.RED) {
@@ -494,20 +536,24 @@ public class SmartHomeController implements Initializable {
 	@FXML
 	// locks or unlocks all doors
 	public void allDoorsLockedButtonPressed() throws SQLException {
+		// If button is "All Doors Open", open associated doors
 		if (allDoorsLockedButton.getText().equals("All Doors Locked")) {
 			for (Rectangle door : doors) {
 				if (door.getFill() == Color.DARKGREEN) { 
 					toggleOn(door, false);
 				}
 			}
+			// Set button text to be "All Doors Locked" to setup for locking doors
 			allDoorsLockedButton.setText("All Doors Unlocked");
 			quickStatusField.appendText("\n" + "All Doors Locked");
+		// Doors were already opened and need to be locked
 		} else {
 			for (Rectangle door : doors) {
 				if (door.getFill() == Color.RED) {
 					toggleOff(door, false);
 				}
 			}
+			// Set button text to be "All Doors Open" to setup for opening doors
 			quickStatusField.appendText("\n" + "All Doors Unlocked");
 			allDoorsLockedButton.setText("All Doors Locked");
 		}
@@ -516,20 +562,24 @@ public class SmartHomeController implements Initializable {
 	@FXML
 	// closes or opens all garage doors
 	public void garageDoorOpenButtonPressed() throws SQLException {
+		// If button is "Garage Door Open", open associated doors
 		if (garageDoorOpenButton.getText().equals("Garage Door Open")) {
 			for (Rectangle door : garageDoors) {
 				if (door.getFill() == Color.DARKGREEN) { 
 					toggleOn(door, false);
 				}
 			}
+			// Set button text to be "Garage Door Close" to setup for closing doors
 			garageDoorOpenButton.setText("Garage Door Close");
 			quickStatusField.appendText("\n" + "Garage doors opened");
+		// Doors were already opened and need to be closed
 		} else {
 			for (Rectangle door : garageDoors) {
 				if (door.getFill() == Color.RED) {
 					toggleOff(door, false);
 				}
 			}
+			// Set button text to be "Garage Door Open" to setup for opening doors
 			quickStatusField.appendText("\n" + "Garage doors closed");
 			garageDoorOpenButton.setText("Garage Door Open");
 		}
@@ -538,20 +588,24 @@ public class SmartHomeController implements Initializable {
 	@FXML
 	// turns on or off the entertainment setup 
 	public void entertainmentOnButtonPressed() throws SQLException {
+		// If button is "Entertainment On", turn on associated items
 		if (entertainmentOnButton.getText().equals("Entertainment On")) {
 			for (Shape event : entertainment) {
 				if (event.getFill() == Color.YELLOW || event.getFill() == Color.DODGERBLUE) { 
 					toggleOn(event, false);
 				}
 			}
+			// Set button text to be "Entertainment Off" to setup for turning off items
 			entertainmentOnButton.setText("Entertainment Off");
 			quickStatusField.appendText("\n" + "Entertainment On");
+		// Entertainment is already on and needs to be turned off
 		} else {
 			for (Shape event : entertainment) {
 				if (event.getFill() == Color.RED) { 
 					toggleOff(event, false);
 				}
 			}
+			// Set button text to be "Entertainment On" to setup for turning on items
 			quickStatusField.appendText("\n" + "Entertainment Off");
 			entertainmentOnButton.setText("Entertainment On");
 		}
@@ -561,14 +615,17 @@ public class SmartHomeController implements Initializable {
 	public void itemClicked(MouseEvent event) throws SQLException {
 		Shape itemClicked = (Shape) event.getSource();
 		Paint currentColor = itemClicked.fillProperty().getValue();
+		// item is on, turn it off
 		if (currentColor == Paint.valueOf("RED")) {
 			toggleOff(itemClicked, false);
+		// item is off, turn it on
 		} else {
 			toggleOn(itemClicked, false);
 
 		}
 	}
 
+	// used to toggle event nodes for diagnostic tests
 	void diagnosticToggle(String id, int toggle) throws SQLException {
 		Shape item = null;
 		for (Node node : lightingOverlay.getChildren()) {
@@ -585,15 +642,17 @@ public class SmartHomeController implements Initializable {
 
 	// Toggles an item on
 	public void toggleOn(Shape itemClicked, Boolean fromDiagToggle) throws SQLException {
-
+		// start time, and item id
 		String startTime = getEventTime(itemClicked);
 		String id = itemClicked.getId();
 		String sensorTest = "";
 		
+		// if only a sensor test, print (Sensor Test)
 		if (fromDiagToggle == true) {
 			sensorTest = " (Sensor Test)";
 		}
-
+		
+		// Sensor Quick Status message
 		System.out.println(itemClicked.getId() + " Activated" + sensorTest);
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
 			changeColorAndMessage(itemClicked, Color.RED, "on" + sensorTest);
@@ -612,7 +671,8 @@ public class SmartHomeController implements Initializable {
 		} else {
 			System.out.println("OOPS! No such indicator to toggle on.");
 		}
-
+		
+		// if not a sensor test, update timestamp in the database and set on_status to true
 		if (fromDiagToggle == false) {
 			// sql statement to check if sensor is in database already
 			String sqlStatement = String.format("SELECT * FROM public.live_events WHERE event_id =\'%s\';", id);
@@ -642,22 +702,27 @@ public class SmartHomeController implements Initializable {
 
 	// toggles an item off
 	public void toggleOff(Shape itemClicked, Boolean fromDiagToggle) throws SQLException {
-
+		
+		
+		// start times, end times, and id
 		String endTimeString = getEventTime(itemClicked);
 		String startTimeString = null;
 		String id = itemClicked.getId();
 		String sensorTest = "";
 		
+		
+		// if only a sensor test, print (Sensor Test)
 		if (fromDiagToggle == true) {
 			sensorTest = " (Sensor Test)";
 		}
-
+		
+		// Sensor Quick Status message
 		System.out.println(itemClicked.getId() + " Deactivated" + sensorTest);
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
 			changeColorAndMessage(itemClicked, Color.YELLOW, "off" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("App")) {
 			changeColorAndMessage(itemClicked, Color.DODGERBLUE, "off");
-		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle" + sensorTest)
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle")
 				&& itemClicked.getId().contains("Window")) {
 			changeColorAndMessage(itemClicked, Color.BLUEVIOLET, "closed" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("Door")) {
@@ -671,7 +736,7 @@ public class SmartHomeController implements Initializable {
 			System.out.println("OOPS! No such indicator to toggle off.");
 		}
 		
-		
+		// if not a sensor test, update status on database and calculate the usage
 		if (fromDiagToggle == false) {
 			// sqlQuery to set status to off
 			String statusOff = String
@@ -686,12 +751,13 @@ public class SmartHomeController implements Initializable {
 			if (timestampResult.next()) {
 				startTimeString = timestampResult.getString(1);
 			}
-			// IF STATEMENT HERE IF WE WANT TO 
+			// calculate the usage
 			long difference = timeDifference(strToTime(startTimeString), strToTime(endTimeString), ChronoUnit.SECONDS);
 			calculateUsage(id, difference);
 		}
 	}
-
+	
+	// calculates the usage of the events
 	public void calculateUsage(String id, long difference) throws SQLException {
 		UsageCalculations UC = new UsageCalculations();
 		double minutesOn = (double) difference / 60;
@@ -701,7 +767,8 @@ public class SmartHomeController implements Initializable {
 		double elecCost = 0.0;
 		double gallonsUsed = 0.0;
 		double waterCost = 0.0;
-
+		
+		// matching event name to usage calculations
 		if (id.contains("Light") || id.contains("Lamp")) {
 			// calculating light usage
 			kilowattsUsed = UC.electricUsage(UC.lightWattage, hoursOn);
@@ -764,10 +831,10 @@ public class SmartHomeController implements Initializable {
 			elecCost = UC.electricCost(kilowattsUsed);
 
 		} else if (id.contains("Window")) {
-			// TODO: Uncertain what impact this action will have on house temp
+			// handled by hvacWindows()
 
 		} else if (id.contains("Door")) {
-			// TODO: Uncertain what impact this action will have on house temp
+			// handled by hvacDoors()
 
 		} else if (id.contains("Bathroom") && (id.contains("Sink"))) {
 			// Obtained avg. gpm of faucet from
@@ -859,7 +926,8 @@ public class SmartHomeController implements Initializable {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		return timestamp.toString();
 	}
-
+	
+	// converts timestring into timestamp
 	public Timestamp strToTime(String timestring) {
 		Timestamp timestamp = Timestamp.valueOf(timestring);
 		return timestamp;
@@ -873,38 +941,56 @@ public class SmartHomeController implements Initializable {
 		LocalDateTime localDateTimeEnd = d2.toLocalDateTime();
 		return unit.between(localDateTimeStart, localDateTimeEnd);
 	}
+	
+	// sets the status for all events to off in database, ensures there are no mismatched states
+	public void allStatusOff() throws SQLException {
+		String sqlQuery = "UPDATE public.live_events SET on_status = false;";
+		Statement s;
+		s = Main.c.createStatement();
+		s.executeUpdate(sqlQuery);
+	}
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		// setting up temperature values
 		setCurrentTemperature(72);
 		setSetTemperature(getCurrentTemperature());
 		setTemperatureDifference(0);
-		// ensure hvac status is off after a bad shutdown
-				try {
-					if(getHvacStatus()) {
-						toggleOff(app_hvac,true);
-					}
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-		hvacEvent();
+		
+		// setting up hvac timescale, set to 3 for demonstration, 60 for requirements
+		hvacTimeScale(3);
+		
+		// ensure status for everything matches the database
+		try {
+			allStatusOff();
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+		}
+		
+		// starting timelines for automated hvac controls
+		try {
+			hvacEvent();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
 		hvacOutside();
 		hvacWindows();
 		hvacDoors();
 		
-		
-		
+		// setting up lists for home page door control buttons
 		doors.add(door_toGarage);
 		doors.add(door_front);
 		doors.add(door_back);
 		garageDoors.add(door_garage_1);
 		garageDoors.add(door_garage_2);
 		
+		// setting up lists for home page entertainment control buttons
 		entertainment.add(app_livingroom_TV);
 		entertainment.add(lamp_Livinga);
 		entertainment.add(overheadLight_LR);
 		entertainment.add(lamp_Livingb);
-
+		
+		// starting service for automatic external temperature updates
 		try {
 			externalTempUpdater();
 		} catch (SQLException e) {
