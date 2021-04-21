@@ -584,7 +584,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	// Calculates the Electric and Water Usage and the Overall Cost when toggled ON, adding it to the Usage Readout 
 	public void costCalculationsOn (Double wattage, Double gallons) {
 		UsageCalculations UC = new UsageCalculations();
-		Double electricUsage = UC.electricUsage(wattage, timeToSimulate);
+		Double electricUsage = UC.electricUsage(wattage, (timeToSimulate/60));
 		Double electricCost = UC.electricCost(electricUsage);
 		Double waterUsage = UC.waterCubicFeetUsage(gallons);
 		Double waterCost = UC.waterCost(waterUsage);
@@ -599,7 +599,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	// Calculates the Electric and Water Usage and the Overall Cost when toggled OFF, subtracting it from the Usage Readout 
 	public void costCalculationsOff (Double wattage, Double gallons) {
 		UsageCalculations UC = new UsageCalculations();
-		Double electricUsage = UC.electricUsage(wattage, timeToSimulate);
+		Double electricUsage = UC.electricUsage(wattage, (timeToSimulate/60));
 		Double electricCost = UC.electricCost(electricUsage);
 		Double waterUsage = UC.waterCubicFeetUsage(gallons);
 		Double waterCost = UC.waterCost(waterUsage);
