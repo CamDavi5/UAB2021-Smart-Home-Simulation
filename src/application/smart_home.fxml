@@ -142,6 +142,11 @@
                                           <Font name="System Bold" size="14.0" />
                                        </font>
                                     </Label>
+                                    <Label fx:id="setLabel" text="Set To: " StackPane.alignment="BOTTOM_LEFT">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
                                  </children>
                               </StackPane>
                            </children>

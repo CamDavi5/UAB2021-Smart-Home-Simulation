@@ -8,23 +8,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -41,7 +35,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
@@ -54,7 +47,9 @@ public class SmartHomeController implements Initializable {
 	private Scene secondScene;
 	private Scene thirdScene;
 	private Timeline timeline = new Timeline();
-	private Timeline hvacTimeline = new Timeline();
+	private Timeline timelineOutside = new Timeline();
+	private Timeline timelineDoors = new Timeline();
+	private Timeline timelineWindows = new Timeline();
 	private String farenheight = "°F";
 	@FXML
 	private Button increaseTemperatureButton;
@@ -111,6 +106,8 @@ public class SmartHomeController implements Initializable {
 	@FXML
 	private Label setToLabel;
 	@FXML
+	private Label setLabel;
+	@FXML
 	public Rectangle app_livingroom_TV;
 	@FXML
 	public Circle lamp_Livinga;
@@ -118,6 +115,8 @@ public class SmartHomeController implements Initializable {
 	public Circle overheadLight_LR;
 	@FXML
 	public Circle lamp_Livingb;
+	@FXML
+	public Rectangle app_hvac;
 
 	private double dailyElectricUsage;
 	private double dailyWaterUsage;
@@ -145,10 +144,15 @@ public class SmartHomeController implements Initializable {
 		this.temperatureCurrent = temperature;
 		temperatureTextField.setText(String.valueOf(temperatureCurrent) + farenheight);
 	}
+	
+	public void setTemperatureDifference(int temperature) {
+		this.temperatureDifference = temperature;
+	}
 
 	public void setSetTemperature(int temperature) {
 		this.temperatureSet = temperature;
 		temperatureSetTextField.setText(String.valueOf(temperatureSet) + farenheight);
+		setLabel.setText("Set to: " + String.valueOf(temperatureSet) + farenheight);
 	}
 
 	public void setOutsideTemperature(int temperature) {
@@ -158,6 +162,10 @@ public class SmartHomeController implements Initializable {
 
 	public int getCurrentTemperature() {
 		return temperatureCurrent;
+	}
+	
+	public int getTemperatureDifference() {
+		return temperatureDifference;
 	}
 
 	public int getSetTemperature() {
@@ -207,12 +215,243 @@ public class SmartHomeController implements Initializable {
 		imageView.fitHeightProperty().bind(pane.heightProperty());
 		imageView.fitWidthProperty().bind(pane.widthProperty());
 	}
+	
+	// increments or decrements temperatureSet and displays "set to" temperature
+	// for three seconds before returning to inside temperature
+	@FXML
+	public void temperatureButtonPressed(ActionEvent buttonEvent) throws SQLException {
+		if (buttonEvent.getSource() == increaseTemperatureButton) {
+			setSetTemperature(getSetTemperature() + 1);
+			updateTempDiff();
+		} else {
+			setSetTemperature(getSetTemperature() - 1);
+			updateTempDiff();
+		}
+		if (!getHvacStatus()) {
+			toggleOn((Shape)app_hvac, false);
+			if(getTemperatureDifference()>0) {
+				temperatureTextField.setStyle("-fx-background-color:" + "#92DFF3");
+			}
+			else if(getTemperatureDifference()<0) {
+				temperatureTextField.setStyle("-fx-background-color:" + "#EF7C24");
+			}
+			else {
+				temperatureTextField.setStyle("-fx-background-color:" + "#FFFFFF");
+			}
+		}
+	}
+	
+	// uses timeline animations to handle temperature changes in the UI
+	public void hvacEvent() {
+		final Duration TEMP_CHANGE = Duration.minutes(1);
+		timeline = new Timeline(
+				new KeyFrame(
+						Duration.ZERO,
+						new EventHandler<ActionEvent>() {
+							@Override 
+							public void handle(ActionEvent actionEvent) {
+								// current - set > 0, lower current temperature
+								if(getTemperatureDifference()>0) {
+									temperatureTextField.setStyle("-fx-background-color:" + "#92DFF3");
+									setCurrentTemperature(getCurrentTemperature()-1);
+									updateTempDiff();
+								}
+								// current - set < 0, raise current temperature
+								if(getTemperatureDifference()<0) {
+									temperatureTextField.setStyle("-fx-background-color:" + "#EF7C24");
+									setCurrentTemperature(getCurrentTemperature()+1);
+									updateTempDiff();
+								}
+								// temperature is stable
+								if(stableTemperature()) {
+									try {
+										if(getHvacStatus()) {
+											temperatureTextField.setStyle("-fx-background-color:" + "#FFFFFF");
+											toggleOff((Shape)app_hvac, false);
+										}
+									} catch (SQLException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+					),
+				new KeyFrame(TEMP_CHANGE)
+		);
+	    timeline.setCycleCount(Timeline.INDEFINITE);
+	    timeline.play();
+	    try {
+			if(getHvacStatus() && (getTemperatureDifference() == 0)) {
+				temperatureTextField.setStyle("-fx-background-color:" + "#FFFFFF");
+				toggleOff((Shape)app_hvac, false);
+			}
+	    } catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// uses timeline animations to handle outside temp balance changes in the UI
+		public void hvacOutside() {
+			final Duration TEMP_CHANGE = Duration.hours(1);
+			timelineOutside = new Timeline(
+					new KeyFrame(
+							TEMP_CHANGE,
+							new EventHandler<ActionEvent>() {
+								@Override 
+								public void handle(ActionEvent actionEvent) {
+									int externalDifference = getCurrentTemperature() - getOutsideTemperature();
+									// heating
+									if (externalDifference < 0) {
+										int tempChange = 2 * (Math.abs(externalDifference) / 10);
+										setCurrentTemperature(getCurrentTemperature() + tempChange);
+										updateTempDiff();
+									}
+									// cooling
+									else if (externalDifference > 0) {
+										int tempChange = 2 * (Math.abs(externalDifference) / 10);
+										setCurrentTemperature(getCurrentTemperature() - tempChange);
+										updateTempDiff();
+									}
+								}
+							}
+						));
+		    timelineOutside.setCycleCount(Timeline.INDEFINITE);
+		    timelineOutside.play();
+		}
+		
+	// uses timeline animations to handle door temp balance changes in the UI
+	public void hvacDoors() {
+		final Duration TEMP_CHANGE = Duration.minutes(5);
+		timelineDoors = new Timeline(
+				new KeyFrame(
+						TEMP_CHANGE,
+						new EventHandler<ActionEvent>() {
+							@Override 
+							public void handle(ActionEvent actionEvent) {
+								int doorsOpen = 0;
+								int externalDifference = getCurrentTemperature() - getOutsideTemperature();
+								String sqlQuery = "SELECT COUNT( * ) as \"Number of Rows\"\r\n"
+										+ "FROM public.live_events\r\n"
+										+ "WHERE event_id LIKE '%Door%' and on_status = true;";
+								Statement s;
+								try {
+									s = Main.c.createStatement();
+									ResultSet queryResult = s.executeQuery(sqlQuery);
+									queryResult.next();
+									doorsOpen = queryResult.getInt(1);
+									queryResult.close();
+								} catch (SQLException e) {
+									e.printStackTrace();
+								}
+								if (doorsOpen > 0) {
+									// heating
+									if (externalDifference < 0) {
+										int tempChange = 2 * (Math.abs(externalDifference) / 10);
+										setCurrentTemperature(getCurrentTemperature() + tempChange);
+										updateTempDiff();
+									}
+									// cooling
+									if (externalDifference > 0) {
+										int tempChange = 2 * (Math.abs(externalDifference) / 10);
+										setCurrentTemperature(getCurrentTemperature() - tempChange);
+										updateTempDiff();
+									}
+								}
+								else {
+									return;
+								}
+							}
+						}
+					));
+	    timelineDoors.setCycleCount(Timeline.INDEFINITE);
+	    timelineDoors.play();
+	}
+				
+	// uses timeline animations to handle window temp balance changes in the UI
+	public void hvacWindows() {
+		final Duration TEMP_CHANGE = Duration.minutes(5);
+		timelineWindows = new Timeline(
+				new KeyFrame(
+						TEMP_CHANGE,
+						new EventHandler<ActionEvent>() {
+							@Override 
+							public void handle(ActionEvent actionEvent) {
+								int windowsOpen = 0;
+								int externalDifference = getCurrentTemperature() - getOutsideTemperature();
+								String sqlQuery = "SELECT COUNT( * ) as \"Number of Rows\"\r\n"
+										+ "FROM public.live_events\r\n"
+										+ "WHERE event_id LIKE '%window%' and on_status = true;";
+								Statement s;
+								try {
+									s = Main.c.createStatement();
+									ResultSet queryResult = s.executeQuery(sqlQuery);
+									queryResult.next();
+									windowsOpen = queryResult.getInt(1);
+									queryResult.close();
+								} catch (SQLException e) {
+									e.printStackTrace();
+								}
+								if (windowsOpen > 0) {
+									// heating
+									if (externalDifference < 0) {
+										int tempChange = 1 * (Math.abs(externalDifference) / 10);
+										setCurrentTemperature(getCurrentTemperature() + tempChange);
+										updateTempDiff();
+									}
+									// cooling
+									if (externalDifference > 0) {
+										int tempChange = 1 * (Math.abs(externalDifference) / 10);
+										setCurrentTemperature(getCurrentTemperature() - tempChange);
+										updateTempDiff();
+									}
+								}
+								else {
+									return;
+								}
+							}
+						}
+					));
+	    timelineWindows.setCycleCount(Timeline.INDEFINITE);
+	    timelineWindows.play();
+	}
+	
+	public int totalStatusOn() {
+		int totalOn = 0;
+		
+		return totalOn;
+	}
+	// Gets the on_status of the hvac unit
+	public Boolean getHvacStatus() throws SQLException {
+		String sqlQuery = "SELECT on_status FROM public.live_events WHERE event_id = \'Appliance - HVAC\'";
+		Statement s;
+		s = Main.c.createStatement();
+		ResultSet queryResult = s.executeQuery(sqlQuery);
+		queryResult.next();
+		Boolean status = queryResult.getBoolean("on_status");
+		queryResult.close();
+		return status;
+	}
 
+	// update the temperature difference
+	public void updateTempDiff() {
+		setTemperatureDifference(getCurrentTemperature() - getSetTemperature());
+	}
+	
+	// checks for a stable temperature
+	public Boolean stableTemperature() {
+		if (getTemperatureDifference() == 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	// every hour, update the outside temperature
 	public void externalTempUpdater() throws SQLException {
-		// schedules commands to run every hour
+		// schedules commands to run every hour			
 		ses.scheduleAtFixedRate(new Runnable() {
-			// query database for outside temp and set it
+			// query database for outdoor temp and set it
 			@Override
 			public void run() {
 				String sqlQuery = "SELECT weather.datetime, weather.temp FROM weather ORDER BY weather.datetime DESC LIMIT 1;";
@@ -229,73 +468,6 @@ public class SmartHomeController implements Initializable {
 			}
 		}, 0, 1, TimeUnit.HOURS);
 	}
-
-	// increments or decrements temperatureSet and displays "set to" temperature
-	// for three seconds before returning to inside temperature
-	@FXML
-	public void temperatureButtonPressed(ActionEvent buttonEvent) {
-		if (buttonEvent.getSource() == increaseTemperatureButton) {
-			setSetTemperature(getSetTemperature() + 1);
-			currentPane.setVisible(false);
-		} else {
-			setSetTemperature(getSetTemperature() - 1);
-			currentPane.setVisible(false);
-		}
-		// if a previous timeline exists, stop it to prevent animation from finishing
-		if (timeline != null) {
-			timeline.stop();
-		}
-		if (hvacTimeline != null) {
-			hvacTimeline.stop();
-		}
-		// after 3 seconds, return textField to "Inside" temperature
-		KeyFrame keyFrame = new KeyFrame(Duration.seconds(3), event -> {
-			currentPane.setVisible(true);
-		});
-		timeline.getKeyFrames().add(keyFrame);
-		timeline.play();
-		// handleSetTemperature(); TODO fix this function and then uncomment
-		hvacTimeline.play();
-	}
-
-	/*
-	 * TODO THIS DOES NOT WORK MIGHT NEED TO HANDLE IN THE DATABASE SIMILAR TO OTHER
-	 * EVENTS private void handleSetTemperature() { temperatureDifference =
-	 * getCurrentTemperature() - getSetTemperature();
-	 * System.out.println(getCurrentTemperature());
-	 * System.out.println(getSetTemperature()); for (int i = 0; i <
-	 * Math.abs(temperatureDifference); i++) {
-	 * System.out.println(temperatureDifference); KeyFrame keyFrame = new KeyFrame(
-	 * Duration.seconds(5), event -> { if (temperatureDifference < 0) {
-	 * System.out.println("heating"); setCurrentTemperature(getCurrentTemperature()
-	 * + 1); } if (temperatureDifference > 0) { System.out.println("cooling");
-	 * setCurrentTemperature(getCurrentTemperature() - 1); } });
-	 * hvacTimeline.getKeyFrames().add(keyFrame); } }
-	 */
-
-	/*
-	 * private void handleSetTemperature() { tempStable = false;
-	 * temperatureDifference = getCurrentTemperature() - getSetTemperature(); if
-	 * (temperatureDifference < 0) { System.out.println("heating");
-	 * temperatureDifference++; System.out.println(temperatureDifference); timer =
-	 * new Timer(); TimerTask timerTask = new TimerTask() { public void run() {
-	 * setCurrentTemperature(getCurrentTemperature() + 1); updateCurrent(); } };
-	 * timer.schedule(timerTask, 10000); } else if (temperatureDifference > 0){
-	 * System.out.println("cooling"); temperatureDifference--;
-	 * System.out.println(temperatureDifference); timer = new Timer(); TimerTask
-	 * timerTask = new TimerTask() { public void run() {
-	 * setCurrentTemperature(getCurrentTemperature() - 1); updateCurrent(); } };
-	 * timer.schedule(timerTask, 10000); } else { tempStable = true; } } private
-	 * void handleSetTemperature() { long delay = 60000; long period = 60000;
-	 * temperatureDifference = getCurrentTemperature() - getSetTemperature(); if
-	 * (temperatureDifference != 0) { TimerTask timerTask = new TimerTask() { public
-	 * void run() { if (temperatureDifference < 0) { System.out.println("heating");
-	 * temperatureDifference++; setCurrentTemperature(getCurrentTemperature() + 1);
-	 * } else if (temperatureDifference > 0){ System.out.println("cooling");
-	 * temperatureDifference--; setCurrentTemperature(getCurrentTemperature() - 1);
-	 * } else { //TODO } } }; timer.scheduleAtFixedRate(timerTask, delay, period);
-	 * System.out.println("updating current temp"); } }
-	 */
 
 	@FXML
 	public void allLightsButtonPressed() throws SQLException {
@@ -697,6 +869,21 @@ public class SmartHomeController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		setCurrentTemperature(72);
 		setSetTemperature(getCurrentTemperature());
+		setTemperatureDifference(0);
+		// ensure hvac status is off after a bad shutdown
+				try {
+					if(getHvacStatus()) {
+						toggleOff(app_hvac,true);
+					}
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+		hvacEvent();
+		hvacOutside();
+		hvacWindows();
+		hvacDoors();
+		
+		
 		
 		doors.add(door_toGarage);
 		doors.add(door_front);

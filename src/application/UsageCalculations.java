@@ -25,7 +25,7 @@ public class UsageCalculations {
 			
 	// electric use formulas //
 	public double electricUsage (double watts, double time) {
-		double usage = (watts * time)/1000;
+		double usage = (watts/1000)*time;
 		return usage;
 	}
 	
@@ -41,13 +41,14 @@ public class UsageCalculations {
 	}
 	
 	public double waterCost (double cubicFeet) {
-		double cost = (2.52 * cubicFeet)/100;
+		double cost = (cubicFeet/100)*2.52;
 		return cost;
 	}
 	
 	// specific appliance or event costs where hot water is involved
 	public double hotwaterHeaterUsageCost (double watts, double waterUsedPercent, double gallonsUsed) {
-		double usage = ((watts) * (4 * (gallonsUsed * waterUsedPercent) / 60) / 1000);
+		double time = (4* (gallonsUsed * waterUsedPercent))/60;
+		double usage = electricUsage(watts, time);
 		double cost = electricCost(usage);
 		return cost;
 	}
