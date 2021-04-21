@@ -151,7 +151,6 @@ public class SmartHomeController implements Initializable {
 
 	public void setSetTemperature(int temperature) {
 		this.temperatureSet = temperature;
-		temperatureSetTextField.setText(String.valueOf(temperatureSet) + farenheight);
 		setLabel.setText("Set to: " + String.valueOf(temperatureSet) + farenheight);
 	}
 
@@ -589,22 +588,27 @@ public class SmartHomeController implements Initializable {
 
 		String startTime = getEventTime(itemClicked);
 		String id = itemClicked.getId();
+		String sensorTest = "";
+		
+		if (fromDiagToggle == true) {
+			sensorTest = " (Sensor Test)";
+		}
 
-		System.out.println(itemClicked.getId() + " Activated");
+		System.out.println(itemClicked.getId() + " Activated" + sensorTest);
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
-			changeColorAndMessage(itemClicked, Color.RED, "on.");
+			changeColorAndMessage(itemClicked, Color.RED, "on" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("App")) {
-			changeColorAndMessage(itemClicked, Color.RED, "on.");
+			changeColorAndMessage(itemClicked, Color.RED, "on" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle")
 				&& itemClicked.getId().contains("Window")) {
-			changeColorAndMessage(itemClicked, Color.RED, "open.");
+			changeColorAndMessage(itemClicked, Color.RED, "open" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("Door")) {
-			changeColorAndMessage(itemClicked, Color.RED, "open.");
+			changeColorAndMessage(itemClicked, Color.RED, "open" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Circle")
 				&& itemClicked.getId().contains("exhaustFan")) {
-			changeColorAndMessage(itemClicked, Color.RED, "on.");
+			changeColorAndMessage(itemClicked, Color.RED, "on" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Polygon")) {
-			changeColorAndMessage(itemClicked, Color.RED, "flowing.");
+			changeColorAndMessage(itemClicked, Color.RED, "flowing" + sensorTest);
 		} else {
 			System.out.println("OOPS! No such indicator to toggle on.");
 		}
@@ -642,22 +646,27 @@ public class SmartHomeController implements Initializable {
 		String endTimeString = getEventTime(itemClicked);
 		String startTimeString = null;
 		String id = itemClicked.getId();
+		String sensorTest = "";
+		
+		if (fromDiagToggle == true) {
+			sensorTest = " (Sensor Test)";
+		}
 
-		System.out.println(itemClicked.getId() + " Deactivated");
+		System.out.println(itemClicked.getId() + " Deactivated" + sensorTest);
 		if (itemClicked.getClass().getTypeName().endsWith("Circle")) {
-			changeColorAndMessage(itemClicked, Color.YELLOW, "off.");
+			changeColorAndMessage(itemClicked, Color.YELLOW, "off" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("App")) {
-			changeColorAndMessage(itemClicked, Color.DODGERBLUE, "off.");
-		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle")
+			changeColorAndMessage(itemClicked, Color.DODGERBLUE, "off");
+		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle" + sensorTest)
 				&& itemClicked.getId().contains("Window")) {
-			changeColorAndMessage(itemClicked, Color.BLUEVIOLET, "closed.");
+			changeColorAndMessage(itemClicked, Color.BLUEVIOLET, "closed" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Rectangle") && itemClicked.getId().contains("Door")) {
-			changeColorAndMessage(itemClicked, Color.DARKGREEN, "closed.");
+			changeColorAndMessage(itemClicked, Color.DARKGREEN, "closed" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Circle")
 				&& itemClicked.getId().contains("exhaustFan")) {
-			changeColorAndMessage(itemClicked, Color.YELLOW, "off.");
+			changeColorAndMessage(itemClicked, Color.YELLOW, "off" + sensorTest);
 		} else if (itemClicked.getClass().getTypeName().endsWith("Polygon")) {
-			changeColorAndMessage(itemClicked, Color.AQUA, "not flowing.");
+			changeColorAndMessage(itemClicked, Color.AQUA, "not flowing" + sensorTest);
 		} else {
 			System.out.println("OOPS! No such indicator to toggle off.");
 		}

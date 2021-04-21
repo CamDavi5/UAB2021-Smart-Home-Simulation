@@ -445,6 +445,10 @@ public class SmartHomeDiagnosticsController implements Initializable{
 			} else if (toggleID.contains("Microwave")) {
 				costCalculationsOn(UC.microwaveWattage, 0.0);
 				
+			} else if (toggleID.contains("HVAC")) {
+				//Calculates only electric usage for this appliance with this toggle
+				costCalculationsOn(UC.HVACWattage, 0.0);
+				
 			} else if (toggleID.contains("Window")) {
 				//TODO: Uncertain what impact this action will have on house temp
 				//For now, the parameters have no impact
@@ -532,6 +536,10 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				//For now, the parameters have no impact
 				costCalculationsOff(0.0, 0.0);
 				
+			} else if (toggleID.contains("HVAC")) {
+				//Calculates only electric usage for this appliance with this toggle
+				costCalculationsOff(UC.HVACWattage, 0.0);
+				
 			} else if (toggleID.contains("Door")) {
 				//TODO: Uncertain what impact this action will have on house temp
 				//For now, the parameters have no impact
@@ -545,7 +553,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 			} else if (toggleID.contains("Kitchen Sink")) {
 				//Obtained avg. gpm of faucet from https://www.hunker.com/13415104/the-average-sink-faucet-gallons-of-water-per-minute
 				//assumes a cold water simulation
-				costCalculationsOff(1.5, 2.2 * timeToSimulate);
+				costCalculationsOff(0.0, 2.2 * timeToSimulate);
 				
 			} else if (toggleID.contains("Toilet Water")) {
 				//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
