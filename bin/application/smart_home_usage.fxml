@@ -76,7 +76,7 @@
       </VBox>
       <ImageView fitHeight="86.0" fitWidth="445.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../icon.png" />
+            <Image url="@../../icon.png" />
          </image>
       </ImageView>
    </children>
