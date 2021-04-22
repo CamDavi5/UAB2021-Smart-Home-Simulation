@@ -73,6 +73,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		primaryStage.setScene(secondScene);
 	}
 	
+	// takes the value of the minutes textbox and converts to double
 	@FXML
 	public void simulationMinutesUpdate() {
 		if (lengthOfSimulationField.getText().isEmpty() == true) {
@@ -103,6 +104,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				simulatewashingButton.setDisable(true);
 				simulateclotheswashButton.setDisable(true);
 				
+				// checking the current value of the editable minutes textbox
 				simulationMinutesUpdate();
 				ToggleButton buttonID = (ToggleButton) event.getSource();
 		
@@ -140,7 +142,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				
 		
 				// Shower (+ Water Heater) calculations
-				List<Double> totals = simulationCalculation(0, 25, timeToSimulate/60, 0.65);
+				List<Double> totals = simulationCalculation(0, (2.25*timeToSimulate), (timeToSimulate/60), 0.65);
 				double tempw = totals.get(0); 
 				double tempg = totals.get(1);
 				double tempc = totals.get(2);
@@ -172,6 +174,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				addon = Double.toString(totals.get(2));
 				simulationField.appendText(cost+addon);
 				
+				// re-enable the simulation buttons
 				simulateshowerButton.setDisable(false);
 				simulateclotheswashButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
@@ -187,10 +190,12 @@ public class SmartHomeDiagnosticsController implements Initializable{
     		public void run() {
     			simulationField.clear();
     			
+    			// disabling buttons while simulation is running
     			simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
 				simulateclotheswashButton.setDisable(true);
     			
+				// checking the current value of the editable minutes textbox
     			simulationMinutesUpdate();
     			ToggleButton buttonID = (ToggleButton) event.getSource();
 		
@@ -227,7 +232,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				
 		
     			// Dishwasher (+ Water Heater) calculation
-    			List<Double> totals = simulationCalculation(1800, 6, timeToSimulate/60, 1.0);
+    			List<Double> totals = simulationCalculation(1800, (0.13*timeToSimulate), timeToSimulate/60, 1.0);
     			double tempw = totals.get(0); 
     			double tempg = totals.get(1);
     			double tempc = totals.get(2);
@@ -251,6 +256,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			addon = Double.toString(totals.get(2));
     			simulationField.appendText(cost+addon);
     			
+    			// re-enable the simulation buttons
     			simulateshowerButton.setDisable(false);
     			simulateclotheswashButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
@@ -266,10 +272,12 @@ public class SmartHomeDiagnosticsController implements Initializable{
     		public void run() {
     			simulationField.clear();
     			
+    			// disabling buttons while simulation is running
     			simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
 				simulateclotheswashButton.setDisable(true);
     			
+				// checking the current value of the editable minutes textbox
     			simulationMinutesUpdate();
     			ToggleButton buttonID = (ToggleButton) event.getSource();
 		
@@ -313,7 +321,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				
 		
     			// Clothes washer (+ Water Heater) calculation
-    			List<Double> totals = simulationCalculation(500, 20, timeToSimulate/60, .85);
+    			List<Double> totals = simulationCalculation(500, (0.67*timeToSimulate), timeToSimulate/60, .85);
     			double tempw = totals.get(0); 
     			double tempg = totals.get(1);
     			double tempc = totals.get(2);
@@ -337,6 +345,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			addon = Double.toString(totals.get(2));
     			simulationField.appendText(cost+addon);
     			
+    			// re-enable the simulation buttons
     			simulateshowerButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
 				simulateclotheswashButton.setDisable(false);
@@ -346,10 +355,11 @@ public class SmartHomeDiagnosticsController implements Initializable{
     }    
     
     // Calculates for any given simulation
-    public List<Double> simulationCalculation(int watts, int gallons, double time, double hotpercent) {
+    public List<Double> simulationCalculation(int watts, double gallons, double time, double hotpercent) {
 		List<Double> totals = Arrays.asList(0.0, 0.0, 0.0);
 		double w = 0.0;
 		double g = gallons;
+		double cubicfeet = 0.0;
 		double c = 0.0;
 		
 		// watts calculation
@@ -362,16 +372,22 @@ public class SmartHomeDiagnosticsController implements Initializable{
 			w = w + (((4000*hotpercent) * (4*gallons)/60)/1000);
 		}
 		
+		// gallons --> cubic feet conversion
+		if (gallons != 0) {
+			cubicfeet = (100 * gallons)/748;
+		}
+		
 		// cost calculation combining the wattage and water cost
 		c = c + (0.12 * w);
-		c = c + (2.52 * (g/748));
+		c = c + (cubicfeet/100)*2.52;
 		totals.set(0, w);
-		totals.set(1, g);
+		totals.set(1, cubicfeet);
 		totals.set(2, c);
 		
 		return totals;
     }
 	
+    // rounds data from the full simulations
     public List<Double> roundingData(List<Double> totals) {
 		int z = 0;
 		double setas;
@@ -384,6 +400,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		return totals;
 	}
     
+    // rounds data from the simulation toggles
     public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 
@@ -474,11 +491,11 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				costCalculationsOn(0.0, 2.5 * timeToSimulate);
 				
 			} else if (toggleID.contains("Shower")) {
-				//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+				//Obtained avg. gpm of shower from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
 				costCalculationsOn(0.0, 2.25 * timeToSimulate);
 				
 			} else if (toggleID.contains("Outside Faucet")) {
-				//Obtained avg. gpm of toilet from https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
+				//Obtained avg. gpm of faucet from https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
 				costCalculationsOn(0.0, 13 * timeToSimulate);
 				
 			} else if (toggleID.contains("Dishwashwer Water")) {
@@ -560,11 +577,11 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				costCalculationsOff(0.0, 2.5 * timeToSimulate);	
 				
 			} else if (toggleID.contains("Shower")) {
-				//Obtained avg. gpm of toilet from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
+				//Obtained avg. gpm of shower from https://drinking-water.extension.org/what-is-the-water-flow-rate-to-most-fixtures-in-my-house/
 				costCalculationsOff(0.0, 2.25 * timeToSimulate);
 				
 			} else if (toggleID.contains("Outside Faucet")) {
-				//Obtained avg. gpm of toilet from https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
+				//Obtained avg. gpm of faucet from https://www.swanhose.com/garden-hose-flow-rate-s/1952.htm
 				costCalculationsOff(0.0, 13 * timeToSimulate);
 				
 			} else if (toggleID.contains("Dishwashwer Water")) {
@@ -590,7 +607,6 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		overallCost = round((overallCost + totalCost), 2);
 		gallonsUsed = round((gallonsUsed + waterUsage), 2);
 		kilowattsUsed = round((kilowattsUsed + electricUsage), 4);
-//		statusWindowUpdate(electricUsage, waterUsage, totalCost, overallCost);
 		updateIndicators();
 	}
 	
@@ -605,27 +621,10 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		overallCost = round((overallCost - totalCost), 2);
 		gallonsUsed = round((gallonsUsed - waterUsage), 2);
 		kilowattsUsed = round((kilowattsUsed - electricUsage), 4);
-//		statusWindowUpdate(electricUsage, waterUsage, totalCost, overallCost);
 		updateIndicators();
 	}
 	
-	public void statusWindowUpdate (Double electricUsage, Double waterUsage, Double totalCost, Double overallCost) {
-
-		String watts = "\n Calculated kilowatts used: ";
-		String gallons = "\n Calculated gallons used: ";
-		String cost = "\n Calculated overall cost: ";
-		String addon = Double.toString(electricUsage);
-		simulationField.appendText(watts+addon);
-		addon = Double.toString(waterUsage);
-		simulationField.appendText(gallons+addon);
-		addon = Double.toString(totalCost);
-		simulationField.appendText(cost+addon);
-		
-		String oCost = "\n**********************\n Calculated overall cost: ";
-		addon = Double.toString(overallCost);
-		simulationField.appendText(oCost+addon + "\n**********************");		
-	}
-	
+	// updates the Usage Readout based on the given parameters
 	public void updateIndicators () {
 		String cost = "$ ";
 		gallonsUsedLabel.setText(gallonsUsed.toString());
@@ -633,6 +632,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		overallCostLabel.setText(cost+overallCost.toString());
 	}
 	
+	// resets the Usage Readout ***deprecated****
 	public void resetIndicators () {
 		overallCost = 0.0;
 		kilowattsUsed = 0.0000;
