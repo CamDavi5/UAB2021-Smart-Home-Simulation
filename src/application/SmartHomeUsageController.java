@@ -64,11 +64,12 @@ public class SmartHomeUsageController implements Initializable{
 	
 	ObservableList<String> monthList = FXCollections.observableArrayList("February", "March", "April");
 	
-	
+	// sets the home screen
 	public void setHomeScene(Scene scene) {
 		firstScene = scene;
 	}
 
+	// sets the diagnostics screen
 	public void setDiagnosticsScene(Scene scene) {
 		thirdScene = scene;
 	}
@@ -115,9 +116,11 @@ public class SmartHomeUsageController implements Initializable{
 		
 		int i = 1;
 		
+		// getting the current day
 		Calendar calendar = Calendar.getInstance();
 		int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
 		
+		// arrays to store the cost from electricity and water
 		long[] costArr1 = new long[days];
 		long[] costArr2 = new long[days];
 		
@@ -152,24 +155,15 @@ public class SmartHomeUsageController implements Initializable{
 		// adding y-axis constraints
 		y.setLabel("Dollars/Kilowatts/Gallons*");
 		y.setAutoRanging(true);
-//		y.setLowerBound(0);
-//		y.setUpperBound(50);
 		y.setTickUnit(5);
 		
+		// querying the database for electricity usage 
 		String sqlQuery = String.format("SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '%d%%' ORDER BY start_date", monthNumber);
 		Statement s = Main.c.createStatement();
 		ResultSet queryResult = s.executeQuery(sqlQuery);
 		long kilowatts = 0;
 		
-		// going through each row that resulted from the query and adding the kilowatts to the graph
-		/*while(queryResult.next()) {
-			kilowatts = queryResult.getLong("kilowatts");
-			costArr1[i - 1] = queryResult.getLong("total_amount");
-			
-			electricity.getData().add(new XYChart.Data(i,kilowatts));
-			i++;
-		} */
-		
+		// loop that adds electricity to the graph up to the current day
 		while(i != (currentDay + 1)) {
 			queryResult.next();
 			kilowatts = queryResult.getLong("kilowatts");
@@ -179,8 +173,10 @@ public class SmartHomeUsageController implements Initializable{
 			i++;
 		} 
 
+		// add the current day to estimated line so there is not a gap in the line
 		electricityEst.getData().add(new XYChart.Data(i - 1, kilowatts));
 		
+		// adds electricity from tomorrows date until the end of month
 		while(queryResult.next()) {
 			kilowatts = queryResult.getLong("kilowatts");
 			costArr1[i - 1] = queryResult.getLong("total_amount");
@@ -191,14 +187,14 @@ public class SmartHomeUsageController implements Initializable{
 		// closing the query thread
 		queryResult.close();
 		
-
+		// querying the database for water usage
 		String sqlQuery2 = String.format("SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '%d%%' ORDER BY start_date", monthNumber);
 		Statement s2 = Main.c.createStatement();
 		ResultSet queryResult2 = s2.executeQuery(sqlQuery2);
 		i = 1;
 		int gallons = 0;
 		
-		// going through each row that resulted from the query and adding the gallons to the graph
+		// going through each row that resulted from the query and adding the gallons to the graph up to the current day
 		while(i != (currentDay + 1)) {
 			queryResult2.next();
 			gallons = (queryResult2.getInt("gallons"))/100;
@@ -208,8 +204,10 @@ public class SmartHomeUsageController implements Initializable{
 			i++;
 		} 
 
+		// add the current day to estimated line so there is not a gap in the line	
 		waterEst.getData().add(new XYChart.Data(i - 1, gallons));
 		
+		// adds water from tomorrows date until the end of month
 		while(queryResult2.next()) {
 			gallons = (queryResult2.getInt("gallons"))/100;
 			costArr2[i - 1] = queryResult2.getLong("amount");
@@ -220,18 +218,23 @@ public class SmartHomeUsageController implements Initializable{
 		// closing the query thread
 		queryResult2.close();
 		
+		
 		long totalCost = costArr1[currentDay - 1] + costArr2[currentDay - 1];
 		
 		costEst.getData().add(new XYChart.Data(currentDay, totalCost));
 		
+		// loop that adds the elec and water cost together
+		// and adds it to the graph
 		for(int n = 0; n < days; n++) {
 			// adding the electric and water cost
 			totalCost = costArr1[n] + costArr2[n];
 			
+			// if the month is not April, dont need estimate data
 			if(monthNumber != 4) {
 				cost.getData().add(new XYChart.Data(n + 1, totalCost));
 			} else {
 				if(n > currentDay - 1) {
+					// adding cost to estimated line if n is greater than yesterday's date
 					costEst.getData().add(new XYChart.Data(n + 1, totalCost));
 				} else {
 					cost.getData().add(new XYChart.Data(n + 1, totalCost));
@@ -383,30 +386,39 @@ public class SmartHomeUsageController implements Initializable{
 	
 	//Returns list of data that can be inserted in the table
 	public ObservableList<DatabaseTable> getData() throws SQLException {
+		// initializing the list that will get inserted into the table
 		ObservableList<DatabaseTable> data = FXCollections.observableArrayList();
+		
+		// querying the database for each months water and electricity usage
 		String FEBWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '2%' ORDER BY start_date";
 		String FEBGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '2%' ORDER BY start_date";
 		String MARWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '3%' ORDER BY start_date";
 		String MARGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '3%' ORDER BY start_date";
 		String APRWsqlQuery = "SELECT * FROM electricity_bill WHERE CAST (start_date as CHAR) LIKE '4%' ORDER BY start_date";
 		String APRGsqlQuery = "SELECT * FROM water_bill WHERE CAST (start_date as CHAR) LIKE '4%' ORDER BY start_date";
+		
 		// obtain database contents for table
 		List<Double> totals = TableQuery(FEBWsqlQuery, FEBGsqlQuery, true);
 		totals = roundingData(totals);
+		// adding the totals for February to the list for the "February" row in the table
 		data.add(new DatabaseTable("February", totals.get(0), totals.get(1), totals.get(2)));
 		
 		totals = TableQuery(MARWsqlQuery, MARGsqlQuery, true);
 		totals = roundingData(totals);
+		// adding the totals for March to the list for the "March" row in the table
 		data.add(new DatabaseTable("March", totals.get(0), totals.get(1), totals.get(2)));
 		
 		totals = TableQuery(APRWsqlQuery, APRGsqlQuery, false);
 		totals = roundingData(totals);
+		// adding the totals for April to the list for the "April" row in the table
 		data.add(new DatabaseTable("April", totals.get(0), totals.get(1), totals.get(2)));
 		
 		totals = TableQuery(APRWsqlQuery, APRGsqlQuery, true);
 		totals = roundingData(totals);
+		// adding the totals for April estimate to the list for the "April (EST)" row in the table
 		data.add(new DatabaseTable("April (EST)", totals.get(0), totals.get(1), totals.get(2)));
 		
+		// returns the list with the row values added
 		return data;
 	}
 	
@@ -479,6 +491,7 @@ public class SmartHomeUsageController implements Initializable{
 				Double gcost = queryResultg.getDouble("amount");
 				c = c + gcost;
 			} 
+			// adding the total amount of gallons to the set
 			totals.set(1, g);
 			totals.set(2, c);
 			queryResultg.close();
@@ -486,6 +499,7 @@ public class SmartHomeUsageController implements Initializable{
 		return totals;
 	}
 	
+	// rounds the data in the table so it is more readable
 	public List<Double> roundingData(List<Double> totals) {
 		int z = 0;
 		double setas;
@@ -507,14 +521,14 @@ public class SmartHomeUsageController implements Initializable{
 		this.monthComboBox.getItems().addAll(monthList);
 		this.monthComboBox.getSelectionModel().select("April");
 
-		
+		// initializing the graph to April
 		try {
 			createMonthGraph(4,30);
 		} catch (SQLException e1) {
 			System.out.println("Error creating graph.");
 		}
 		
-		// setup for table columns
+		// initalizing the table columns
 		monthColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, String>("month"));
 		wattageColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Double>("wattage"));
 		gallonsColumn.setCellValueFactory(new PropertyValueFactory<DatabaseTable, Double>("gallons"));
