@@ -39,6 +39,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
 	@FXML
     private ToggleButton simulateclotheswashButton;
 	@FXML
+	private ToggleButton simulateLIVEclotheswashButton;
+	@FXML
 	private Label gallonsUsedLabel;
 	@FXML
 	private Label kilowattsUsedLabel;
@@ -103,6 +105,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
 				simulateclotheswashButton.setDisable(true);
+				simulateLIVEclotheswashButton.setDisable(true);
 				
 				// checking the current value of the editable minutes textbox
 				simulationMinutesUpdate();
@@ -199,6 +202,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
 				simulateclotheswashButton.setDisable(true);
+				simulateLIVEclotheswashButton.setDisable(true);
     			
 				// checking the current value of the editable minutes textbox
     			simulationMinutesUpdate();
@@ -269,6 +273,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulateclotheswashButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
 				simulatewashingButton.setSelected(false);
+				simulateLIVEclotheswashButton.setDisable(false);
     	}
     	}.start();
     }
@@ -284,6 +289,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
 				simulateclotheswashButton.setDisable(true);
+				simulateLIVEclotheswashButton.setDisable(true);
     			
 				// checking the current value of the editable minutes textbox
     			simulationMinutesUpdate();
@@ -361,6 +367,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				simulatewashingButton.setDisable(false);
 				simulateclotheswashButton.setDisable(false);
 				simulateclotheswashButton.setSelected(false);
+				simulateLIVEclotheswashButton.setDisable(false);
     	}
     	}.start();
     }    
@@ -376,6 +383,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulateshowerButton.setDisable(true);
 				simulatewashingButton.setDisable(true);
 				simulateclotheswashButton.setDisable(true);
+				simulateLIVEclotheswashButton.setDisable(true);
     			
 				// checking the current value of the editable minutes textbox
     			simulationMinutesUpdate();
@@ -460,7 +468,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulateshowerButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
 				simulateclotheswashButton.setDisable(false);
-				simulateclotheswashButton.setSelected(false);
+				simulateLIVEclotheswashButton.setSelected(false);
+				simulateLIVEclotheswashButton.setDisable(false);
     	}
     	}.start();
     }
