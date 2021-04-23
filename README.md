@@ -16,11 +16,11 @@ Check out this promotional video that walks you through the functionality of the
 
 ## Screenshots
 Home Page <br>
-![](homeScreen.JPG) <br> <br>
+![](homeScreen.jpg) <br> <br>
 Usage Page <br>
-![](usageScreen.JPG) <br> <br>
+![](usageScreen.jpg) <br> <br>
 Diagnostics Page <br>
-![](diagnosticsScreen.JPG) <br> <br>
+![](diagnosticsScreen.jpg) <br> <br>
 
 ## Contact Us
 [Andy Wang](mailto:andywang@uab.edu) <br>
