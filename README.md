@@ -1,6 +1,6 @@
 ![](icon.png) 
 
-## Descrition
+## Description
 Welcome to Smart Home Controller, a home IoT application created by six UAB students. Smart Home Controller's goal is to help inform users about their home. The Home screen on the Smart Home Controller displays a floorplan of your house that contains togglable sensors to control your lights, water usage, appliances, doors, windows, and more! Our application even features a Usage screen that displays your water and electricity usage in graph and table format, and it will tell you the total cost for each day or the overall month. A Diagnostic screen is also available on the Smart Home Controller. The Diagnostic screen allows you to run simulations on the sensors in your house, so you can know exactly how much that sensor is costing you. The Smart Home Controller is also capable of automating your HVAC and can even display the current outside temperature. The Smart Home Controller has everything you need to systemically run your house at the touch of your fingertips. 
 
 
