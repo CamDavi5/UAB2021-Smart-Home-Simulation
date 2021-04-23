@@ -187,6 +187,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				simulateclotheswashButton.setDisable(false);
 				simulatewashingButton.setDisable(false);
 				simulateshowerButton.setSelected(false);
+				simulateLIVEclotheswashButton.setDisable(false);
 		}
 		}.start();
 	}
