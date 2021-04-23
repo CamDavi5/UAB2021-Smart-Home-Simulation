@@ -145,22 +145,26 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				List<Double> totals = simulationCalculation(0, (2.25*timeToSimulate), (timeToSimulate/60), 0.65);
 				double tempw = totals.get(0); 
 				double tempg = totals.get(1);
-				double tempc = totals.get(2);
+				double tempwc = totals.get(2);
+				double tempgc = totals.get(3);
 		
 				// Exhaust fan calculations
 				totals = simulationCalculation(30, 0, timeToSimulate/60, 0.0);
 				totals.set(0, totals.get(0)+tempw);
 				totals.set(1, totals.get(1)+tempg);
-				totals.set(2, totals.get(2)+tempc);
+				totals.set(2, totals.get(2)+tempwc);
+				totals.set(3, totals.get(3)+tempgc);
 				tempw = totals.get(0); 
 				tempg = totals.get(1);
-				tempc = totals.get(2);
+				tempwc = totals.get(2);
+				tempwc = totals.get(3);
 		
 				// Overhead light calculations
 				totals = simulationCalculation(60, 0, timeToSimulate/60, 0.0);
 				totals.set(0, totals.get(0)+tempw);
 				totals.set(1, totals.get(1)+tempg);
-				totals.set(2, totals.get(2)+tempc);
+				totals.set(2, totals.get(2)+tempwc);
+				totals.set(3, totals.get(3)+tempgc);
 				totals = roundingData(totals);
 		
 				// TextArea output
@@ -171,7 +175,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
 				simulationField.appendText(watts+addon);
 				addon = Double.toString(totals.get(1));
 				simulationField.appendText(gallons+addon);
-				addon = Double.toString(totals.get(2));
+				double fullcost = (totals.get(2) + totals.get(3));
+    			addon = Double.toString(fullcost);
 				simulationField.appendText(cost+addon);
 				
 				// re-enable the simulation buttons
@@ -235,14 +240,16 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			List<Double> totals = simulationCalculation(1800, (0.13*timeToSimulate), timeToSimulate/60, 1.0);
     			double tempw = totals.get(0); 
     			double tempg = totals.get(1);
-    			double tempc = totals.get(2);
+    			double tempwc = totals.get(2);
+    			double tempgc = totals.get(3);
 		
 		
     			// Kitchen-light calculation 
     			totals = simulationCalculation(60, 0, timeToSimulate/60, 0.0);
     			totals.set(0, totals.get(0)+tempw);
     			totals.set(1, totals.get(1)+tempg);
-    			totals.set(2, totals.get(2)+tempc);
+    			totals.set(2, totals.get(2)+tempwc);
+				totals.set(3, totals.get(3)+tempgc);
     			totals = roundingData(totals);
 		
     			// TextArea output
@@ -253,7 +260,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulationField.appendText(watts+addon);
     			addon = Double.toString(totals.get(1));
     			simulationField.appendText(gallons+addon);
-    			addon = Double.toString(totals.get(2));
+    			double fullcost = (totals.get(2) + totals.get(3));
+    			addon = Double.toString(fullcost);
     			simulationField.appendText(cost+addon);
     			
     			// re-enable the simulation buttons
@@ -324,14 +332,16 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			List<Double> totals = simulationCalculation(500, (0.67*timeToSimulate), timeToSimulate/60, .85);
     			double tempw = totals.get(0); 
     			double tempg = totals.get(1);
-    			double tempc = totals.get(2);
+    			double tempwc = totals.get(2);
+    			double tempgc = totals.get(3);
 		
 		
     			// Clothes dryer calculation 
     			totals = simulationCalculation(3000, 0, timeToSimulate/60, 0.0);
     			totals.set(0, totals.get(0)+tempw);
     			totals.set(1, totals.get(1)+tempg);
-    			totals.set(2, totals.get(2)+tempc);
+    			totals.set(2, totals.get(2)+tempwc);
+				totals.set(3, totals.get(3)+tempgc);
     			totals = roundingData(totals);
 		
     			// TextArea output
@@ -342,7 +352,8 @@ public class SmartHomeDiagnosticsController implements Initializable{
     			simulationField.appendText(watts+addon);
     			addon = Double.toString(totals.get(1));
     			simulationField.appendText(gallons+addon);
-    			addon = Double.toString(totals.get(2));
+    			double fullcost = (totals.get(2) + totals.get(3));
+    			addon = Double.toString(fullcost);
     			simulationField.appendText(cost+addon);
     			
     			// re-enable the simulation buttons
@@ -354,13 +365,114 @@ public class SmartHomeDiagnosticsController implements Initializable{
     	}.start();
     }    
     
+ // Calculates the clothes washing event and outputs the results
+    @FXML
+    void simulateLIVEclotheswashButtonPressed(ActionEvent event) {
+    	new Thread() {
+    		public void run() {
+    			simulationField.clear();
+    			
+    			// disabling buttons while simulation is running
+    			simulateshowerButton.setDisable(true);
+				simulatewashingButton.setDisable(true);
+				simulateclotheswashButton.setDisable(true);
+    			
+				// checking the current value of the editable minutes textbox
+    			simulationMinutesUpdate();
+    			ToggleButton buttonID = (ToggleButton) event.getSource();
+		
+    			String simulateStart = "\n Calculating clothes washing event for "+String.valueOf(timeToSimulate)+" minutes...";
+    			simulationField.appendText(simulateStart);
+    			
+ 			
+    			// turning on clothes washer, clothes washer water, and dryer
+    			try {
+    				homeController.diagnosticToggle("Appliance - Washer", 1);
+					homeController.diagnosticToggle("Washing Machine Water", 1);
+					
+					// waiting while clothes are washed
+					pause(10000);
+					
+					// turning off clothes washer and clothes washer water
+					homeController.diagnosticToggle("Appliance - Washer", 2);
+					homeController.diagnosticToggle("Washing Machine Water", 2);
+					
+					// turning on water heater 
+					homeController.diagnosticToggle("Appliance - Water Heater", 1);
+					
+					// waiting while water heater heats water
+					pause(10000);
+					
+					// turning water heater off
+					homeController.diagnosticToggle("Appliance - Water Heater", 2);
+					
+					// turning on dryer
+					homeController.diagnosticToggle("Appliance - Dryer", 1);
+					
+					// waiting while clothes are dried
+					pause(10000);
+					
+					// turning off dryer
+					homeController.diagnosticToggle("Appliance - Dryer", 2);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+		
+    			// Clothes washer (+ Water Heater) calculation
+    			List<Double> totals = simulationCalculation(500, (0.67*timeToSimulate), timeToSimulate/60, .85);
+    			double tempw = totals.get(0); 
+    			double tempg = totals.get(1);
+    			double tempwc = totals.get(2);
+    			double tempgc = totals.get(3);
+		
+		
+    			// Clothes dryer calculation 
+    			totals = simulationCalculation(3000, 0, timeToSimulate/60, 0.0);
+    			totals.set(0, totals.get(0)+tempw);
+    			totals.set(1, totals.get(1)+tempg);
+    			totals.set(2, totals.get(2)+tempwc);
+    			totals.set(3, totals.get(3)+tempgc);
+    			totals = roundingData(totals);
+		
+    			// TextArea output
+    			String watts = "\n Calculated kilowatts used: ";
+    			String gallons = "\n Calculated gallons used: ";
+    			String cost = "\n Calculated overall cost: ";
+    			String addon = Double.toString(totals.get(0));
+    			simulationField.appendText(watts+addon);
+    			addon = Double.toString(totals.get(1));
+    			simulationField.appendText(gallons+addon);
+    			double fullcost = (totals.get(2) + totals.get(3));
+    			addon = Double.toString(fullcost);
+    			simulationField.appendText(cost+addon);
+    			
+    			// update simulation to live data
+    			try {
+					homeController.updateUsagePage(totals.get(0), totals.get(2), totals.get(1), totals.get(3));
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    			
+    			// re-enable the simulation buttons
+    			simulateshowerButton.setDisable(false);
+				simulatewashingButton.setDisable(false);
+				simulateclotheswashButton.setDisable(false);
+				simulateclotheswashButton.setSelected(false);
+    	}
+    	}.start();
+    }
+    
     // Calculates for any given simulation
     public List<Double> simulationCalculation(int watts, double gallons, double time, double hotpercent) {
-		List<Double> totals = Arrays.asList(0.0, 0.0, 0.0);
+		List<Double> totals = Arrays.asList(0.0, 0.0, 0.0, 0.0);
 		double w = 0.0;
 		double g = gallons;
 		double cubicfeet = 0.0;
-		double c = 0.0;
+		double wc = 0.0;
+		double gc = 0.0;
 		
 		// watts calculation
 		if (watts != 0) {
@@ -378,11 +490,13 @@ public class SmartHomeDiagnosticsController implements Initializable{
 		}
 		
 		// cost calculation combining the wattage and water cost
-		c = c + (0.12 * w);
-		c = c + (cubicfeet/100)*2.52;
+		wc = wc + (0.12 * w);
+		gc = gc + (cubicfeet/100)*2.52;
 		totals.set(0, w);
 		totals.set(1, cubicfeet);
-		totals.set(2, c);
+		totals.set(2, wc);
+		totals.set(3, gc);
+		
 		
 		return totals;
     }
@@ -391,7 +505,7 @@ public class SmartHomeDiagnosticsController implements Initializable{
     public List<Double> roundingData(List<Double> totals) {
 		int z = 0;
 		double setas;
-		while (z <= 2) {
+		while (z <= 3) {
 			setas = totals.get(z);
 			setas = Math.round(setas*100.0)/100.0;
 			totals.set(z, setas);
